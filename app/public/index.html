@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="UTF-8">
+<meta name=viewport content="width=device-width, initial-scale=1">
+
+<title>Voting Room</title>
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<style>
+
+</style>
+
+<input id="name-input" type="text" name="name" placeholder="Your name here...">
+
+<p>In the room:</p>
+
+<ul class="roomies"></ul>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+<script>
+
+var socket = io();
+
+socket.on('connect', function(){
+  var sessionid = socket.io.engine.id;
+  console.log(sessionid);
+});
+
+// Sort out name and guid.
+
+var
+  nameInput = $('#name-input'),
+  guid, name;
+
+if (localStorage.getItem('name')) {
+  name = localStorage.getItem('name');
+} else {
+  name = 'Your name here...';
+}
+
+if (localStorage.getItem('guid')) {
+  guid = localStorage.getItem('guid');
+} else {
+  guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { // http://stackoverflow.com/a/2117523
+    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+}
+
+nameInput.val(name);
+
+// Done sorting out name and guid.
+
+nameInput.on('tap', function () {
+  $(this).select();
+});
+
+socket.emit('enter room', {guid: guid, name: name});
+socket.on('enter room', function(msg){
+  console.log(msg);
+  $('.roomies').append($('<li>').text(msg.name));
+});
+
+nameInput.change(function () {
+  var newName = $(this).val().trim();
+  localStorage.setItem('name', newName);
+  socket.emit('name change', {guid: guid, new_name: newName});
+});
+
+</script>
