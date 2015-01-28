@@ -22,16 +22,14 @@
 
 var socket = io();
 
-socket.on('connect', function(){
-  var sessionid = socket.io.engine.id;
-  console.log(sessionid);
+socket.on('connect', function () {
+  var sessionId = socket.io.engine.id;
+  console.log(sessionId);
 });
 
-// Sort out name and guid.
-
 var
-  nameInput = $('#name-input'),
-  guid, name;
+nameInput = $('#name-input'),
+name;
 
 if (localStorage.getItem('name')) {
   name = localStorage.getItem('name');
@@ -39,33 +37,33 @@ if (localStorage.getItem('name')) {
   name = 'Your name here...';
 }
 
-if (localStorage.getItem('guid')) {
-  guid = localStorage.getItem('guid');
-} else {
-  guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { // http://stackoverflow.com/a/2117523
-    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-    return v.toString(16);
-  });
-}
-
 nameInput.val(name);
-
-// Done sorting out name and guid.
 
 nameInput.on('tap', function () {
   $(this).select();
 });
 
-socket.emit('enter room', {guid: guid, name: name});
-socket.on('enter room', function(msg){
-  console.log(msg);
-  $('.roomies').append($('<li>').text(msg.name));
+socket.on('enter room', function (users) {
+  $.each(users, function (id, name) {
+    if (!$('.roomies li[data-id="' + id + '"]').length) {
+      $('.roomies').append($('<li>').text(name).attr('data-id', id));
+    }
+  });
 });
+socket.emit('enter room', name);
 
+socket.on('name change', function (data) {
+  var existingUser = $('.roomies li[data-id="' + data.id + '"]');
+  if (existingUser.length) {
+    existingUser.text(data.name);
+  } else {
+    $('.roomies').append($('<li>').text(data.name).attr('data-id', data.id));
+  }
+});
 nameInput.change(function () {
   var newName = $(this).val().trim();
   localStorage.setItem('name', newName);
-  socket.emit('name change', {guid: guid, new_name: newName});
+  socket.emit('name change', newName);
 });
 
 </script>

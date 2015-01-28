@@ -5,29 +5,28 @@ var io = require('socket.io')(http);
 var users = {};
 
 
-app.get('/', function(req, res){
+app.get('/', function (req, res) {
   res.sendFile('index.html', {root: __dirname + '/public/'});
 });
 
-io.on('connection', function(socket){
-  socket.on('name change', function(data){
+io.on('connection', function (socket) {
+  socket.on('name change', function (name) {
     console.log('name change');
-    console.log(data);
-    users[data.guid] = data.name;
+    console.log(name);
+    users[socket.id] = name;
+    io.emit('name change', {id: socket.id, name: name});
   });
-  socket.on('enter room', function(data){
-    console.log('enter room');
-    console.log(data);
-    users[data.guid] = data.name;
-    io.emit('enter room', data);
+  socket.on('enter room', function (name) {
+    users[socket.id] = name;
+    io.emit('enter room', users);
   });
-  socket.on('disconnect', function(){
+  socket.on('disconnect', function () {
     console.log('user disconnected');
     console.log(socket.id);
-    // delete users[guid]
+    delete users[socket.id];
   });
 });
 
-http.listen(3000, function(){
+http.listen(3000, function () {
   console.log('listening on *:3000');
 });
