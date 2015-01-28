@@ -57,7 +57,9 @@ socket.on('vote', function (data) {
 $('#vote-button').on('tap', function (e) {
   var vote = voteInput.val();
   if (!$.isNumeric(vote)) {
-    alert('Enter a number.');
+    if (vote != '') {
+      alert('Enter a number.');
+    }
     return;
   }
   socket.emit('vote', vote);
