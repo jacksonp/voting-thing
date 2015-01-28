@@ -88,14 +88,16 @@ socket.on('results', function (data) {
   html += '<tfoot><tr><th>Total</th><th class="num">' + sum + '</th></tr>';
   html += '<tr><th>Average</th><th class="num">' + (sum / Object.keys(data.users).length).toFixed(2) + '</th></tr></tfoot>';
   html += '</tbody></table>';
-  html += '<button id="again-button">Again!</button>';
   $('.room-area').hide();
   $('.result-area').html(html);
-  $('#again-button').on('tap', function (e) {
-    voteInput.val('');
-    $('.roomies .voted').removeClass('voted');
-    $('.result-area').html('');
-    voteArea.show();
-    $('.room-area').show();
-  });
+  setTimeout(function () {
+    $('#again-button').show().on('tap', function (e) {
+      $(this).hide();
+      voteInput.val('');
+      $('.roomies .voted').removeClass('voted');
+      $('.result-area').html('');
+      voteArea.show();
+      $('.room-area').show();
+    });
+  }, 5000);
 });

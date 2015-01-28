@@ -13,15 +13,16 @@
       <input id="vote-input" type="number" step="any" name="num" placeholder="Enter a number...">
       <button id="vote-button">Vote Now!</button>
     </div>
-    <div class="result-area">
-    </div>
+    <div class="result-area"></div>
+    <button id="again-button" data-icon="refresh">Same Again</button>
     <div class="room-area">
       <h2>Who's in the Room</h2>
       <ul class="roomies"></ul>
     </div>
+  </div>
+  <div data-role="footer" data-position="fixed" class="ui-bar">
     <button id="my-name-button" data-icon="edit">You are <span class="my-name"></span></button>
   </div>
-
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

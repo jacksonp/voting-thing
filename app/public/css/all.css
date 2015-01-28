@@ -22,3 +22,12 @@
   text-align  : right;
   font-family : "Courier New", Courier, monospace;
 }
+
+#again-button {
+  display: none;
+}
+
+#vote-button {
+  /*background-color: #f98508;*/
+  /*border-color: #884904;*/
+}
