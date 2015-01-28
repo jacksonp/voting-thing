@@ -4,6 +4,7 @@ var io = require('socket.io')(http);
 
 var users = {};
 
+var votes = {};
 
 app.get('/', function (req, res) {
   res.sendFile('index.html', {root: __dirname + '/public/'});
@@ -11,8 +12,6 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
   socket.on('name change', function (name) {
-    console.log('name change');
-    console.log(name);
     users[socket.id] = name;
     io.emit('name change', {id: socket.id, name: name});
   });
@@ -20,10 +19,17 @@ io.on('connection', function (socket) {
     users[socket.id] = name;
     io.emit('enter room', users);
   });
+  socket.on('vote', function (vote) {
+    votes[socket.id] = vote;
+    io.emit('vote', {id: socket.id, name: users[socket.id]});
+    if (Object.keys(users).length === Object.keys(votes).length) {
+      io.emit('results', {users: users, votes: votes});
+      votes = {}; // clear votes
+    }
+  });
   socket.on('disconnect', function () {
-    console.log('user disconnected');
-    console.log(socket.id);
     delete users[socket.id];
+    io.emit('user left', socket.id);
   });
 });
 

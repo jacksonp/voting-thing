@@ -5,14 +5,36 @@
 <title>Voting Room</title>
 <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 <style>
+  .roomies {
+    list-style-type : none;
+  }
+
+  .roomies li {
+    display : inline;
+    padding : 5px 20px;
+  }
+
+  .voted {
+    background-color : palegreen;
+  }
+
 
 </style>
 
-<input id="name-input" type="text" name="name" placeholder="Your name here...">
+<div class="room-area">
+  <input id="name-input" type="text" name="name" placeholder="Your name here...">
+  <p>In the room:</p>
+  <ul class="roomies"></ul>
+</div>
 
-<p>In the room:</p>
+<div class="vote-area">
+  <input id="vote-input" type="text" name="num" placeholder="Your vote here...">
+  <button id="vote-button">Vote</button>
+</div>
 
-<ul class="roomies"></ul>
+<div class="result-area">
+
+</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
@@ -22,13 +44,9 @@
 
 var socket = io();
 
-socket.on('connect', function () {
-  var sessionId = socket.io.engine.id;
-  console.log(sessionId);
-});
-
 var
 nameInput = $('#name-input'),
+voteInput = $('#vote-input'),
 name;
 
 if (localStorage.getItem('name')) {
@@ -66,4 +84,36 @@ nameInput.change(function () {
   socket.emit('name change', newName);
 });
 
+socket.on('user left', function (id) {
+  $('.roomies li[data-id="' + id + '"]').remove();
+});
+
+socket.on('vote', function (data) {
+  var existingUser = $('.roomies li[data-id="' + data.id + '"]');
+  if (existingUser.length) {
+    existingUser.addClass('voted');
+  } else {
+    // shouldn't happen:
+    $('.roomies').append($('<li>').text(data.name).attr('data-id', data.id).addClass('voted'));
+  }
+});
+$('#vote-button').on('tap', function (e) {
+  var vote = $('#vote-input').val();
+  socket.emit('vote', vote);
+  $('.vote-area').remove();
+  $('.result-area').text('You voted ' + vote);
+});
+
+
+socket.on('results', function (data) {
+  var html = '<table>';
+  $.each(data.users, function (k, v) {
+    html += '<tr><td>' + v +
+    '</td><td>' + data.votes[k] + '</td></tr>';
+  });
+  html += '</table>';
+  $('.room-area').remove();
+  $('.result-area').html(html);
+
+});
 </script>
