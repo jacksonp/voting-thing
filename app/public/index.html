@@ -11,8 +11,9 @@
   }
 
   .roomies li {
-    display       : inline;
-    padding-right : 20px;
+    display      : inline;
+    margin-right : 20px;
+    padding      : 5px;
   }
 
   .voted {
@@ -25,8 +26,8 @@
   }
 
   .num {
-    text-align: right;
-    font-family: "Courier New", Courier, monospace;
+    text-align  : right;
+    font-family : "Courier New", Courier, monospace;
   }
 
 </style>
@@ -38,7 +39,7 @@
       <ul class="roomies"></ul>
     </div>
     <div class="vote-area">
-      <input id="vote-input" type="text" name="num" placeholder="Your vote here...">
+      <input id="vote-input" type="text" name="num" placeholder="Enter a number...">
       <button id="vote-button">Vote Now!</button>
     </div>
     <div class="result-area">
@@ -47,7 +48,7 @@
   <div data-role="footer">
     <div class="ui-grid-a">
       <div class="ui-block-a" style="text-align: right; padding: 20px"><strong>You are:</strong></div>
-      <div class="ui-block-b"><input id="name-input" type="text" name="name" placeholder="Your name here..."></div>
+      <div class="ui-block-b"><input id="name-input" type="text" name="name" placeholder="Anon"></div>
     </div>
   </div>
 </div>
@@ -68,7 +69,7 @@ name;
 if (localStorage.getItem('name')) {
   name = localStorage.getItem('name');
 } else {
-  name = 'Your name here...';
+  name = 'Anon';
 }
 
 nameInput.val(name);
@@ -115,6 +116,10 @@ socket.on('vote', function (data) {
 });
 $('#vote-button').on('tap', function (e) {
   var vote = $('#vote-input').val();
+  if (!$.isNumeric(vote)) {
+    alert('Enter a number.');
+    return;
+  }
   socket.emit('vote', vote);
   $('.vote-area').remove();
   $('.result-area').text('You voted ' + vote);
@@ -123,10 +128,14 @@ $('#vote-button').on('tap', function (e) {
 
 socket.on('results', function (data) {
   var html = '<table data-role="table" class="ui-responsive"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody>';
+  var sum = 0;
   $.each(data.users, function (k, v) {
-    html += '<tr><td>' + v +
-    '</td><td class="num">' + data.votes[k] + '</td></tr>';
+    vote = data.votes[k];
+    html += '<tr><td>' + v + '</td><td class="num">' + vote + '</td></tr>';
+    sum += parseFloat(vote);
   });
+  html += '<tfoot><tr><th>Total</th><th class="num">' + sum + '</th></tr>';
+  html += '<tr><th>Average</th><th class="num">' + (sum / Object.keys(data.users).length) + '</th></tr></tfoot>';
   html += '</tbody></table>';
   $('.room-area').remove();
   $('.result-area').html(html);
