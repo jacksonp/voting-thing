@@ -9,22 +9,19 @@
 <div data-role="page">
   <div data-role="header"><h1>Vote</h1></div>
   <div role="main" class="ui-content">
-    <div class="room-area">
-      <ul class="roomies"></ul>
-    </div>
     <div class="vote-area">
       <input id="vote-input" type="number" step="any" name="num" placeholder="Enter a number...">
       <button id="vote-button">Vote Now!</button>
     </div>
     <div class="result-area">
     </div>
-  </div>
-  <div data-role="footer">
-    <div class="ui-grid-a">
-      <div class="ui-block-a" style="text-align: right; padding: 20px"><strong>You are:</strong></div>
-      <div class="ui-block-b"><input id="name-input" type="text" name="name" placeholder="Anon"></div>
+    <div class="room-area">
+      <h2>Who's in the Room</h2>
+      <ul class="roomies"></ul>
     </div>
+    <button id="my-name-button" data-icon="edit">You are <span class="my-name"></span></button>
   </div>
+
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

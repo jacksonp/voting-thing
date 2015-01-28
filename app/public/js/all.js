@@ -6,17 +6,31 @@ var
   voteArea = $('.vote-area'),
   name;
 
+function setName () {
+  res = window.prompt("What is your name?", name);
+  if (res === null && name) {
+    return;
+  }
+  res = res.trim();
+  if (!res) {
+    setName();
+  } else {
+    name = res;
+    localStorage.setItem('name', name);
+    $('.my-name').text(name);
+    socket.emit('name change', name);
+  }
+}
+
 if (localStorage.getItem('name')) {
   name = localStorage.getItem('name');
 } else {
-  name = 'Anon';
+  setName();
 }
 
-nameInput.val(name);
+$('.my-name').text(name);
 
-nameInput.on('tap', function () {
-  $(this).select();
-});
+$('#my-name-button').on('tap', setName);
 
 socket.on('enter room', function (users) {
   $.each(users, function (id, name) {
@@ -34,11 +48,6 @@ socket.on('name change', function (data) {
   } else {
     $('.roomies').append($('<li>').text(data.name).attr('data-id', data.id));
   }
-});
-nameInput.change(function () {
-  var newName = $(this).val().trim();
-  localStorage.setItem('name', newName);
-  socket.emit('name change', newName);
 });
 
 socket.on('user left', function (id) {
