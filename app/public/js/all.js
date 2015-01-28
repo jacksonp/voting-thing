@@ -3,6 +3,7 @@ var socket = io();
 var
   nameInput = $('#name-input'),
   voteInput = $('#vote-input'),
+  voteArea = $('.vote-area'),
   name;
 
 if (localStorage.getItem('name')) {
@@ -54,13 +55,13 @@ socket.on('vote', function (data) {
   }
 });
 $('#vote-button').on('tap', function (e) {
-  var vote = $('#vote-input').val();
+  var vote = voteInput.val();
   if (!$.isNumeric(vote)) {
     alert('Enter a number.');
     return;
   }
   socket.emit('vote', vote);
-  $('.vote-area').remove();
+  voteArea.hide();
   $('.result-area').text('You voted ' + vote);
 });
 
@@ -77,10 +78,13 @@ socket.on('results', function (data) {
   html += '<tr><th>Average</th><th class="num">' + (sum / Object.keys(data.users).length).toFixed(2) + '</th></tr></tfoot>';
   html += '</tbody></table>';
   html += '<button id="again-button">Again!</button>';
-  $('.room-area').remove();
+  $('.room-area').hide();
   $('.result-area').html(html);
   $('#again-button').on('tap', function (e) {
-    location.reload();
+    voteInput.val('');
+    $('.roomies .voted').removeClass('voted');
+    $('.result-area').html('');
+    voteArea.show();
+    $('.room-area').show();
   });
-
 });
