@@ -1,0 +1,24 @@
+.roomies {
+  list-style-type : none;
+  padding         : 0;
+}
+
+.roomies li {
+  display      : inline;
+  margin-right : 20px;
+  padding      : 5px;
+}
+
+.voted {
+  background-color : palegreen;
+}
+
+.result-area table {
+  margin-left  : auto;
+  margin-right : auto;
+}
+
+.num {
+  text-align  : right;
+  font-family : "Courier New", Courier, monospace;
+}
