@@ -3,6 +3,43 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var Room = function (name) {
+  this._name = name;
+  this._people = [];
+};
+Room.prototype.addPerson = function (person) {
+  this._people.push(person);
+};
+Room.prototype.removePerson = function (id) {
+  this._people.forEach(function (el) {
+    if (el.id !== id) {
+      return el;
+    }
+  });
+};
+Room.prototype.getPerson = function (id) {
+  this._people = this._people.filter(function (el) {
+    return el.id !== id;
+  });
+};
+Room.prototype.getPeople = function () {
+  return this._people;
+};
+
+var Person = function (socketId, name) {
+  this.id = socketId;
+  this.name = name;
+};
+Person.prototype.changeName = function (newName) {
+  this.name = newName;
+};
+
+var Vote = function (name) {
+  this._name = name;
+};
+
+var boshRoom = new Room('bosh');
+
 var users = {};
 
 var votes = {};
@@ -14,13 +51,13 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-  socket.on('name change', function (name) {
-    users[socket.id] = name;
-    io.emit('name change', {id: socket.id, name: name});
-  });
   socket.on('enter room', function (name) {
-    users[socket.id] = name;
-    io.emit('enter room', users);
+    boshRoom.addPerson(new Person(socket.id, name));
+    io.emit('enter room', boshRoom.getPeople());
+  });
+  socket.on('name change', function (name) {
+    boshRoom.getPerson(socket.id).changeName(name);
+    io.emit('name change', {id: socket.id, name: name});
   });
   socket.on('vote', function (vote) {
     votes[socket.id] = vote;
@@ -31,7 +68,7 @@ io.on('connection', function (socket) {
     }
   });
   socket.on('disconnect', function () {
-    delete users[socket.id];
+    boshRoom.removePerson(socket.id);
     io.emit('user left', socket.id);
   });
 });

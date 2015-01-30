@@ -1,7 +1,6 @@
 var socket = io();
 
 var
-  nameInput = $('#name-input'),
   voteInput = $('#vote-input'),
   voteArea = $('.vote-area'),
   name;
@@ -33,9 +32,9 @@ $('.my-name').text(name);
 $('#my-name-button').on('tap', setName);
 
 socket.on('enter room', function (users) {
-  $.each(users, function (id, name) {
-    if (!$('.roomies li[data-id="' + id + '"]').length) {
-      $('.roomies').append($('<li>').text(name).attr('data-id', id));
+  $.each(users, function (k, u) {
+    if (!$('.roomies li[data-id="' + u.id + '"]').length) {
+      $('.roomies').append($('<li>').text(u.name).attr('data-id', u.id));
     }
   });
 });
