@@ -108,10 +108,14 @@ $('#create-vote-button').on('tap', function (e) {
   hideCreateVoteArea();
 });
 socket.on('create vote', function (data) {
-  html = '<div class="vote-instance">';
+  html = '<div class="vote-instance-area">';
   html += '<h2>' + data.name + '</h2>';
-  html += '<input name="vote-input" min="' + data.min + '" max="' + data.max + '" step="' + data.step + '" type="range">';
+  html += '<div class="vote-instance-input-area">';
+  html += '<input name="vote-input" value="' + data.min + '" min="' + data.min + '" max="' + data.max + '" step="' + data.step + '" type="range">';
   html += '<button class="vote-button">Send My Vote</button>';
+  html += '</div>';
+  html += '<div class="vote-instance-result-area">';
+  html += '</div>';
   html += '</div>';
   voteArea.prepend(html).enhanceWithin();
 });
@@ -127,8 +131,10 @@ socket.on('vote', function (data) {
     $('.roomies').append($('<li>').text(data.name).attr('data-id', data.id).addClass('voted'));
   }
 });
-$('#vote-button').on('tap', function (e) {
-  var vote = voteInput.val();
+
+voteArea.delegate('.vote-button', 'tap', function () {
+  var voteInstanceArea = $(this).closest('.vote-instance-area');
+  var vote = voteInstanceArea.find('input[name=vote-input]').val();
   if (!$.isNumeric(vote)) {
     if (vote != '') {
       alert('Enter a number.');
@@ -136,10 +142,9 @@ $('#vote-button').on('tap', function (e) {
     return;
   }
   socket.emit('vote', vote);
-  voteArea.hide();
-  $('.result-area').text('You voted ' + vote);
+  voteInstanceArea.children('.vote-instance-input-area').remove();
+  voteInstanceArea.children('.vote-instance-result-area').text('You voted ' + vote);
 });
-
 
 socket.on('results', function (data) {
   var html = '<table data-role="table" class="ui-responsive"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody>';
