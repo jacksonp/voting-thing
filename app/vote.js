@@ -7,6 +7,7 @@ var Vote = function (name, min, max, step) {
   this.min = min;
   this.max = max;
   this.step = step;
+  this.decimals = decimalPlaces(step);
   this.uuid = uuid.v4();
   this.votes = [];
 };
@@ -20,3 +21,16 @@ Vote.prototype.getVotes = function () {
 };
 
 module.exports = Vote;
+
+
+// http://stackoverflow.com/a/10454560
+function decimalPlaces (num) {
+  var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+  if (!match) { return 0; }
+  return Math.max(
+       0,
+       // Number of digits right of decimal point.
+       (match[1] ? match[1].length : 0)
+       // Adjust for scientific notation.
+       - (match[2] ? +match[2] : 0));
+}

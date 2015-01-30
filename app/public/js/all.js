@@ -120,8 +120,8 @@ socket.on('create vote', function (data) {
   html += '<input name="vote-input" value="' + (data.min + ((data.max - data.min) / 2)) + '" min="' + data.min + '" max="' + data.max + '" step="' + data.step + '" type="range">';
   html += '<button class="vote-button">Send My Vote</button>';
   html += '</div>';
-  html += '<div class="vote-instance-result-area">';
-  html += '<table class="not-voted"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
+  html += '<div class="vote-instance-result-area" data-decimals="' + data.decimals + '">';
+  html += '<table class="vote-results-table not-voted"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
   html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
   html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
   html += '</table>';
@@ -134,15 +134,16 @@ socket.on('create vote', function (data) {
 //<editor-fold desc="Action: vote">
 socket.on('vote', function (data) {
   var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + data.uuid + '] .vote-instance-result-area');
+  var decimals = voteInstanceResultArea.attr('data-decimals');
   voteInstanceResultArea.show();
   var resultsTable = voteInstanceResultArea.find('table');
-  resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num result-val">' + data.vote + '</td></tr>');
+  resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num result-val">' + data.vote.toFixed(decimals) + '</td></tr>');
   var sum = 0;
   resultsTable.find('.result-val').each(function () {
     sum += parseFloat($(this).text());
   });
-  resultsTable.find('.results-sum').text(sum);
-  resultsTable.find('.results-avg').text(sum / resultsTable.find('.result-val').length);
+  resultsTable.find('.results-sum').text(sum.toFixed(decimals));
+  resultsTable.find('.results-avg').text((sum / resultsTable.find('.result-val').length).toFixed(decimals));
 });
 voteArea.delegate('.vote-button', 'tap', function () {
   var voteInstanceArea = $(this).closest('.vote-instance-area');
@@ -153,7 +154,7 @@ voteArea.delegate('.vote-button', 'tap', function () {
     }
     return;
   }
-  socket.emit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: vote});
+  socket.emit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: parseFloat(vote)});
   voteInstanceArea.find('.vote-instance-input-area').remove();
   voteInstanceArea.find('table').removeClass('not-voted');
 });

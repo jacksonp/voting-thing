@@ -35,6 +35,7 @@ io.on('connection', function (socket) {
     var vote = new Vote(data.name, data.min, data.max, data.step);
     boshRoom.addVote(vote);
     data.uuid = vote.uuid;
+    data.decimals = vote.decimals;
     io.emit('create vote', data);
   });
   socket.on('vote', function (data) {
