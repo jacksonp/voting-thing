@@ -90,6 +90,7 @@ socket.on('person left', function (id) {
 newVoteButton.on('tap', function (e) {
   $(this).hide();
   newVoteArea.show();
+  newVoteNameInput.select();
 });
 function hideCreateVoteArea () {
   newVoteArea.hide();
@@ -99,10 +100,15 @@ $('#cancel-create-vote-button').on('tap', function (e) {
   hideCreateVoteArea();
 });
 $('#create-vote-button').on('tap', function (e) {
+  var min = parseFloat(newVoteMinInput.val());
+  var max = parseFloat(newVoteMaxInput.val());
+  if (min >= max) {
+    alert('Max must be more than Min.');
+  }
   socket.emit('create vote', {
     name: newVoteNameInput.val(),
-    min : newVoteMinInput.val(),
-    max : newVoteMaxInput.val(),
+    min : min,
+    max : max,
     step: newVoteStepInput.val()
   });
   hideCreateVoteArea();
@@ -111,7 +117,7 @@ socket.on('create vote', function (data) {
   html = '<div class="vote-instance-area" data-uuid="' + data.uuid + '">';
   html += '<h2>' + data.name + '</h2>';
   html += '<div class="vote-instance-input-area">';
-  html += '<input name="vote-input" value="' + data.min + '" min="' + data.min + '" max="' + data.max + '" step="' + data.step + '" type="range">';
+  html += '<input name="vote-input" value="' + (data.min + ((data.max - data.min) / 2)) + '" min="' + data.min + '" max="' + data.max + '" step="' + data.step + '" type="range">';
   html += '<button class="vote-button">Send My Vote</button>';
   html += '</div>';
   html += '<div class="vote-instance-result-area">';
