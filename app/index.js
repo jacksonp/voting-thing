@@ -6,24 +6,31 @@ var io = require('socket.io')(http);
 var Room = function (name) {
   this._name = name;
   this._people = [];
+  this._votes = [];
 };
 Room.prototype.addPerson = function (person) {
   this._people.push(person);
 };
 Room.prototype.removePerson = function (id) {
-  this._people.forEach(function (el) {
-    if (el.id !== id) {
-      return el;
-    }
-  });
-};
-Room.prototype.getPerson = function (id) {
   this._people = this._people.filter(function (el) {
     return el.id !== id;
   });
 };
+Room.prototype.getPerson = function (id) {
+  var person = null;
+  this._people.some(function (el) {
+    if (el.id === id) {
+      person = el;
+      return true;
+    }
+  });
+  return person;
+};
 Room.prototype.getPeople = function () {
   return this._people;
+};
+Room.prototype.addVote = function (vote) {
+  this._votes.push(vote);
 };
 
 var Person = function (socketId, name) {
@@ -34,8 +41,11 @@ Person.prototype.changeName = function (newName) {
   this.name = newName;
 };
 
-var Vote = function (name) {
-  this._name = name;
+var Vote = function (name, min, max, step) {
+  this.name = name;
+  this.min = min;
+  this.max = max;
+  this.step = step;
 };
 
 var boshRoom = new Room('bosh');
@@ -56,8 +66,20 @@ io.on('connection', function (socket) {
     io.emit('enter room', boshRoom.getPeople());
   });
   socket.on('name change', function (name) {
-    boshRoom.getPerson(socket.id).changeName(name);
+    var person = boshRoom.getPerson(socket.id);
+    if (person !== null) {
+      person.changeName(name);
+    } else {
+      console.log('Could not find person with id ' + socket.id);
+      console.log('in this room ');
+      console.log(boshRoom);
+    }
     io.emit('name change', {id: socket.id, name: name});
+  });
+  socket.on('create vote', function (data) {
+    var vote = new Vote(data.name, data.min, data.max, data.step);
+    boshRoom.addVote(vote);
+    io.emit('create vote', data);
   });
   socket.on('vote', function (vote) {
     votes[socket.id] = vote;

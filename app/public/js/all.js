@@ -1,10 +1,18 @@
 var socket = io();
 
 var
-  voteInput = $('#vote-input'),
-  voteArea = $('.vote-area'),
-  name;
+  name,
+  newVoteNameInput = $('#new-vote-name'),
+  newVoteMinInput  = $('#new-vote-min'),
+  newVoteMaxInput  = $('#new-vote-max'),
+  newVoteStepInput = $('#new-vote-step'),
+  newVoteButton    = $('#new-vote-button'),
+  newVoteArea      = $('.new-vote-area'),
+  voteArea         = $('.vote-area'),
+  roomArea         = $('.roomies');
 
+
+//<editor-fold desc="Sort out name">
 function setName () {
   res = window.prompt("What is your name?", name);
   if (res === null && name) {
@@ -28,30 +36,87 @@ if (localStorage.getItem('name')) {
 }
 
 $('.my-name').text(name);
+//</editor-fold>
 
-$('#my-name-button').on('tap', setName);
+//<editor-fold desc="Sort out default new vote form values">
+(function () {
+  var val;
+  if (localStorage.getItem('new-vote-name')) {
+    val = localStorage.getItem('new-vote-name');
+  } else {
+    var date = new Date
+    //val = name + ' vote at ' + date.getHours() + ':' + date.getMinutes();
+    val = 'Stop loss vote at ' + date.getHours() + ':' + date.getMinutes();
+  }
+  newVoteNameInput.val(val);
+  newVoteMinInput.val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 5);
+  newVoteMaxInput.val(localStorage.getItem('new-vote-max') ? localStorage.getItem('new-vote-max') : 15);
+  newVoteStepInput.val(localStorage.getItem('new-vote-step') ? localStorage.getItem('new-vote-step') : 0.5);
+}());
+//</editor-fold>
 
+//<editor-fold desc="Action: enter room">
 socket.on('enter room', function (users) {
   $.each(users, function (k, u) {
     if (!$('.roomies li[data-id="' + u.id + '"]').length) {
-      $('.roomies').append($('<li>').text(u.name).attr('data-id', u.id));
+      roomArea.append($('<li>').text(u.name).attr('data-id', u.id));
+      roomArea.listview('refresh');
     }
   });
 });
 socket.emit('enter room', name);
+//</editor-fold>
 
+//<editor-fold desc="Action: name change">
 socket.on('name change', function (data) {
   var existingUser = $('.roomies li[data-id="' + data.id + '"]');
   if (existingUser.length) {
     existingUser.text(data.name);
   } else {
-    $('.roomies').append($('<li>').text(data.name).attr('data-id', data.id));
+    roomArea.append($('<li>').text(data.name).attr('data-id', data.id));
+    roomArea.listview('refresh');
   }
 });
+$('#my-name-button').on('tap', setName);
+//</editor-fold>
 
+//<editor-fold desc="Action: user left">
 socket.on('user left', function (id) {
   $('.roomies li[data-id="' + id + '"]').remove();
 });
+//</editor-fold>
+
+//<editor-fold desc="Action: create vote">
+newVoteButton.on('tap', function (e) {
+  $(this).hide();
+  newVoteArea.show();
+});
+function hideCreateVoteArea () {
+  newVoteArea.hide();
+  newVoteButton.show();
+}
+$('#cancel-create-vote-button').on('tap', function (e) {
+  hideCreateVoteArea();
+});
+$('#create-vote-button').on('tap', function (e) {
+  socket.emit('create vote', {
+    name: newVoteNameInput.val(),
+    min : newVoteMinInput.val(),
+    max : newVoteMaxInput.val(),
+    step: newVoteStepInput.val()
+  });
+  hideCreateVoteArea();
+});
+socket.on('create vote', function (data) {
+  html = '<div class="vote-instance">';
+  html += '<h2>' + data.name + '</h2>';
+  html += '<input name="vote-input" min="' + data.min + '" max="' + data.max + '" step="' + data.step + '" type="range">';
+  html += '<button class="vote-button">Send My Vote</button>';
+  html += '</div>';
+  voteArea.prepend(html).enhanceWithin();
+});
+//</editor-fold>
+
 
 socket.on('vote', function (data) {
   var existingUser = $('.roomies li[data-id="' + data.id + '"]');

@@ -7,20 +7,51 @@
 <link rel="stylesheet" href="/css/all.css">
 
 <div data-role="page">
-  <div data-role="header"><h1>Vote</h1></div>
+  <div data-role="header"><h1>BOSH</h1></div>
   <div role="main" class="ui-content">
+    <button id="new-vote-button" data-icon="plus">Create Vote</button>
+    <div class="new-vote-area">
+      <div class="ui-field-contain">
+        <label for="new-vote-name">Vote Name</label>
+        <input id="new-vote-name" value="" type="text" maxlength="20">
+      </div>
+      <div class="ui-grid-b">
+        <div class="ui-block-a">
+          <div class="ui-field-contain">
+            <label for="new-vote-min">Min</label>
+            <input id="new-vote-min" value="" type="number" step="any">
+          </div>
+        </div>
+        <div class="ui-block-b">
+          <div class="ui-field-contain">
+            <label for="new-vote-max">Max</label>
+            <input id="new-vote-max" value="" type="number" step="any">
+          </div>
+        </div>
+        <div class="ui-block-c">
+          <div class="ui-field-contain">
+            <label for="new-vote-step">Step</label>
+            <input id="new-vote-step" value="" type="number" step="any">
+          </div>
+        </div>
+      </div>
+      <button id="create-vote-button" data-icon="plus">Create Vote</button>
+      <button id="cancel-create-vote-button" data-icon="delete">Cancel</button>
+    </div>
+
     <div class="vote-area">
 
       <!-- see this? http://andreruffert.github.io/rangeslider.js/-->
 
-      <input id="vote-input" type="number" step="any" name="num" placeholder="Enter a number...">
-      <button id="vote-button">Vote Now!</button>
+
+
+
     </div>
     <div class="result-area"></div>
     <button id="again-button" data-icon="refresh">Same Again</button>
     <div class="room-area">
       <h2>Who's in the Room</h2>
-      <ul class="roomies"></ul>
+      <ul data-role="listview" class="roomies"></ul>
     </div>
   </div>
   <div data-role="footer" data-position="fixed" class="ui-bar">

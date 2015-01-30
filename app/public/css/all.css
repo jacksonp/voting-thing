@@ -1,13 +1,13 @@
-.roomies {
-  list-style-type : none;
-  padding         : 0;
-}
+/*.roomies {*/
+  /*list-style-type : none;*/
+  /*padding         : 0;*/
+/*}*/
 
-.roomies li {
-  display      : inline;
-  margin-right : 20px;
-  padding      : 5px;
-}
+/*.roomies li {*/
+  /*display      : inline;*/
+  /*margin-right : 20px;*/
+  /*padding      : 5px;*/
+/*}*/
 
 .voted {
   background-color : palegreen;
@@ -24,6 +24,10 @@
 }
 
 #again-button {
+  display: none;
+}
+
+.new-vote-area {
   display: none;
 }
 
