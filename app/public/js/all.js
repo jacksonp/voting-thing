@@ -56,8 +56,8 @@ $('.my-name').text(name);
 //</editor-fold>
 
 //<editor-fold desc="Action: enter room">
-socket.on('enter room', function (users) {
-  $.each(users, function (k, u) {
+socket.on('enter room', function (people) {
+  $.each(people, function (k, u) {
     if (!$('.roomies li[data-id="' + u.id + '"]').length) {
       roomArea.append($('<li>').text(u.name).attr('data-id', u.id));
       roomArea.listview('refresh');
@@ -80,8 +80,8 @@ socket.on('name change', function (data) {
 $('#my-name-button').on('tap', setName);
 //</editor-fold>
 
-//<editor-fold desc="Action: user left">
-socket.on('user left', function (id) {
+//<editor-fold desc="Action: person left">
+socket.on('person left', function (id) {
   $('.roomies li[data-id="' + id + '"]').remove();
 });
 //</editor-fold>
@@ -108,13 +108,15 @@ $('#create-vote-button').on('tap', function (e) {
   hideCreateVoteArea();
 });
 socket.on('create vote', function (data) {
-  html = '<div class="vote-instance-area">';
+  html = '<div class="vote-instance-area" data-uuid="' + data.uuid + '">';
   html += '<h2>' + data.name + '</h2>';
   html += '<div class="vote-instance-input-area">';
   html += '<input name="vote-input" value="' + data.min + '" min="' + data.min + '" max="' + data.max + '" step="' + data.step + '" type="range">';
   html += '<button class="vote-button">Send My Vote</button>';
   html += '</div>';
   html += '<div class="vote-instance-result-area">';
+  html += '<table data-role="table" class="ui-responsive"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody>';
+  html += '</tbody></table>';
   html += '</div>';
   html += '</div>';
   voteArea.prepend(html).enhanceWithin();
@@ -123,15 +125,19 @@ socket.on('create vote', function (data) {
 
 
 socket.on('vote', function (data) {
-  var existingUser = $('.roomies li[data-id="' + data.id + '"]');
-  if (existingUser.length) {
-    existingUser.addClass('voted');
-  } else {
-    // shouldn't happen:
-    $('.roomies').append($('<li>').text(data.name).attr('data-id', data.id).addClass('voted'));
-  }
-});
+  var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + data.uuid + '] .vote-instance-result-area');
+  voteInstanceResultArea.show();
+  var resultsTable = voteInstanceResultArea.find('table');
+  resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num">' + data.vote + '</td></tr>');
 
+  //var existingUser = $('.roomies li[data-id="' + data.id + '"]');
+  //if (existingUser.length) {
+  //  existingUser.addClass('voted');
+  //} else {
+  //  // shouldn't happen:
+  //  $('.roomies').append($('<li>').text(data.name).attr('data-id', data.id).addClass('voted'));
+  //}
+});
 voteArea.delegate('.vote-button', 'tap', function () {
   var voteInstanceArea = $(this).closest('.vote-instance-area');
   var vote = voteInstanceArea.find('input[name=vote-input]').val();
@@ -141,21 +147,21 @@ voteArea.delegate('.vote-button', 'tap', function () {
     }
     return;
   }
-  socket.emit('vote', vote);
-  voteInstanceArea.children('.vote-instance-input-area').remove();
-  voteInstanceArea.children('.vote-instance-result-area').text('You voted ' + vote);
+  socket.emit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: vote});
+  voteInstanceArea.find('.vote-instance-input-area').remove();
+  //voteInstanceArea.find('.vote-instance-result-area').text('You voted ' + vote);
 });
 
 socket.on('results', function (data) {
   var html = '<table data-role="table" class="ui-responsive"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody>';
   var sum = 0;
-  $.each(data.users, function (k, v) {
+  $.each(data.people, function (k, v) {
     vote = data.votes[k];
     html += '<tr><td>' + v + '</td><td class="num">' + vote + '</td></tr>';
     sum += parseFloat(vote);
   });
   html += '<tfoot><tr><th>Total</th><th class="num">' + sum + '</th></tr>';
-  html += '<tr><th>Average</th><th class="num">' + (sum / Object.keys(data.users).length).toFixed(2) + '</th></tr></tfoot>';
+  html += '<tr><th>Average</th><th class="num">' + (sum / Object.keys(data.people).length).toFixed(2) + '</th></tr></tfoot>';
   html += '</tbody></table>';
   $('.room-area').hide();
   $('.result-area').html(html);

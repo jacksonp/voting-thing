@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var uuid = require('node-uuid');
 
 var Room = function (name) {
   this._name = name;
@@ -32,6 +33,16 @@ Room.prototype.getPeople = function () {
 Room.prototype.addVote = function (vote) {
   this._votes.push(vote);
 };
+Room.prototype.getVote = function (uuid) {
+  var vote = null;
+  this._votes.some(function (el) {
+    if (el.uuid === uuid) {
+      vote = el;
+      return true;
+    }
+  });
+  return vote;
+};
 
 var Person = function (socketId, name) {
   this.id = socketId;
@@ -46,13 +57,17 @@ var Vote = function (name, min, max, step) {
   this.min = min;
   this.max = max;
   this.step = step;
+  this.uuid = uuid.v4();
+  this.votes = [];
+};
+Vote.prototype.addVote = function (person, vote) {
+  this.votes.push({person: person, vote: vote});
+};
+Vote.prototype.getVotes = function () {
+  return this.votes;
 };
 
 var boshRoom = new Room('bosh');
-
-var users = {};
-
-var votes = {};
 
 app.use(express.static(__dirname + '/public'));
 
@@ -79,19 +94,22 @@ io.on('connection', function (socket) {
   socket.on('create vote', function (data) {
     var vote = new Vote(data.name, data.min, data.max, data.step);
     boshRoom.addVote(vote);
+    data.uuid = vote.uuid;
     io.emit('create vote', data);
   });
-  socket.on('vote', function (vote) {
-    votes[socket.id] = vote;
-    io.emit('vote', {id: socket.id, name: users[socket.id]});
-    if (Object.keys(users).length === Object.keys(votes).length) {
-      io.emit('results', {users: users, votes: votes});
-      votes = {}; // clear votes
-    }
+  socket.on('vote', function (data) {
+    var vote = boshRoom.getVote(data.uuid); // TODO add error handling if vote not found, and in other places like it.
+    var votingPerson = boshRoom.getPerson(socket.id);
+    vote.addVote(votingPerson, data.vote);
+    var votes = vote.getVotes();
+    votes.forEach(function (v) { // people who have voted get new votes as they come in.
+      io.sockets.connected[v.person.id].emit('vote', {uuid: data.uuid, name: votingPerson.name, vote: data.vote});
+    });
+    // person who has just voted gets all votes so far.
   });
   socket.on('disconnect', function () {
     boshRoom.removePerson(socket.id);
-    io.emit('user left', socket.id);
+    io.emit('person left', socket.id);
   });
 });
 

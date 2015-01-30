@@ -1,18 +1,3 @@
-/*.roomies {*/
-  /*list-style-type : none;*/
-  /*padding         : 0;*/
-/*}*/
-
-/*.roomies li {*/
-  /*display      : inline;*/
-  /*margin-right : 20px;*/
-  /*padding      : 5px;*/
-/*}*/
-
-.voted {
-  background-color : palegreen;
-}
-
 .result-area table {
   margin-left  : auto;
   margin-right : auto;
@@ -34,4 +19,8 @@
 #vote-button {
   /*background-color: #f98508;*/
   /*border-color: #884904;*/
+}
+
+.vote-instance-result-area {
+  display: none;
 }
