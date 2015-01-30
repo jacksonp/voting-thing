@@ -102,10 +102,13 @@ io.on('connection', function (socket) {
     var votingPerson = boshRoom.getPerson(socket.id);
     vote.addVote(votingPerson, data.vote);
     var votes = vote.getVotes();
-    votes.forEach(function (v) { // people who have voted get new votes as they come in.
-      io.sockets.connected[v.person.id].emit('vote', {uuid: data.uuid, name: votingPerson.name, vote: data.vote});
-    });
-    // person who has just voted gets all votes so far.
+    io.emit('vote', {uuid: data.uuid, name: votingPerson.name, vote: data.vote});
+
+    // Keep it simpler than this to start with:
+    //votes.forEach(function (v) { // people who have voted get new votes as they come in.
+    //  io.sockets.connected[v.person.id].emit('vote', {uuid: data.uuid, name: votingPerson.name, vote: data.vote});
+    //});
+    //// person who has just voted gets all votes so far.
   });
   socket.on('disconnect', function () {
     boshRoom.removePerson(socket.id);

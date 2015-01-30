@@ -129,14 +129,6 @@ socket.on('vote', function (data) {
   voteInstanceResultArea.show();
   var resultsTable = voteInstanceResultArea.find('table');
   resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num">' + data.vote + '</td></tr>');
-
-  //var existingUser = $('.roomies li[data-id="' + data.id + '"]');
-  //if (existingUser.length) {
-  //  existingUser.addClass('voted');
-  //} else {
-  //  // shouldn't happen:
-  //  $('.roomies').append($('<li>').text(data.name).attr('data-id', data.id).addClass('voted'));
-  //}
 });
 voteArea.delegate('.vote-button', 'tap', function () {
   var voteInstanceArea = $(this).closest('.vote-instance-area');
@@ -149,7 +141,6 @@ voteArea.delegate('.vote-button', 'tap', function () {
   }
   socket.emit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: vote});
   voteInstanceArea.find('.vote-instance-input-area').remove();
-  //voteInstanceArea.find('.vote-instance-result-area').text('You voted ' + vote);
 });
 
 socket.on('results', function (data) {
