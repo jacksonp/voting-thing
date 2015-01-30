@@ -25,6 +25,7 @@
   display: none;
 }
 
-.vote-instance-result-area table.not-voted td:nth-of-type(2) {
+.vote-instance-result-area table.not-voted td:nth-of-type(2),
+.vote-instance-result-area table.not-voted th:nth-of-type(2) {
   display: none;
 }
