@@ -115,8 +115,10 @@ socket.on('create vote', function (data) {
   html += '<button class="vote-button">Send My Vote</button>';
   html += '</div>';
   html += '<div class="vote-instance-result-area">';
-  html += '<table data-role="table" class="ui-responsive"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody>';
-  html += '</tbody></table>';
+  html += '<table class="not-voted"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
+  html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
+  html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
+  html += '</table>';
   html += '</div>';
   html += '</div>';
   voteArea.prepend(html).enhanceWithin();
@@ -128,7 +130,13 @@ socket.on('vote', function (data) {
   var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + data.uuid + '] .vote-instance-result-area');
   voteInstanceResultArea.show();
   var resultsTable = voteInstanceResultArea.find('table');
-  resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num">' + data.vote + '</td></tr>');
+  resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num result-val">' + data.vote + '</td></tr>');
+  var sum = 0;
+  resultsTable.find('.result-val').each(function () {
+    sum += parseFloat($(this).text());
+  });
+  resultsTable.find('.results-sum').text(sum);
+  resultsTable.find('.results-avg').text(sum / resultsTable.find('.result-val').length);
 });
 voteArea.delegate('.vote-button', 'tap', function () {
   var voteInstanceArea = $(this).closest('.vote-instance-area');
@@ -141,6 +149,7 @@ voteArea.delegate('.vote-button', 'tap', function () {
   }
   socket.emit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: vote});
   voteInstanceArea.find('.vote-instance-input-area').remove();
+  voteInstanceArea.find('table').removeClass('not-voted');
 });
 
 socket.on('results', function (data) {
