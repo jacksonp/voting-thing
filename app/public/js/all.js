@@ -46,7 +46,7 @@ $('.my-name').text(name);
   } else {
     var date = new Date
     //val = name + ' vote at ' + date.getHours() + ':' + date.getMinutes();
-    val = 'Stop loss vote at ' + date.getHours() + ':' + date.getMinutes();
+    val = 'Stop Loss Vote'; // at ' + String('00' + date.getHours()).slice(-2) + ':' + String('00' + date.getMinutes()).slice(-2);
   }
   newVoteNameInput.val(val);
   newVoteMinInput.val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 5);
@@ -125,7 +125,7 @@ socket.on('create vote', function (data) {
 });
 //</editor-fold>
 
-
+//<editor-fold desc="Action: vote">
 socket.on('vote', function (data) {
   var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + data.uuid + '] .vote-instance-result-area');
   voteInstanceResultArea.show();
@@ -151,28 +151,4 @@ voteArea.delegate('.vote-button', 'tap', function () {
   voteInstanceArea.find('.vote-instance-input-area').remove();
   voteInstanceArea.find('table').removeClass('not-voted');
 });
-
-socket.on('results', function (data) {
-  var html = '<table data-role="table" class="ui-responsive"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody>';
-  var sum = 0;
-  $.each(data.people, function (k, v) {
-    vote = data.votes[k];
-    html += '<tr><td>' + v + '</td><td class="num">' + vote + '</td></tr>';
-    sum += parseFloat(vote);
-  });
-  html += '<tfoot><tr><th>Total</th><th class="num">' + sum + '</th></tr>';
-  html += '<tr><th>Average</th><th class="num">' + (sum / Object.keys(data.people).length).toFixed(2) + '</th></tr></tfoot>';
-  html += '</tbody></table>';
-  $('.room-area').hide();
-  $('.result-area').html(html);
-  setTimeout(function () {
-    $('#again-button').show().on('tap', function (e) {
-      $(this).hide();
-      voteInput.val('');
-      $('.roomies .voted').removeClass('voted');
-      $('.result-area').html('');
-      voteArea.show();
-      $('.room-area').show();
-    });
-  }, 5000);
-});
+//</editor-fold>
