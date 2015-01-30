@@ -2,70 +2,10 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var uuid = require('node-uuid');
 
-var Room = function (name) {
-  this._name = name;
-  this._people = [];
-  this._votes = [];
-};
-Room.prototype.addPerson = function (person) {
-  this._people.push(person);
-};
-Room.prototype.removePerson = function (id) {
-  this._people = this._people.filter(function (el) {
-    return el.id !== id;
-  });
-};
-Room.prototype.getPerson = function (id) {
-  var person = null;
-  this._people.some(function (el) {
-    if (el.id === id) {
-      person = el;
-      return true;
-    }
-  });
-  return person;
-};
-Room.prototype.getPeople = function () {
-  return this._people;
-};
-Room.prototype.addVote = function (vote) {
-  this._votes.push(vote);
-};
-Room.prototype.getVote = function (uuid) {
-  var vote = null;
-  this._votes.some(function (el) {
-    if (el.uuid === uuid) {
-      vote = el;
-      return true;
-    }
-  });
-  return vote;
-};
-
-var Person = function (socketId, name) {
-  this.id = socketId;
-  this.name = name;
-};
-Person.prototype.changeName = function (newName) {
-  this.name = newName;
-};
-
-var Vote = function (name, min, max, step) {
-  this.name = name;
-  this.min = min;
-  this.max = max;
-  this.step = step;
-  this.uuid = uuid.v4();
-  this.votes = [];
-};
-Vote.prototype.addVote = function (person, vote) {
-  this.votes.push({person: person, vote: vote});
-};
-Vote.prototype.getVotes = function () {
-  return this.votes;
-};
+var Person = require('./person');
+var Vote = require('./vote');
+var Room = require('./room');
 
 var boshRoom = new Room('bosh');
 
