@@ -6,10 +6,15 @@ var Room = function (name) {
   this._votes = [];
 };
 
+// If there is a person with the same id already in the room, remove them before adding.
 Room.prototype.addPerson = function (person) {
+  if (this.getPerson(person.id) !== null) {
+    this.removePerson(person.id);
+  }
   this._people.push(person);
 };
 
+// Does nothing if person is not in room.
 Room.prototype.removePerson = function (id) {
   this._people = this._people.filter(function (el) {
     return el.id !== id;
