@@ -159,3 +159,9 @@ voteArea.delegate('.vote-button', 'tap', function () {
   voteInstanceArea.find('table').removeClass('not-voted');
 });
 //</editor-fold>
+
+//<editor-fold desc="Action: error">
+socket.on('error', function (message) {
+  alert(message);
+});
+//</editor-fold>

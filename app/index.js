@@ -22,12 +22,12 @@ io.on('connection', function (socket) {
   });
   socket.on('name change', function (name) {
     var person = boshRoom.getPerson(socket.id);
-    if (person !== null) {
-      person.changeName(name);
+    if (person === null) {
+      // If the person wasn't in the room, just add them. Could happen with network issues?
+      boshRoom.addPerson(new Person(socket.id, name));
     } else {
-      console.log('Could not find person with id ' + socket.id);
-      console.log('in this room ');
-      console.log(boshRoom);
+      // If the person is in the room, change their name.
+      person.changeName(name);
     }
     io.emit('name change', {id: socket.id, name: name});
   });
@@ -39,8 +39,16 @@ io.on('connection', function (socket) {
     io.emit('create vote', data);
   });
   socket.on('vote', function (data) {
-    var vote = boshRoom.getVote(data.uuid); // TODO add error handling if vote not found, and in other places like it.
+    var vote = boshRoom.getVote(data.uuid);
+    if (vote === null) {
+      io.emit('error', 'Ballot not found.');
+      return;
+    }
     var votingPerson = boshRoom.getPerson(socket.id);
+    if (votingPerson === null) {
+      io.emit('error', 'Voter not found.');
+      return;
+    }
     vote.addVote(votingPerson, data.vote);
     var votes = vote.getVotes();
     io.emit('vote', {uuid: data.uuid, name: votingPerson.name, vote: data.vote});
