@@ -38,6 +38,17 @@ if (localStorage.getItem('name')) {
 $('.my-name').text(name);
 //</editor-fold>
 
+function addPersonToRoom (name, id) {
+  var li = $('<li>').attr('data-id', id);
+  if (id === socket.io.engine.id) {
+    li.attr('data-icon', 'edit').append($('<a>').addClass('my-name').text(name)).on('tap', setName);
+  } else {
+    li.text(name);
+  }
+  roomArea.append(li);
+  roomArea.listview('refresh');
+}
+
 //<editor-fold desc="Sort out default new vote form values">
 (function () {
   var val;
@@ -59,8 +70,7 @@ $('.my-name').text(name);
 socket.on('enter room', function (people) {
   $.each(people, function (k, u) {
     if (!$('.roomies li[data-id="' + u.id + '"]').length) {
-      roomArea.append($('<li>').text(u.name).attr('data-id', u.id));
-      roomArea.listview('refresh');
+      addPersonToRoom(u.name, u.id);
     }
   });
 });
@@ -71,13 +81,15 @@ socket.emit('enter room', name);
 socket.on('name change', function (data) {
   var existingUser = $('.roomies li[data-id="' + data.id + '"]');
   if (existingUser.length) {
-    existingUser.text(data.name);
+    if (existingUser.find('a').length) {
+      existingUser.find('a').text(data.name);
+    } else {
+      existingUser.text(data.name);
+    }
   } else {
-    roomArea.append($('<li>').text(data.name).attr('data-id', data.id));
-    roomArea.listview('refresh');
+    addPersonToRoom(data.name, dataid);
   }
 });
-$('#my-name-button').on('tap', setName);
 //</editor-fold>
 
 //<editor-fold desc="Action: person left">

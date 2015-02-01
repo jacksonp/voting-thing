@@ -38,25 +38,17 @@
       <button id="create-vote-button" data-icon="plus">Create Ballot</button>
       <button id="cancel-create-vote-button" data-icon="delete">Cancel</button>
     </div>
-
-    <div class="vote-area">
-
-      <!-- see this? http://andreruffert.github.io/rangeslider.js/-->
-
-
-
-
-    </div>
+    <div class="vote-area"></div>
     <div class="result-area"></div>
     <button id="again-button" data-icon="refresh">Same Again</button>
     <div class="room-area">
       <h2>Who's in the Room</h2>
-      <ul data-role="listview" class="roomies"></ul>
+      <ul data-role="listview" class="roomies" data-inset="true"></ul>
     </div>
   </div>
-  <div data-role="footer" data-position="fixed" class="ui-bar">
-    <button id="my-name-button" data-icon="edit">You are <span class="my-name"></span></button>
-  </div>
+  <!--<div data-role="footer" data-position="fixed" class="ui-bar">-->
+    <!--<button id="my-name-button" data-icon="edit">You are <span class="my-name"></span></button>-->
+  <!--</div>-->
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
