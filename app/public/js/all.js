@@ -100,13 +100,13 @@ socket.on('person left', function (id) {
 
 //<editor-fold desc="Action: create vote">
 newVoteButton.on('tap', function (e) {
-  $(this).hide();
-  newVoteArea.show();
   newVoteNameInput.select();
+  $(this).slideUp();
+  newVoteArea.slideDown();
 });
 function hideCreateVoteArea () {
-  newVoteArea.hide();
-  newVoteButton.show();
+  newVoteArea.slideUp();
+  newVoteButton.slideDown();
 }
 $('#cancel-create-vote-button').on('tap', function (e) {
   hideCreateVoteArea();
@@ -139,7 +139,7 @@ socket.on('create vote', function (data) {
   html += '</table>';
   html += '</div>';
   html += '</div>';
-  voteArea.prepend(html).enhanceWithin();
+  var newVote = $(html).hide().enhanceWithin().prependTo(voteArea).slideDown();
 });
 //</editor-fold>
 
@@ -147,7 +147,7 @@ socket.on('create vote', function (data) {
 socket.on('vote', function (data) {
   var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + data.uuid + '] .vote-instance-result-area');
   var decimals = voteInstanceResultArea.attr('data-decimals');
-  voteInstanceResultArea.show();
+  voteInstanceResultArea.slideDown();
   var resultsTable = voteInstanceResultArea.find('table');
   resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num result-val">' + data.vote.toFixed(decimals) + '</td></tr>');
   var sum = 0;
@@ -167,7 +167,9 @@ voteArea.delegate('.vote-button', 'tap', function () {
     return;
   }
   socket.emit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: parseFloat(vote)});
-  voteInstanceArea.find('.vote-instance-input-area').remove();
+  voteInstanceArea.find('.vote-instance-input-area').slideUp(400, function() {
+    $(this).remove();
+  });
   voteInstanceArea.find('table').removeClass('not-voted');
 });
 //</editor-fold>
