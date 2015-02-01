@@ -137,7 +137,7 @@ socket.on('create vote', function (data) {
   html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
   html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
   html += '</table>';
-  html += '</div>';
+  html += '</div><hr>';
   html += '</div>';
   var newVote = $(html).hide().enhanceWithin().prependTo(voteArea).slideDown();
 });
