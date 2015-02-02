@@ -1,3 +1,5 @@
+'use strict';
+
 var socket = io();
 
 var
@@ -49,6 +51,37 @@ function addPersonToRoom (name, id) {
   roomArea.listview('refresh');
 }
 
+function createPoll (poll) {
+  var html = '<div class="vote-instance-area" data-uuid="' + poll.uuid + '">';
+  html += '<h2>' + poll.name + '</h2>';
+  html += '<div class="vote-instance-input-area">';
+  html += '<input name="vote-input" value="' + (poll.min + ((poll.max - poll.min) / 2)) + '" min="' + poll.min + '" max="' + poll.max + '" step="' + poll.step + '" type="range">';
+  html += '<button class="vote-button">Send My Vote</button>';
+  html += '</div>';
+  html += '<div class="vote-instance-result-area" data-decimals="' + poll.decimals + '">';
+  html += '<table class="vote-results-table not-voted"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
+  html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
+  html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
+  html += '</table>';
+  html += '</div><hr>';
+  html += '</div>';
+  var newVote = $(html).hide().enhanceWithin().prependTo(voteArea).slideDown();
+}
+
+function addVote (data) {
+  var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + data.uuid + '] .vote-instance-result-area');
+  var decimals = voteInstanceResultArea.attr('data-decimals');
+  voteInstanceResultArea.slideDown();
+  var resultsTable = voteInstanceResultArea.find('table');
+  resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num result-val">' + data.vote.toFixed(decimals) + '</td></tr>');
+  var sum = 0;
+  resultsTable.find('.result-val').each(function () {
+    sum += parseFloat($(this).text());
+  });
+  resultsTable.find('.results-sum').text(sum.toFixed(decimals));
+  resultsTable.find('.results-avg').text((sum / resultsTable.find('.result-val').length).toFixed(decimals));
+}
+
 //<editor-fold desc="Sort out default new vote form values">
 (function () {
   var val;
@@ -76,6 +109,12 @@ socket.on('enter room', function (people) {
 });
 socket.emit('enter room', name);
 //</editor-fold>
+
+socket.on('polls sync', function (polls) {
+  polls.forEach(function (poll) {
+    createPoll(poll);
+  });
+});
 
 //<editor-fold desc="Action: name change">
 socket.on('name change', function (data) {
@@ -117,7 +156,7 @@ $('#create-vote-button').on('tap', function (e) {
   if (min >= max) {
     alert('Max must be more than Min.');
   }
-  socket.emit('create vote', {
+  socket.emit('create poll', {
     name: newVoteNameInput.val(),
     min : min,
     max : max,
@@ -125,37 +164,14 @@ $('#create-vote-button').on('tap', function (e) {
   });
   hideCreateVoteArea();
 });
-socket.on('create vote', function (data) {
-  html = '<div class="vote-instance-area" data-uuid="' + data.uuid + '">';
-  html += '<h2>' + data.name + '</h2>';
-  html += '<div class="vote-instance-input-area">';
-  html += '<input name="vote-input" value="' + (data.min + ((data.max - data.min) / 2)) + '" min="' + data.min + '" max="' + data.max + '" step="' + data.step + '" type="range">';
-  html += '<button class="vote-button">Send My Vote</button>';
-  html += '</div>';
-  html += '<div class="vote-instance-result-area" data-decimals="' + data.decimals + '">';
-  html += '<table class="vote-results-table not-voted"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
-  html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
-  html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
-  html += '</table>';
-  html += '</div><hr>';
-  html += '</div>';
-  var newVote = $(html).hide().enhanceWithin().prependTo(voteArea).slideDown();
+socket.on('create poll', function (data) {
+  createPoll(data);
 });
 //</editor-fold>
 
 //<editor-fold desc="Action: vote">
 socket.on('vote', function (data) {
-  var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + data.uuid + '] .vote-instance-result-area');
-  var decimals = voteInstanceResultArea.attr('data-decimals');
-  voteInstanceResultArea.slideDown();
-  var resultsTable = voteInstanceResultArea.find('table');
-  resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num result-val">' + data.vote.toFixed(decimals) + '</td></tr>');
-  var sum = 0;
-  resultsTable.find('.result-val').each(function () {
-    sum += parseFloat($(this).text());
-  });
-  resultsTable.find('.results-sum').text(sum.toFixed(decimals));
-  resultsTable.find('.results-avg').text((sum / resultsTable.find('.result-val').length).toFixed(decimals));
+  addVote(data);
 });
 voteArea.delegate('.vote-button', 'tap', function () {
   var voteInstanceArea = $(this).closest('.vote-instance-area');

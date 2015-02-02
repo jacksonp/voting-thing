@@ -1,9 +1,9 @@
 'use strict';
 
 var Room = function (name) {
-  this._name = name;
-  this._people = [];
-  this._votes = [];
+  this.name = name;
+  this.people = [];
+  this.polls = [];
 };
 
 // If there is a person with the same id already in the room, remove them before adding.
@@ -11,19 +11,19 @@ Room.prototype.addPerson = function (person) {
   if (this.getPerson(person.id) !== null) {
     this.removePerson(person.id);
   }
-  this._people.push(person);
+  this.people.push(person);
 };
 
 // Does nothing if person is not in room.
 Room.prototype.removePerson = function (id) {
-  this._people = this._people.filter(function (el) {
+  this.people = this.people.filter(function (el) {
     return el.id !== id;
   });
 };
 
 Room.prototype.getPerson = function (id) {
   var person = null;
-  this._people.some(function (el) {
+  this.people.some(function (el) {
     if (el.id === id) {
       person = el;
       return true;
@@ -33,22 +33,26 @@ Room.prototype.getPerson = function (id) {
 };
 
 Room.prototype.getPeople = function () {
-  return this._people;
+  return this.people;
 };
 
-Room.prototype.addVote = function (vote) {
-  this._votes.push(vote);
+Room.prototype.addPoll = function (poll) {
+  this.polls.push(poll);
 };
 
-Room.prototype.getVote = function (uuid) {
+Room.prototype.getPoll = function (uuid) {
   var vote = null;
-  this._votes.some(function (el) {
+  this.polls.some(function (el) {
     if (el.uuid === uuid) {
       vote = el;
       return true;
     }
   });
   return vote;
+};
+
+Room.prototype.getPolls = function () {
+  return this.polls;
 };
 
 module.exports = Room;
