@@ -71,7 +71,7 @@ function createPoll (poll, haveIVoted) {
     html += '</div>';
   }
   html += '<div class="vote-instance-result-area' + (haveIVoted ? '' : ' hidden') + '" data-decimals="' + poll.decimals + '">';
-  html += '<table class="vote-results-table' + (haveIVoted ? '' : ' not-voted') + '"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
+  html += '<table class="ui-table vote-results-table' + (haveIVoted ? '' : ' not-voted') + '"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
   html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
   html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
   html += '</table>';

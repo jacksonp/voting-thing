@@ -1,16 +1,6 @@
-.result-area table {
-  margin-left  : auto;
-  margin-right : auto;
-}
-
 .num {
   text-align  : right;
   font-family : "Courier New", Courier, monospace;
-}
-
-#vote-button {
-  /*background-color: #f98508;*/
-  /*border-color: #884904;*/
 }
 
 .hidden {
@@ -22,10 +12,8 @@
   display: none;
 }
 
-.vote-results-table {
-  width: 100%;
+.vote-results-table tbody tr:nth-child(even) td,
+.vote-results-table tbody tr:nth-child(even) th {
+    background-color: #eeeeee; /* non-RGBA fallback  */
+    background-color: rgba(0,0,0,.04);
 }
-
-/*.vote-instance-area {*/
-  /*border: medium solid #000066;*/
-/*}*/
