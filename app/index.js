@@ -18,21 +18,21 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-  socket.on('enter room', function (name) {
-    boshRoom.addPerson(new Person(socket.id, name));
+  socket.on('enter room', function (data) {
+    boshRoom.addPerson(new Person(socket.id, data.guid, data.name));
     io.to(socket.id).emit('polls sync', boshRoom.getPolls());
     io.emit('enter room', boshRoom.getPeople());
   });
-  socket.on('name change', function (name) {
-    var person = boshRoom.getPerson(socket.id);
+  socket.on('name change', function (data) {
+    var person = boshRoom.getPerson(data.guid);
     if (person === null) {
       // If the person wasn't in the room, just add them. Could happen with network issues?
-      boshRoom.addPerson(new Person(socket.id, name));
+      boshRoom.addPerson(new Person(socket.id, data.guid, data.name));
     } else {
       // If the person is in the room, change their name.
-      person.changeName(name);
+      person.changeName(data.name);
     }
-    io.emit('name change', {id: socket.id, name: name});
+    io.emit('name change', {guid: data.guid, name: data.name});
   });
   socket.on('create poll', function (data) {
     var poll = new Poll(data.name, data.min, data.max, data.step);
@@ -45,9 +45,9 @@ io.on('connection', function (socket) {
       io.emit('error', 'Poll not found.');
       return;
     }
-    var votingPerson = boshRoom.getPerson(socket.id);
+    var votingPerson = boshRoom.getPerson(data.guid);
     if (votingPerson === null) {
-      io.emit('error', 'Poll not found.');
+      io.emit('error', 'Voter not found.');
       return;
     }
     poll.addVote(votingPerson, data.vote);

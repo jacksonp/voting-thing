@@ -2,7 +2,7 @@
 
 var uuid = require('node-uuid');
 
-var Vote = function (name, min, max, step) {
+var Poll = function (name, min, max, step) {
   this.name = name;
   this.min = min;
   this.max = max;
@@ -12,15 +12,15 @@ var Vote = function (name, min, max, step) {
   this.votes = [];
 };
 
-Vote.prototype.addVote = function (person, vote) {
+Poll.prototype.addVote = function (person, vote) {
   this.votes.push({person: person, vote: vote});
 };
 
-Vote.prototype.getVotes = function () {
+Poll.prototype.getVotes = function () {
   return this.votes;
 };
 
-module.exports = Vote;
+module.exports = Poll;
 
 
 // http://stackoverflow.com/a/10454560

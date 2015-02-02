@@ -1,7 +1,8 @@
 'use strict';
 
-var Person = function (socketId, name) {
+var Person = function (socketId, guid, name) {
   this.id = socketId;
+  this.guid = guid;
   this.name = name;
 };
 

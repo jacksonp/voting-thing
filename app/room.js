@@ -21,10 +21,10 @@ Room.prototype.removePerson = function (id) {
   });
 };
 
-Room.prototype.getPerson = function (id) {
+Room.prototype.getPerson = function (guid) {
   var person = null;
   this.people.some(function (el) {
-    if (el.id === id) {
+    if (el.guid === guid) {
       person = el;
       return true;
     }
@@ -41,14 +41,14 @@ Room.prototype.addPoll = function (poll) {
 };
 
 Room.prototype.getPoll = function (uuid) {
-  var vote = null;
+  var poll = null;
   this.polls.some(function (el) {
     if (el.uuid === uuid) {
-      vote = el;
+      poll = el;
       return true;
     }
   });
-  return vote;
+  return poll;
 };
 
 Room.prototype.getPolls = function () {

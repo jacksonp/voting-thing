@@ -3,7 +3,7 @@
 var socket = io();
 
 var
-  name,
+  guid, name,
   newVoteNameInput = $('#new-vote-name'),
   newVoteMinInput  = $('#new-vote-min'),
   newVoteMaxInput  = $('#new-vote-max'),
@@ -12,9 +12,21 @@ var
   roomArea         = $('.roomies');
 
 
+//<editor-fold desc="Sort out guid">
+if (localStorage.getItem('guid')) {
+  guid = localStorage.getItem('guid');
+} else {
+  guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { // http://stackoverflow.com/a/2117523
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+  localStorage.setItem('guid', guid);
+}
+//</editor-fold>
+
 //<editor-fold desc="Sort out name">
 function setName () {
-  res = window.prompt("What is your name?", name);
+  var res = window.prompt("What is your name?", name);
   if (res === null && name) {
     return;
   }
@@ -25,7 +37,7 @@ function setName () {
     name = res;
     localStorage.setItem('name', name);
     $('.my-name').text(name);
-    socket.emit('name change', name);
+    socket.emit('name change', {guid: guid, name: name});
   }
 }
 
@@ -40,7 +52,7 @@ $('.my-name').text(name);
 
 function addPersonToRoom (name, id) {
   var li = $('<li>').attr('data-id', id);
-  if (id === socket.io.engine.id) {
+  if (id === guid) {
     li.attr('data-icon', 'edit').append($('<a>').addClass('my-name').text(name)).on('tap', setName);
   } else {
     li.text(name);
@@ -49,15 +61,17 @@ function addPersonToRoom (name, id) {
   roomArea.listview('refresh');
 }
 
-function createPoll (poll) {
+function createPoll (poll, haveIVoted) {
   var html = '<div data-role="collapsible" data-collapsed="false" class="vote-instance-area" data-uuid="' + poll.uuid + '">';
   html += '<h2>' + poll.name + '</h2>';
-  html += '<div class="vote-instance-input-area">';
-  html += '<input name="vote-input" value="' + (poll.min + ((poll.max - poll.min) / 2)) + '" min="' + poll.min + '" max="' + poll.max + '" step="' + poll.step + '" type="range">';
-  html += '<button class="vote-button" data-theme="b">Send My Vote</button>';
-  html += '</div>';
+  if (!haveIVoted) {
+    html += '<div class="vote-instance-input-area">';
+    html += '<input name="vote-input" value="' + (poll.min + ((poll.max - poll.min) / 2)) + '" min="' + poll.min + '" max="' + poll.max + '" step="' + poll.step + '" type="range">';
+    html += '<button class="vote-button" data-theme="b">Send My Vote</button>';
+    html += '</div>';
+  }
   html += '<div class="vote-instance-result-area" data-decimals="' + poll.decimals + '">';
-  html += '<table class="vote-results-table not-voted"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
+  html += '<table class="vote-results-table' + (haveIVoted ? '' : ' not-voted') + '"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
   html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
   html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
   html += '</table>';
@@ -68,12 +82,12 @@ function createPoll (poll) {
   newVote.slideDown();
 }
 
-function addVote (data) {
-  var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + data.uuid + '] .vote-instance-result-area');
+function addVote (uuid, name, vote) {
+  var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + uuid + '] .vote-instance-result-area');
   var decimals = voteInstanceResultArea.attr('data-decimals');
   voteInstanceResultArea.slideDown();
   var resultsTable = voteInstanceResultArea.find('table');
-  resultsTable.find('tbody').append('<tr><td>' + data.name + '</td><td class="num result-val">' + data.vote.toFixed(decimals) + '</td></tr>');
+  resultsTable.find('tbody').append('<tr><td>' + name + '</td><td class="num result-val">' + vote.toFixed(decimals) + '</td></tr>');
   var sum = 0;
   resultsTable.find('.result-val').each(function () {
     sum += parseFloat($(this).text());
@@ -102,23 +116,29 @@ function addVote (data) {
 //<editor-fold desc="Action: enter room">
 socket.on('enter room', function (people) {
   $.each(people, function (k, u) {
-    if (!$('.roomies li[data-id="' + u.id + '"]').length) {
-      addPersonToRoom(u.name, u.id);
+    if (!$('.roomies li[data-id="' + u.guid + '"]').length) {
+      addPersonToRoom(u.name, u.guid);
     }
   });
 });
-socket.emit('enter room', name);
+socket.emit('enter room', {guid: guid, name: name});
 //</editor-fold>
 
 socket.on('polls sync', function (polls) {
   polls.forEach(function (poll) {
-    createPoll(poll);
+    var haveIVoted = poll.votes.some(function (vote) {
+      return vote.person.guid === guid;
+    });
+    createPoll(poll, haveIVoted);
+    poll.votes.forEach(function (vote) {
+      addVote(poll.uuid, vote.person.name, vote.vote);
+    });
   });
 });
 
 //<editor-fold desc="Action: name change">
 socket.on('name change', function (data) {
-  var existingUser = $('.roomies li[data-id="' + data.id + '"]');
+  var existingUser = $('.roomies li[data-id="' + data.guid + '"]');
   if (existingUser.length) {
     if (existingUser.find('a').length) {
       existingUser.find('a').text(data.name);
@@ -126,7 +146,7 @@ socket.on('name change', function (data) {
       existingUser.text(data.name);
     }
   } else {
-    addPersonToRoom(data.name, dataid);
+    addPersonToRoom(data.name, data.guid);
   }
 });
 //</editor-fold>
@@ -137,7 +157,7 @@ socket.on('person left', function (id) {
 });
 //</editor-fold>
 
-//<editor-fold desc="Action: create vote">
+//<editor-fold desc="Action: create poll">
 $('#create-vote-button').on('tap', function (e) {
   var min = parseFloat(newVoteMinInput.val());
   var max = parseFloat(newVoteMaxInput.val());
@@ -151,7 +171,6 @@ $('#create-vote-button').on('tap', function (e) {
     step: newVoteStepInput.val()
   });
   $(".new-poll-area").collapsible("collapse");
-
 });
 socket.on('create poll', function (data) {
   createPoll(data);
@@ -160,7 +179,7 @@ socket.on('create poll', function (data) {
 
 //<editor-fold desc="Action: vote">
 socket.on('vote', function (data) {
-  addVote(data);
+  addVote(data.uuid, data.name, data.vote);
 });
 voteArea.delegate('.vote-button', 'tap', function () {
   var voteInstanceArea = $(this).closest('.vote-instance-area');
@@ -171,8 +190,8 @@ voteArea.delegate('.vote-button', 'tap', function () {
     }
     return;
   }
-  socket.emit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: parseFloat(vote)});
-  voteInstanceArea.find('.vote-instance-input-area').slideUp(400, function() {
+  socket.emit('vote', {guid: guid, uuid: voteInstanceArea.attr('data-uuid'), vote: parseFloat(vote)});
+  voteInstanceArea.find('.vote-instance-input-area').slideUp(400, function () {
     $(this).remove();
   });
   voteInstanceArea.find('table').removeClass('not-voted');
