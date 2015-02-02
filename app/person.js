@@ -10,4 +10,8 @@ Person.prototype.changeName = function (newName) {
   this.name = newName;
 };
 
+Person.prototype.updateSocketId = function (socketId) {
+  this.id = socketId;
+};
+
 module.exports = Person;

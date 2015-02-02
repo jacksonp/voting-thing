@@ -19,7 +19,12 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
   socket.on('enter room', function (data) {
-    boshRoom.addPerson(new Person(socket.id, data.guid, data.name));
+    var person = boshRoom.getPerson(data.guid);
+    if (person === null) {
+      boshRoom.addPerson(new Person(socket.id, data.guid, data.name));
+    } else {
+      person.updateSocketId(socket.id);
+    }
     io.to(socket.id).emit('polls sync', boshRoom.getPolls());
     io.emit('enter room', boshRoom.getPeople());
   });
