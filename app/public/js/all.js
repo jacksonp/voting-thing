@@ -163,9 +163,6 @@ socket.on('person left', function (id) {
 //</editor-fold>
 
 //<editor-fold desc="Action: create poll">
-$('.new-poll-area').on('collapsibleexpand', function () {
-  $('#new-vote-name').select();
-});
 $('#create-vote-button').on('tap', function (e) {
   var min = parseFloat(newVoteMinInput.val());
   var max = parseFloat(newVoteMaxInput.val());

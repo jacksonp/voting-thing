@@ -16,7 +16,7 @@
 
       <div class="ui-field-contain">
         <label for="new-vote-name">Name</label>
-        <input id="new-vote-name" type="text" maxlength="20">
+        <input id="new-vote-name" type="text" maxlength="20" data-clear-btn="true">
       </div>
       <div class="ui-grid-b">
         <div class="ui-block-a">
@@ -41,7 +41,7 @@
       <button id="create-vote-button" data-theme="b">Create Poll</button>
     </div>
     <div class="vote-area"></div>
-    <div class="room-area">
+    <div class="room-area" data-role="collapsible" data-collapsed="false">
       <h2>Who's in the Room</h2>
       <ul data-role="listview" class="roomies" data-inset="true"></ul>
     </div>
