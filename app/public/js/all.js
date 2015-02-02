@@ -8,8 +8,6 @@ var
   newVoteMinInput  = $('#new-vote-min'),
   newVoteMaxInput  = $('#new-vote-max'),
   newVoteStepInput = $('#new-vote-step'),
-  newVoteButton    = $('#new-vote-button'),
-  newVoteArea      = $('.new-vote-area'),
   voteArea         = $('.vote-area'),
   roomArea         = $('.roomies');
 
@@ -52,20 +50,22 @@ function addPersonToRoom (name, id) {
 }
 
 function createPoll (poll) {
-  var html = '<div class="vote-instance-area" data-uuid="' + poll.uuid + '">';
+  var html = '<div data-role="collapsible" data-collapsed="false" class="vote-instance-area" data-uuid="' + poll.uuid + '">';
   html += '<h2>' + poll.name + '</h2>';
   html += '<div class="vote-instance-input-area">';
   html += '<input name="vote-input" value="' + (poll.min + ((poll.max - poll.min) / 2)) + '" min="' + poll.min + '" max="' + poll.max + '" step="' + poll.step + '" type="range">';
-  html += '<button class="vote-button">Send My Vote</button>';
+  html += '<button class="vote-button" data-theme="b">Send My Vote</button>';
   html += '</div>';
   html += '<div class="vote-instance-result-area" data-decimals="' + poll.decimals + '">';
   html += '<table class="vote-results-table not-voted"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
   html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
   html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
   html += '</table>';
-  html += '</div><hr>';
   html += '</div>';
-  var newVote = $(html).hide().enhanceWithin().prependTo(voteArea).slideDown();
+  html += '</div>';
+  var newVote = $(html).hide().prependTo(voteArea);
+  voteArea.enhanceWithin();
+  newVote.slideDown();
 }
 
 function addVote (data) {
@@ -138,18 +138,6 @@ socket.on('person left', function (id) {
 //</editor-fold>
 
 //<editor-fold desc="Action: create vote">
-newVoteButton.on('tap', function (e) {
-  newVoteNameInput.select();
-  $(this).slideUp();
-  newVoteArea.slideDown();
-});
-function hideCreateVoteArea () {
-  newVoteArea.slideUp();
-  newVoteButton.slideDown();
-}
-$('#cancel-create-vote-button').on('tap', function (e) {
-  hideCreateVoteArea();
-});
 $('#create-vote-button').on('tap', function (e) {
   var min = parseFloat(newVoteMinInput.val());
   var max = parseFloat(newVoteMaxInput.val());
@@ -162,7 +150,8 @@ $('#create-vote-button').on('tap', function (e) {
     max : max,
     step: newVoteStepInput.val()
   });
-  hideCreateVoteArea();
+  $(".new-poll-area").collapsible("collapse");
+
 });
 socket.on('create poll', function (data) {
   createPoll(data);

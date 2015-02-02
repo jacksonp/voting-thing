@@ -7,10 +7,13 @@
 <link rel="stylesheet" href="/css/all.css">
 
 <div data-role="page">
+
   <div data-role="header"><h1>BOSH</h1></div>
+
   <div role="main" class="ui-content">
-    <button id="new-vote-button" data-icon="plus">New Poll</button>
-    <div class="new-vote-area">
+    <div class="new-poll-area" data-role="collapsible">
+      <h2>New Poll</h2>
+
       <div class="ui-field-contain">
         <label for="new-vote-name">Name</label>
         <input id="new-vote-name" type="text" maxlength="20">
@@ -35,20 +38,19 @@
           </div>
         </div>
       </div>
-      <button id="create-vote-button" data-icon="plus">Create Poll</button>
-      <button id="cancel-create-vote-button" data-icon="delete">Cancel</button>
+      <button id="create-vote-button" data-theme="b">Create Poll</button>
     </div>
-    <hr>
     <div class="vote-area"></div>
-    <button id="again-button" data-icon="refresh">Same Again</button>
     <div class="room-area">
       <h2>Who's in the Room</h2>
       <ul data-role="listview" class="roomies" data-inset="true"></ul>
     </div>
   </div>
+
   <!--<div data-role="footer" data-position="fixed" class="ui-bar">-->
-    <!--<button id="my-name-button" data-icon="edit">You are <span class="my-name"></span></button>-->
+  <!--<button id="my-name-button" data-icon="edit">You are <span class="my-name"></span></button>-->
   <!--</div>-->
+
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
