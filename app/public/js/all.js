@@ -1,9 +1,11 @@
 'use strict';
 
-var socket = io();
-
 var
-  guid, name,
+  name,
+  myData           = {
+    room: $.mobile.path.getDocumentUrl(true).filename
+  },
+  socket           = io(),
   newVoteNameInput = $('#new-vote-name'),
   newVoteMinInput  = $('#new-vote-min'),
   newVoteMaxInput  = $('#new-vote-max'),
@@ -11,16 +13,19 @@ var
   voteArea         = $('.vote-area'),
   roomArea         = $('.roomies');
 
+function myEmit (action, extraData) {
+  socket.emit(action, $.extend(extraData, myData));
+}
 
 //<editor-fold desc="Sort out guid">
 if (localStorage.getItem('guid')) {
-  guid = localStorage.getItem('guid');
+  myData.guid = localStorage.getItem('guid');
 } else {
-  guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { // http://stackoverflow.com/a/2117523
+  myData.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { // http://stackoverflow.com/a/2117523
     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
-  localStorage.setItem('guid', guid);
+  localStorage.setItem('guid', myData.guid);
 }
 //</editor-fold>
 
@@ -37,7 +42,7 @@ function setName () {
     name = res;
     localStorage.setItem('name', name);
     $('.my-name').text(name);
-    socket.emit('name change', {guid: guid, name: name});
+    myEmit('name change', {name: name});
   }
 }
 
@@ -52,7 +57,7 @@ $('.my-name').text(name);
 
 function addPersonToRoom (name, id) {
   var li = $('<li>').attr('data-id', id);
-  if (id === guid) {
+  if (id === myData.guid) {
     li.attr('data-icon', 'edit').append($('<a>').addClass('my-name').text(name)).on('tap', setName);
   } else {
     li.text(name);
@@ -71,7 +76,7 @@ function createPoll (poll, haveIVoted) {
     html += '</div>';
   }
   html += '<div class="vote-instance-result-area' + (haveIVoted ? '' : ' hidden') + '" data-decimals="' + poll.decimals + '">';
-  html += '<table class="ui-table vote-results-table' + (haveIVoted ? '' : ' not-voted') + '"><thead><tr><th>Person</th><th>Vote</th></tr></thead><tbody></tbody>';
+  html += '<table class="ui-table vote-results-table' + (haveIVoted ? '' : ' not-voted') + '"><thead></thead><tbody></tbody>';
   html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
   html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
   html += '</table>';
@@ -109,7 +114,7 @@ function addVote (uuid, name, vote) {
   } else {
     var date = new Date
     //val = name + ' vote at ' + date.getHours() + ':' + date.getMinutes();
-    val = 'Stop Loss Vote'; // at ' + String('00' + date.getHours()).slice(-2) + ':' + String('00' + date.getMinutes()).slice(-2);
+    val = 'Poll Name'; // at ' + String('00' + date.getHours()).slice(-2) + ':' + String('00' + date.getMinutes()).slice(-2);
   }
   newVoteNameInput.val(val);
   newVoteMinInput.val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 5);
@@ -126,7 +131,7 @@ socket.on('enter room', function (people) {
     }
   });
 });
-socket.emit('enter room', {guid: guid, name: name});
+myEmit('enter room', {name: name});
 //</editor-fold>
 
 socket.on('polls sync', function (polls) {
@@ -169,7 +174,7 @@ $('#create-vote-button').on('tap', function (e) {
   if (min >= max) {
     alert('Max must be more than Min.');
   }
-  socket.emit('create poll', {
+  myEmit('create poll', {
     name: newVoteNameInput.val(),
     min : min,
     max : max,
@@ -195,7 +200,7 @@ voteArea.delegate('.vote-button', 'tap', function () {
     }
     return;
   }
-  socket.emit('vote', {guid: guid, uuid: voteInstanceArea.attr('data-uuid'), vote: parseFloat(vote)});
+  myEmit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: parseFloat(vote)});
   voteInstanceArea.find('.vote-instance-input-area').slideUp(400, function () {
     $(this).remove();
   });

@@ -1,12 +1,4 @@
-.num {
-  text-align  : right;
-  font-family : "Courier New", Courier, monospace;
-}
-
-.hidden {
-  display: none;
-}
-
+.hidden,
 .vote-instance-result-area table.not-voted td:nth-of-type(2),
 .vote-instance-result-area table.not-voted th:nth-of-type(2),
 .vote-instance-result-area table.not-voted tfoot {
@@ -17,4 +9,9 @@
 .vote-results-table tbody tr:nth-child(even) th {
     background-color: #eeeeee; /* non-RGBA fallback  */
     background-color: rgba(0,0,0,.04);
+}
+
+.num {
+  text-align  : right !important;
+  font-family : "Courier New", Courier, monospace;
 }

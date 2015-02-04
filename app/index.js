@@ -17,6 +17,12 @@ app.get('/', function (req, res) {
   res.sendFile('index.html', {root: __dirname + '/public/'});
 });
 
+app.get('/*', function (req, res) {
+  console.log(req);
+  console.log(res);
+  res.sendFile('index.html', {root: __dirname + '/public/'});
+});
+
 io.on('connection', function (socket) {
   socket.on('enter room', function (data) {
     var person = boshRoom.getPerson(data.guid);
