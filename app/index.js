@@ -15,8 +15,19 @@ app.get('/', function (req, res) {
   res.sendFile('index.html', {root: __dirname + '/public/'});
 });
 
-
 io.on('connection', function (socket) {
+
+  function emitToRoom (room, action, data) {
+    query('SELECT socket_id FROM people WHERE room_id = vt_normalize($1)', [room], function (err, rows, result) {
+      if (err) {
+        console.error(err);
+      } else {
+        rows.forEach(function (r) {
+          io.to(r.socket_id).emit(action, data);
+        });
+      }
+    });
+  }
 
   socket.on('enter room', function (data) {
     query('SELECT * FROM add_person_to_room($1, $2, $3, $4)', [data.room, data.name, data.uuid, socket.id], function (err, rows, result) {
@@ -33,10 +44,10 @@ io.on('connection', function (socket) {
         });
         query("SELECT uuid, name, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, rows, result) {
           if (err) {
-            console.log(err);
-            io.emit('error', err.messagePrimary);
+            console.error(err);
+            io.to(socket.id).emit('error', err.messagePrimary);
           } else {
-            io.to(socket.id).emit('polls sync', result.rows);
+            io.to(socket.id).emit('polls sync', rows);
           }
         });
       }
@@ -78,7 +89,7 @@ io.on('connection', function (socket) {
         io.to(socket.id).emit('error', err.messagePrimary);
       } else {
         poll.uuid = rows[0].uuid;
-        io.emit('create poll', poll);
+        emitToRoom(data.room, 'create poll', poll);
       }
     });
   });
@@ -114,15 +125,15 @@ io.on('connection', function (socket) {
 
   socket.on('disconnect', function () {
     console.log('Disconnnect.');
-    var room, person;
-    try {
-      room = getRoom(data.room);
-    } catch (e) {
-      io.emit('error', e);
-      return;
-    }
+    //var room, person;
+    //try {
+    //  room = getRoom(data.room);
+    //} catch (e) {
+    //  io.emit('error', e);
+    //  return;
+    //}
     //boshRoom.removePerson(socket.id);
-    io.emit('person left', socket.id);
+    //io.emit('person left', socket.id);
   });
 
 });

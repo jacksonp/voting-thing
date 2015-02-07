@@ -29,7 +29,7 @@ CREATE TABLE polls (
   name    TEXT                     NOT NULL,
   type    TEXT                     NOT NULL,
   details JSON                     NOT NULL,
-  votes   JSON
+  votes   JSON                     NOT NULL DEFAULT '[]'
 );
 
 -- CREATE TABLE votes (

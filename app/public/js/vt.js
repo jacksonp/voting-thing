@@ -276,6 +276,7 @@ $(function () {
 
   //<editor-fold desc="Action: error">
   socket.on('error', function (message) {
+    console.log(message);
     alert(message);
   });
   //</editor-fold>
