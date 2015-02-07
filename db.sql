@@ -11,6 +11,7 @@ CREATE TABLE rooms (
   name    TEXT                     NOT NULL
 );
 
+-- Actually: "people currently in a room".
 CREATE TABLE people (
   room_id   TEXT REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
   uuid      TEXT                     NOT NULL,
@@ -27,16 +28,17 @@ CREATE TABLE polls (
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   name    TEXT                     NOT NULL,
   type    TEXT                     NOT NULL,
-  details JSON                     NOT NULL
+  details JSON                     NOT NULL,
+  votes   JSON
 );
 
-CREATE TABLE votes (
-  vote_id SERIAL PRIMARY KEY,
-  poll_id INTEGER                  NOT NULL REFERENCES polls ON UPDATE CASCADE ON DELETE CASCADE,
-  created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  person  TEXT                     NOT NULL,
-  vote    JSON                     NOT NULL
-);
+-- CREATE TABLE votes (
+--   vote_id SERIAL PRIMARY KEY,
+--   poll_id INTEGER                  NOT NULL REFERENCES polls ON UPDATE CASCADE ON DELETE CASCADE,
+--   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--   person  TEXT                     NOT NULL,
+--   vote    JSON                     NOT NULL
+-- );
 
 CREATE OR REPLACE FUNCTION vt_normalize(TEXT)
   RETURNS TEXT AS

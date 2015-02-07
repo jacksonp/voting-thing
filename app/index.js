@@ -22,18 +22,6 @@ pg.connect(conString, function (err, client, done) {
     return console.error('error fetching client from pool', err);
   }
 
-  //function getRoom (name) {
-  //  client.query('SELECT get_room($1)', [name], function (err, result) {
-  //    done(); // release the client back to the pool
-  //    if (err) {
-  //      console.error(err.messagePrimary);
-  //    } else {
-  //      console.log(result.rows[0]);
-  //    }
-  //  });
-  //}
-
-
   io.on('connection', function (socket) {
 
     socket.on('enter room', function (data) {
@@ -50,8 +38,16 @@ pg.connect(conString, function (err, client, done) {
           result.rows.forEach(function (r) {
             io.to(r.r_socket_id).emit('enter room', inRoom);
           });
-          // TODO:
-          //io.to(socket.id).emit('polls sync', room.getPolls());
+          client.query("SELECT uuid, name, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, result) {
+            done(); // release the client back to the pool
+            if (err) {
+              console.log(err);
+              io.emit('error', err.messagePrimary);
+            } else {
+              console.log(result.rows);
+              io.to(socket.id).emit('polls sync', result.rows);
+            }
+          });
         }
       });
     });

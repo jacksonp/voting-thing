@@ -35,6 +35,7 @@
     if (!this.details.decimals) {
       this.details.decimals = decimalPlaces(details.step);
     }
+    this.votes = [];
 
   };
 
