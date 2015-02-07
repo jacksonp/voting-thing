@@ -2,13 +2,13 @@
 .vote-instance-result-area table.not-voted td:nth-of-type(2),
 .vote-instance-result-area table.not-voted th:nth-of-type(2),
 .vote-instance-result-area table.not-voted tfoot {
-  display: none;
+  display : none;
 }
 
 .vote-results-table tbody tr:nth-child(even) td,
 .vote-results-table tbody tr:nth-child(even) th {
-    background-color: #eeeeee; /* non-RGBA fallback  */
-    background-color: rgba(0,0,0,.04);
+  background-color : #eeeeee; /* non-RGBA fallback  */
+  background-color : rgba(0, 0, 0, .04);
 }
 
 .num {

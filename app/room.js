@@ -1,7 +1,12 @@
 'use strict';
 
+function normalizeName (name) {
+  return name.toLowerCase().replace(/[^0-9a-z]+/g, '');
+}
+
 var Room = function (name) {
   this.name = name;
+  this.normName = normalizeName(name);
   this.people = [];
   this.polls = [];
 };
@@ -21,10 +26,10 @@ Room.prototype.removePerson = function (id) {
   });
 };
 
-Room.prototype.getPerson = function (guid) {
+Room.prototype.getPerson = function (uuid) {
   var person = null;
   this.people.some(function (el) {
-    if (el.guid === guid) {
+    if (el.uuid === uuid) {
       person = el;
       return true;
     }
@@ -53,6 +58,10 @@ Room.prototype.getPoll = function (uuid) {
 
 Room.prototype.getPolls = function () {
   return this.polls;
+};
+
+Room.normalizeName = function (name) {
+  return normalizeName(name);
 };
 
 module.exports = Room;
