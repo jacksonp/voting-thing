@@ -26,10 +26,10 @@ pg.connect(conString, function (err, client, done) {
 
     socket.on('enter room', function (data) {
       client.query('SELECT * FROM add_person_to_room($1, $2, $3, $4)', [data.room, data.name, data.uuid, socket.id], function (err, result) {
-        done(); // release the client back to the pool
         if (err) {
+          done(client);
           console.log(err);
-          io.emit('error', err.messagePrimary);
+          io.to(socket.id).emit('error', err.messagePrimary);
         } else {
           var inRoom = [];
           result.rows.forEach(function (r) {
@@ -39,12 +39,12 @@ pg.connect(conString, function (err, client, done) {
             io.to(r.r_socket_id).emit('enter room', inRoom);
           });
           client.query("SELECT uuid, name, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, result) {
-            done(); // release the client back to the pool
             if (err) {
+              done(client);
               console.log(err);
               io.emit('error', err.messagePrimary);
             } else {
-              console.log(result.rows);
+              done(); // release the client back to the pool
               io.to(socket.id).emit('polls sync', result.rows);
             }
           });
@@ -78,14 +78,14 @@ pg.connect(conString, function (err, client, done) {
         poll = new Poll(data.name, data.type, data.details);
       } catch (e) {
         console.log(e);
-        io.emit('error', e);
+        io.to(socket.id).emit('error', e);
         return;
       }
       client.query('SELECT create_poll($1, $2, $3, $4) AS uuid', [data.room, poll.name, poll.type, poll.details], function (err, result) {
         done(); // release the client back to the pool
         if (err) {
           console.log(err);
-          io.emit('error', err.messagePrimary);
+          io.to(socket.id).emit('error', err.messagePrimary);
         } else {
           poll.uuid = result.rows[0].uuid;
           io.emit('create poll', poll);
