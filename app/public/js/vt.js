@@ -95,7 +95,7 @@ $(function () {
     if (res === null && name) {
       return;
     }
-    res = res.trim();
+    res = res.trim().substring(0, 20);
     if (!res) {
       setName();
     } else {
