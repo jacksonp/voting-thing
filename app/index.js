@@ -30,14 +30,14 @@ io.on('connection', function (socket) {
   }
 
   socket.on('enter room', function (data) {
-    query('SELECT * FROM add_person_to_room($1, $2, $3, $4)', [data.room, data.name, data.uuid, socket.id], function (err, rows, result) {
+    query('SELECT * FROM add_person_to_room($1, $2, $3, $4)', [data.room, data.name, data.person_id, socket.id], function (err, rows, result) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('error', err.messagePrimary);
       } else {
         var inRoom = [];
         rows.forEach(function (r) {
-          inRoom.push({uuid: r.r_uuid, name: r.r_name});
+          inRoom.push({person_id: r.r_person_id, name: r.r_name});
         });
         rows.forEach(function (r) {
           io.to(r.r_socket_id).emit('enter room', inRoom);
@@ -95,7 +95,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('vote', function (data) {
-    query('SELECT vote($1, $2, $3, $4) AS name', [data.room, data.poll_id, data.uuid, {vote: data.vote}], function (err, rows, result) {
+    query('SELECT vote($1, $2, $3, $4) AS name', [data.room, data.poll_id, data.person_id, {vote: data.vote}], function (err, rows, result) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('error', err.messagePrimary);
@@ -113,7 +113,7 @@ io.on('connection', function (socket) {
         io.to(socket.id).emit('error', err.messagePrimary);
       } else {
         rows.forEach(function (r) {
-          emitToRoom(r.room_id, 'person left', r.uuid);
+          emitToRoom(r.room_id, 'person left', r.person_id);
         });
       }
     });

@@ -18,16 +18,17 @@ $(function () {
     socket.emit(action, $.extend(extraData, myData));
   }
 
-  //<editor-fold desc="Sort out uuid">
-  if (localStorage.getItem('uuid')) {
-    myData.uuid = localStorage.getItem('uuid');
+  //<editor-fold desc="Sort out person_id">
+  if (localStorage.getItem('person_id')) {
+    myData.person_id = localStorage.getItem('person_id');
   } else {
-    myData.uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { // http://stackoverflow.com/a/2117523
+    myData.person_id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { // http://stackoverflow.com/a/2117523
       var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
-    localStorage.setItem('uuid', myData.uuid);
+    localStorage.setItem('person_id', myData.person_id);
   }
+  console.log(myData);
   //</editor-fold>
 
   //<editor-fold desc="Sort out name">
@@ -58,7 +59,7 @@ $(function () {
 
   function addPersonToRoom (name, id) {
     var li = $('<li>').attr('data-id', id);
-    if (id === myData.uuid) {
+    if (id === myData.person_id) {
       li.attr('data-icon', 'edit').append($('<a>').addClass('my-name').text(name)).on('tap', setName);
     } else {
       li.text(name);
@@ -126,8 +127,8 @@ $(function () {
   //<editor-fold desc="Action: enter room">
   socket.on('enter room', function (people) {
     $.each(people, function (k, u) {
-      if (!$('.roomies li[data-id="' + u.uuid + '"]').length) {
-        addPersonToRoom(u.name, u.uuid);
+      if (!$('.roomies li[data-id="' + u.person_id + '"]').length) {
+        addPersonToRoom(u.name, u.person_id);
       }
     });
   });
@@ -136,20 +137,20 @@ $(function () {
 
   socket.on('polls sync', function (polls) {
     polls.forEach(function (poll) {
-      var haveIVoted = Object.keys(poll.votes).some(function (uuid) {
-        return myData.uuid === uuid;
+      var haveIVoted = Object.keys(poll.votes).some(function (person_id) {
+        return myData.person_id === person_id;
       });
       createPoll(poll, haveIVoted);
       console.log(poll);
-      Object.keys(poll.votes).forEach(function (uuid) {
-        addVote(poll.poll_id, poll.votes[uuid]);
+      Object.keys(poll.votes).forEach(function (person_id) {
+        addVote(poll.poll_id, poll.votes[person_id]);
       });
     });
   });
 
   //<editor-fold desc="Action: name change">
   socket.on('name change', function (data) {
-    var existingUser = $('.roomies li[data-id="' + data.uuid + '"]');
+    var existingUser = $('.roomies li[data-id="' + data.person_id + '"]');
     if (existingUser.length) {
       if (existingUser.find('a').length) {
         existingUser.find('a').text(data.name);
@@ -157,7 +158,7 @@ $(function () {
         existingUser.text(data.name);
       }
     } else {
-      addPersonToRoom(data.name, data.uuid);
+      addPersonToRoom(data.name, data.person_id);
     }
   });
   //</editor-fold>

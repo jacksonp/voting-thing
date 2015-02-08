@@ -13,11 +13,11 @@ CREATE TABLE rooms (
 -- Actually: "people currently in a room".
 CREATE TABLE people (
   room_id   TEXT REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
-  uuid      TEXT                     NOT NULL,
+  person_id UUID                     NOT NULL,
   created   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   name      TEXT                     NOT NULL,
   socket_id TEXT                     NOT NULL,
-  PRIMARY KEY (room_id, uuid)
+  PRIMARY KEY (room_id, person_id)
 );
 
 CREATE TABLE polls (
@@ -83,24 +83,24 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION add_person_to_room(p_room_name rooms.name%TYPE, p_name people.name%TYPE,
-                                              p_uuid      people.uuid%TYPE, p_socket_id people.socket_id%TYPE)
-  RETURNS TABLE(r_uuid TEXT, r_name TEXT, r_socket_id TEXT) AS $$
+                                              p_person_id people.person_id%TYPE, p_socket_id people.socket_id%TYPE)
+  RETURNS TABLE(r_person_id UUID, r_name TEXT, r_socket_id TEXT) AS $$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
 BEGIN
 
   UPDATE people
   SET name = p_name, socket_id = p_socket_id
-  WHERE uuid = p_uuid AND room_id = p_room_id;
+  WHERE person_id = p_person_id AND room_id = p_room_id;
 
   IF NOT FOUND
   THEN
-    INSERT INTO people (room_id, uuid, name, socket_id) VALUES (p_room_id, p_uuid, p_name, p_socket_id);
+    INSERT INTO people (room_id, person_id, name, socket_id) VALUES (p_room_id, p_person_id, p_name, p_socket_id);
   END IF;
 
   RETURN QUERY
   SELECT
-    p.uuid,
+    p.person_id,
     p.name,
     p.socket_id
   FROM people p
@@ -150,8 +150,8 @@ FROM (SELECT *
 $function$;
 
 
-CREATE OR REPLACE FUNCTION vote(p_room_name   rooms.name%TYPE, p_poll_id polls.poll_id%TYPE,
-                                p_person_uuid people.uuid%TYPE, p_vote JSON)
+CREATE OR REPLACE FUNCTION vote(p_room_name rooms.name%TYPE, p_poll_id polls.poll_id%TYPE,
+                                p_person_id people.person_id%TYPE, p_vote JSON)
   RETURNS polls.name%TYPE AS $$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
@@ -161,7 +161,7 @@ BEGIN
   SELECT name
   INTO ret_name
   FROM people
-  WHERE uuid = p_person_uuid;
+  WHERE person_id = p_person_id;
 
   IF NOT found
   THEN
@@ -169,7 +169,7 @@ BEGIN
   END IF;
 
   UPDATE polls
-  SET votes = json_object_set_key(votes, p_person_uuid, json_object_set_key(p_vote, 'name', ret_name))
+  SET votes = json_object_set_key(votes, p_person_id, json_object_set_key(p_vote, 'name', ret_name))
   WHERE poll_id = p_poll_id;
 
   IF NOT found
