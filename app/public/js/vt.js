@@ -136,12 +136,12 @@ $(function () {
     }
   }
 
-  function addVote (pollId, name, vote) {
+  function addVote (pollId, vote) {
     var voteInstanceResultArea = $('.vote-instance-area[data-poll-id=' + pollId + '] .vote-instance-result-area');
     var decimals = voteInstanceResultArea.attr('data-decimals');
     voteInstanceResultArea.slideDown();
     var resultsTable = voteInstanceResultArea.find('table');
-    resultsTable.find('tbody').append('<tr><td>' + name + '</td><td class="num result-val">' + vote.toFixed(decimals) + '</td></tr>');
+    resultsTable.find('tbody').append('<tr><td>' + vote.name + '</td><td class="num result-val">' + vote.vote.toFixed(decimals) + '</td></tr>');
     var sum = 0;
     resultsTable.find('.result-val').each(function () {
       sum += parseFloat($(this).text());
@@ -178,12 +178,13 @@ $(function () {
 
   socket.on('polls sync', function (polls) {
     polls.forEach(function (poll) {
-      var haveIVoted = poll.votes.some(function (vote) {
-        return vote.person.uuid === uuid;
+      var haveIVoted = Object.keys(poll.votes).some(function (uuid) {
+        return myData.uuid === uuid;
       });
       createPoll(poll, haveIVoted);
-      poll.votes.forEach(function (vote) {
-        addVote(poll.uuid, vote.person.name, vote.vote);
+      console.log(poll);
+      Object.keys(poll.votes).forEach(function (uuid) {
+        addVote(poll.poll_id, poll.votes[uuid]);
       });
     });
   });
@@ -232,7 +233,7 @@ $(function () {
 
   //<editor-fold desc="Action: vote">
   socket.on('vote', function (data) {
-    addVote(data.poll_id, data.name, data.vote);
+    addVote(data.poll_id, data.vote);
   });
   voteArea.delegate('.vote-button', 'tap', function () {
     var voteInstanceArea = $(this).closest('.vote-instance-area');

@@ -152,7 +152,7 @@ $function$;
 
 CREATE OR REPLACE FUNCTION vote(p_room_name   rooms.name%TYPE, p_poll_id polls.poll_id%TYPE,
                                 p_person_uuid people.uuid%TYPE, p_vote JSON)
-  RETURNS people.name%TYPE AS $$
+  RETURNS polls.name%TYPE AS $$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
   ret_name  people.name%TYPE;
@@ -169,7 +169,7 @@ BEGIN
   END IF;
 
   UPDATE polls
-  SET votes = json_object_set_key(votes, p_person_uuid, p_vote)
+  SET votes = json_object_set_key(votes, p_person_uuid, json_object_set_key(p_vote, 'name', ret_name))
   WHERE poll_id = p_poll_id;
 
   IF NOT found

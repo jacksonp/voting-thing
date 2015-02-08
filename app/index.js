@@ -95,12 +95,13 @@ io.on('connection', function (socket) {
   });
 
   socket.on('vote', function (data) {
-    query('SELECT vote($1, $2, $3, $4) AS name', [data.room, data.poll_id, data.uuid, data.vote], function (err, rows, result) {
+    query('SELECT vote($1, $2, $3, $4) AS name', [data.room, data.poll_id, data.uuid, {vote: data.vote}], function (err, rows, result) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('error', err.messagePrimary);
       } else {
-        emitToRoom(data.room, 'vote', {poll_id: data.poll_id, name: rows[0].name, vote: data.vote});
+        data.vote.name = rows[0].name;
+        emitToRoom(data.room, 'vote', {poll_id: data.poll_id, vote: data.vote});
       }
     });
   });
