@@ -169,7 +169,7 @@ BEGIN
   END IF;
 
   UPDATE polls
-  SET votes = json_object_set_key(votes, p_person_id, json_object_set_key(p_vote, 'name', ret_name))
+  SET votes = json_object_set_key(votes, p_person_id::TEXT, json_object_set_key(p_vote, 'name', ret_name))
   WHERE poll_id = p_poll_id;
 
   IF NOT found

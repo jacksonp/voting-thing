@@ -93,8 +93,7 @@ io.on('connection', function (socket) {
         console.log(err);
         io.to(socket.id).emit('error', err.messagePrimary);
       } else {
-        data.vote.name = rows[0].name;
-        emitToRoom(data.room, 'vote', {poll_id: data.poll_id, vote: data.vote});
+        emitToRoom(data.room, 'vote', {poll_id: data.poll_id, vote: {vote: data.vote, name: rows[0].name}});
       }
     });
   });
