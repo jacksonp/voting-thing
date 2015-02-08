@@ -54,25 +54,18 @@ io.on('connection', function (socket) {
     });
   });
 
-  // TODO: maybe just use "enter room" for "name change" instead?
-  //socket.on('name change', function (data) {
-  //  var room, person;
-  //  try {
-  //    room = getRoom(data.room);
-  //  } catch (e) {
-  //    io.emit('error', e);
-  //    return;
-  //  }
-  //  person = room.getPerson(data.);
-  //  if (person === null) {
-  //    // If the person wasn't in the room, just add them. Could happen with network issues?
-  //    room.addPerson(new Person(socket.id, data., data.name));
-  //  } else {
-  //    // If the person is in the room, change their name.
-  //    person.changeName(data.name);
-  //  }
-  //  io.emit('name change', {: data., name: data.name});
-  //});
+  socket.on('name change', function (data) {
+    query("UPDATE people SET name = $2 WHERE person_id = $1 RETURNING room_id", [data.person_id, data.name], function (err, rows, result) {
+      if (err) {
+        console.error(err);
+        io.to(socket.id).emit('error', err.messagePrimary);
+      } else {
+        rows.forEach(function (r) {
+          emitToRoom(r.room_id, 'name change', data);
+        });
+      }
+    });
+  });
 
   socket.on('create poll', function (data) {
     var poll;
