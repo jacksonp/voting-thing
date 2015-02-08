@@ -18,7 +18,7 @@ $(function () {
     socket.emit(action, $.extend(extraData, myData));
   }
 
-  //<editor-fold desc="Sort out ">
+  //<editor-fold desc="Sort out uuid">
   if (localStorage.getItem('uuid')) {
     myData.uuid = localStorage.getItem('uuid');
   } else {
@@ -94,8 +94,8 @@ $(function () {
     }
   }
 
-  function addVote (uuid, name, vote) {
-    var voteInstanceResultArea = $('.vote-instance-area[data-uuid=' + uuid + '] .vote-instance-result-area');
+  function addVote (pollId, name, vote) {
+    var voteInstanceResultArea = $('.vote-instance-area[data-poll-id=' + pollId + '] .vote-instance-result-area');
     var decimals = voteInstanceResultArea.attr('data-decimals');
     voteInstanceResultArea.slideDown();
     var resultsTable = voteInstanceResultArea.find('table');
@@ -114,9 +114,7 @@ $(function () {
     if (localStorage.getItem('new-vote-name')) {
       val = localStorage.getItem('new-vote-name');
     } else {
-      //var date = new Date
-      //val = name + ' vote at ' + date.getHours() + ':' + date.getMinutes();
-      val = 'Poll Name'; // at ' + String('00' + date.getHours()).slice(-2) + ':' + String('00' + date.getMinutes()).slice(-2);
+      val = 'Poll Name';
     }
     newVoteNameInput.val(val);
     newVoteMinInput.val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 5);
@@ -192,7 +190,7 @@ $(function () {
 
   //<editor-fold desc="Action: vote">
   socket.on('vote', function (data) {
-    addVote(data.uuid, data.name, data.vote);
+    addVote(data.poll_id, data.name, data.vote);
   });
   voteArea.delegate('.vote-button', 'tap', function () {
     var voteInstanceArea = $(this).closest('.vote-instance-area');
@@ -203,7 +201,7 @@ $(function () {
       }
       return;
     }
-    myEmit('vote', {uuid: voteInstanceArea.attr('data-uuid'), vote: parseFloat(vote)});
+    myEmit('vote', {poll_id: voteInstanceArea.attr('data-poll-id'), vote: parseFloat(vote)});
     voteInstanceArea.find('.vote-instance-input-area').slideUp(400, function () {
       $(this).remove();
     });

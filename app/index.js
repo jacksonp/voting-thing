@@ -88,39 +88,21 @@ io.on('connection', function (socket) {
         console.log(err);
         io.to(socket.id).emit('error', err.messagePrimary);
       } else {
-        poll.id = rows[0].poll_id;
+        poll.poll_id = rows[0].poll_id;
         emitToRoom(data.room, 'create poll', poll);
       }
     });
   });
 
   socket.on('vote', function (data) {
-    var room, person;
-    try {
-      room = getRoom(data.room);
-    } catch (e) {
-      io.emit('error', e);
-      return;
-    }
-    var poll = room.getPoll(data.uuid);
-    if (poll === null) {
-      io.emit('error', 'Poll not found.');
-      return;
-    }
-    person = room.getPerson(data.uuid);
-    if (person === null) {
-      io.emit('error', 'Voter not found.');
-      return;
-    }
-    poll.addVote(person, data.vote);
-    io.emit('vote', {uuid: data.uuid, name: person.name, vote: data.vote});
-
-    // Keep it simpler than this to start with:
-    //var votes = poll.getVotes();
-    //votes.forEach(function (v) { // people who have voted get new votes as they come in.
-    //  io.sockets.connected[v.person.id].emit('vote', {uuid: data.uuid, name: votingPerson.name, vote: data.vote});
-    //});
-    //// person who has just voted gets all votes so far.
+    query('SELECT vote($1, $2, $3, $4) AS name', [data.room, data.poll_id, data.uuid, data.vote], function (err, rows, result) {
+      if (err) {
+        console.log(err);
+        io.to(socket.id).emit('error', err.messagePrimary);
+      } else {
+        emitToRoom(data.room, 'vote', {poll_id: data.poll_id, name: rows[0].name, vote: data.vote});
+      }
+    });
   });
 
   socket.on('disconnect', function () {

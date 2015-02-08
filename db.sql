@@ -2,7 +2,6 @@
 -- createdb -U vt vt
 -- psql -U postgres vt
 -- vt=# CREATE EXTENSION unaccent;
--- vt=# CREATE EXTENSION "uuid-ossp";
 -- psql -U vt
 
 CREATE TABLE rooms (
@@ -28,7 +27,7 @@ CREATE TABLE polls (
   name    TEXT                     NOT NULL,
   type    TEXT                     NOT NULL,
   details JSON                     NOT NULL,
-  votes   JSON                     NOT NULL DEFAULT '[]'
+  votes   JSON                     NOT NULL DEFAULT '{}'
 );
 
 -- CREATE TABLE votes (
@@ -122,7 +121,7 @@ CREATE OR REPLACE FUNCTION create_poll(p_room_name rooms.name%TYPE, p_name polls
   RETURNS polls.poll_id%TYPE AS $$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
-  ret_id  polls.poll_id%TYPE;
+  ret_id    polls.poll_id%TYPE;
 BEGIN
 
   INSERT INTO polls (room_id, name, type, details)
@@ -131,6 +130,57 @@ BEGIN
     INTO ret_id;
 
   RETURN ret_id;
+
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION "json_object_set_key"(
+  "json"         JSON,
+  "key_to_set"   TEXT,
+  "value_to_set" ANYELEMENT
+)
+  RETURNS JSON
+LANGUAGE SQL
+IMMUTABLE
+STRICT
+AS $function$
+SELECT concat('{', string_agg(to_json("key") || ':' || "value", ','), '}') :: JSON
+FROM (SELECT *
+      FROM json_each("json")
+      WHERE "key" <> "key_to_set"
+      UNION ALL
+      SELECT
+        "key_to_set",
+        to_json("value_to_set")) AS "fields"
+$function$;
+
+
+CREATE OR REPLACE FUNCTION vote(p_room_name   rooms.name%TYPE, p_poll_id polls.poll_id%TYPE,
+                                p_person_uuid people.uuid%TYPE, p_vote JSON)
+  RETURNS people.name%TYPE AS $$
+DECLARE
+  p_room_id TEXT := get_room(p_room_name);
+  ret_name  people.name%TYPE;
+BEGIN
+
+  SELECT name
+  INTO ret_name
+  FROM people
+  WHERE uuid = p_person_uuid;
+
+  IF NOT found
+  THEN
+    RAISE 'Voter not found.';
+  END IF;
+
+  UPDATE polls
+  SET votes = json_object_set_key(votes, p_person_uuid, p_vote)
+  WHERE poll_id = p_poll_id;
+
+  --TODO: check if update affected one row, otherwise "Poll not found."
+
+  RETURN ret_name;
 
 END;
 $$ LANGUAGE plpgsql;
