@@ -107,7 +107,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id', [socket.id], function (err, rows, result) {
+    query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id, person_id', [socket.id], function (err, rows, result) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('error', err.messagePrimary);

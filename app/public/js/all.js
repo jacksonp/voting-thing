@@ -28,7 +28,6 @@ $(function () {
     });
     localStorage.setItem('person_id', myData.person_id);
   }
-  console.log(myData);
   //</editor-fold>
 
   //<editor-fold desc="Sort out name">
@@ -57,9 +56,9 @@ $(function () {
   $('.my-name').text(name);
   //</editor-fold>
 
-  function addPersonToRoom (name, id) {
-    var li = $('<li>').attr('data-id', id);
-    if (id === myData.person_id) {
+  function addPersonToRoom (name, personId) {
+    var li = $('<li>').attr('data-person-id', personId);
+    if (personId === myData.person_id) {
       li.attr('data-icon', 'edit').append($('<a>').addClass('my-name').text(name)).on('tap', setName);
     } else {
       li.text(name);
@@ -127,7 +126,7 @@ $(function () {
   //<editor-fold desc="Action: enter room">
   socket.on('enter room', function (people) {
     $.each(people, function (k, u) {
-      if (!$('.roomies li[data-id="' + u.person_id + '"]').length) {
+      if (!$('.roomies li[data-person-id="' + u.person_id + '"]').length) {
         addPersonToRoom(u.name, u.person_id);
       }
     });
@@ -141,7 +140,6 @@ $(function () {
         return myData.person_id === person_id;
       });
       createPoll(poll, haveIVoted);
-      console.log(poll);
       Object.keys(poll.votes).forEach(function (person_id) {
         addVote(poll.poll_id, poll.votes[person_id]);
       });
@@ -150,7 +148,7 @@ $(function () {
 
   //<editor-fold desc="Action: name change">
   socket.on('name change', function (data) {
-    var existingUser = $('.roomies li[data-id="' + data.person_id + '"]');
+    var existingUser = $('.roomies li[data-person-id="' + data.person_id + '"]');
     if (existingUser.length) {
       if (existingUser.find('a').length) {
         existingUser.find('a').text(data.name);
@@ -164,8 +162,8 @@ $(function () {
   //</editor-fold>
 
   //<editor-fold desc="Action: person left">
-  socket.on('person left', function (id) {
-    $('.roomies li[data-id="' + id + '"]').remove();
+  socket.on('person left', function (personId) {
+    $('.roomies li[data-person-id="' + personId + '"]').remove();
   });
   //</editor-fold>
 
