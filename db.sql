@@ -30,13 +30,6 @@ CREATE TABLE polls (
   votes   JSON                     NOT NULL DEFAULT '{}'
 );
 
--- CREATE TABLE votes (
---   vote_id SERIAL PRIMARY KEY,
---   poll_id INTEGER                  NOT NULL REFERENCES polls ON UPDATE CASCADE ON DELETE CASCADE,
---   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
---   person  TEXT                     NOT NULL,
---   vote    JSON                     NOT NULL
--- );
 
 CREATE OR REPLACE FUNCTION vt_normalize(TEXT)
   RETURNS TEXT AS
@@ -56,6 +49,7 @@ CREATE OR REPLACE FUNCTION vt_normalize(TEXT)
 LANGUAGE SQL
 IMMUTABLE
 RETURNS NULL ON NULL INPUT;
+
 
 CREATE OR REPLACE FUNCTION get_room(p_param1 rooms.name%TYPE)
   RETURNS rooms.room_id%TYPE AS $$
@@ -178,7 +172,10 @@ BEGIN
   SET votes = json_object_set_key(votes, p_person_uuid, p_vote)
   WHERE poll_id = p_poll_id;
 
-  --TODO: check if update affected one row, otherwise "Poll not found."
+  IF NOT found
+  THEN
+    RAISE 'Poll not found.';
+  END IF;
 
   RETURN ret_name;
 
