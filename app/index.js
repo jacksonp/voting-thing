@@ -107,16 +107,16 @@ io.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    console.log('Disconnnect.');
-    //var room, person;
-    //try {
-    //  room = getRoom(data.room);
-    //} catch (e) {
-    //  io.emit('error', e);
-    //  return;
-    //}
-    //boshRoom.removePerson(socket.id);
-    //io.emit('person left', socket.id);
+    query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id', [socket.id], function (err, rows, result) {
+      if (err) {
+        console.log(err);
+        io.to(socket.id).emit('error', err.messagePrimary);
+      } else {
+        rows.forEach(function (r) {
+          emitToRoom(r.room_id, 'person left', r.uuid);
+        });
+      }
+    });
   });
 
 });
