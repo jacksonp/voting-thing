@@ -69,11 +69,16 @@ $(function () {
 
   // assumes type is "range" for now.
   function createPoll (poll, haveIVoted) {
+    var targetMiddleVal = poll.details.min + ((poll.details.max - poll.details.min) / 2);
+    var defaultVal = poll.details.min;
+    while (defaultVal + poll.details.step <= targetMiddleVal) {
+      defaultVal += poll.details.step;
+    }
     var html = '<div data-role="collapsible" data-collapsed="false" class="vote-instance-area" data-poll-id="' + poll.poll_id + '">';
     html += '<h2>' + poll.name + '</h2>';
     if (!haveIVoted) {
       html += '<div class="vote-instance-input-area">';
-      html += '<input name="vote-input" value="' + (poll.details.min + ((poll.details.max - poll.details.min) / 2)) + '" min="' + poll.details.min + '" max="' + poll.details.max + '" step="' + poll.details.step + '" type="range">';
+      html += '<input name="vote-input" value="' + defaultVal + '" min="' + poll.details.min + '" max="' + poll.details.max + '" step="' + poll.details.step + '" type="range">';
       html += '<button class="vote-button" data-theme="b">Send My Vote</button>';
       html += '</div>';
     }
@@ -172,9 +177,9 @@ $(function () {
     var poll;
     try {
       poll = new Poll.Poll(newVoteNameInput.val(), 'range', {
-        min : parseFloat(newVoteMinInput.val()),
-        max : parseFloat(newVoteMaxInput.val()),
-        step: parseFloat(newVoteStepInput.val())
+        min : newVoteMinInput.val(),
+        max : newVoteMaxInput.val(),
+        step: newVoteStepInput.val()
       });
     } catch (e) {
       alert(e);

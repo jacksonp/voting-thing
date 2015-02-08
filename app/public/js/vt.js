@@ -1,25 +1,7 @@
 (function (exports) {
   'use strict';
 
-  function isNumeric (n) {
-    // see jquery.isNumeric implementation.
-    return (n - parseFloat(n) + 1) >= 0;
-  }
-
   exports.Poll = function (name, type, details) {
-
-    // http://stackoverflow.com/a/10454560
-    function decimalPlaces (num) {
-      var match = ('' + num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
-      if (!match) {
-        return 0;
-      }
-      return Math.max(0,
-        // Number of digits right of decimal point.
-        (match[1] ? match[1].length : 0)
-          // Adjust for scientific notation.
-        - (match[2] ? +match[2] : 0));
-    }
 
     if (!name) {
       throw 'Poll needs a Name.';
@@ -35,6 +17,9 @@
       if (!isNumeric(details.step)) {
         throw 'Step must be a number.';
       }
+      details.min = parseFloat(details.min);
+      details.max = parseFloat(details.max);
+      details.step = parseFloat(details.step);
       if (details.min >= details.max) {
         throw 'Max must be more than Min.';
       }
@@ -52,6 +37,24 @@
     this.votes = [];
 
   };
+
+  function isNumeric (n) {
+    // see jquery.isNumeric implementation.
+    return (n - parseFloat(n) + 1) >= 0;
+  }
+
+  // http://stackoverflow.com/a/10454560
+  function decimalPlaces (num) {
+    var match = ('' + num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+    if (!match) {
+      return 0;
+    }
+    return Math.max(0,
+      // Number of digits right of decimal point.
+      (match[1] ? match[1].length : 0)
+        // Adjust for scientific notation.
+      - (match[2] ? +match[2] : 0));
+  }
 
 })(typeof exports === 'undefined' ? this['Poll'] = {} : exports);
 $(function () {
@@ -125,11 +128,16 @@ $(function () {
 
   // assumes type is "range" for now.
   function createPoll (poll, haveIVoted) {
+    var targetMiddleVal = poll.details.min + ((poll.details.max - poll.details.min) / 2);
+    var defaultVal = poll.details.min;
+    while (defaultVal + poll.details.step <= targetMiddleVal) {
+      defaultVal += poll.details.step;
+    }
     var html = '<div data-role="collapsible" data-collapsed="false" class="vote-instance-area" data-poll-id="' + poll.poll_id + '">';
     html += '<h2>' + poll.name + '</h2>';
     if (!haveIVoted) {
       html += '<div class="vote-instance-input-area">';
-      html += '<input name="vote-input" value="' + (poll.details.min + ((poll.details.max - poll.details.min) / 2)) + '" min="' + poll.details.min + '" max="' + poll.details.max + '" step="' + poll.details.step + '" type="range">';
+      html += '<input name="vote-input" value="' + defaultVal + '" min="' + poll.details.min + '" max="' + poll.details.max + '" step="' + poll.details.step + '" type="range">';
       html += '<button class="vote-button" data-theme="b">Send My Vote</button>';
       html += '</div>';
     }
@@ -228,9 +236,9 @@ $(function () {
     var poll;
     try {
       poll = new Poll.Poll(newVoteNameInput.val(), 'range', {
-        min : parseFloat(newVoteMinInput.val()),
-        max : parseFloat(newVoteMaxInput.val()),
-        step: parseFloat(newVoteStepInput.val())
+        min : newVoteMinInput.val(),
+        max : newVoteMaxInput.val(),
+        step: newVoteStepInput.val()
       });
     } catch (e) {
       alert(e);
