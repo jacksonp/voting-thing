@@ -1,6 +1,11 @@
 (function (exports) {
   'use strict';
 
+  function isNumeric (n) {
+    // see jquery.isNumeric implementation.
+    return (n - parseFloat(n) + 1) >= 0;
+  }
+
   exports.Poll = function (name, type, details) {
 
     // http://stackoverflow.com/a/10454560
@@ -21,11 +26,20 @@
     }
 
     if (type === 'range') {
+      if (!isNumeric(details.min)) {
+        throw 'Min must be a number.';
+      }
+      if (!isNumeric(details.max)) {
+        throw 'Max must be a number.';
+      }
+      if (!isNumeric(details.step)) {
+        throw 'Step must be a number.';
+      }
       if (details.min >= details.max) {
         throw 'Max must be more than Min.';
       }
       if (details.step > details.max - details.min) {
-        throw 'Step must fit between Max and Min.';
+        throw 'Step is too large.';
       }
     }
 
