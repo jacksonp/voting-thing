@@ -21,13 +21,14 @@ CREATE TABLE people (
 );
 
 CREATE TABLE polls (
-  poll_id SERIAL PRIMARY KEY,
-  room_id TEXT REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
-  created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  name    TEXT                     NOT NULL,
-  type    TEXT                     NOT NULL,
-  details JSON                     NOT NULL,
-  votes   JSON                     NOT NULL DEFAULT '{}'
+  poll_id  SERIAL PRIMARY KEY,
+  room_id  TEXT                     NOT NULL REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
+  created  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  name     TEXT                     NOT NULL,
+  owner_id UUID                     NOT NULL,
+  type     TEXT                     NOT NULL,
+  details  JSON                     NOT NULL,
+  votes    JSON                     NOT NULL DEFAULT '{}'
 );
 
 
@@ -111,15 +112,16 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION create_poll(p_room_name rooms.name%TYPE, p_name polls.name%TYPE,
-                                       p_type      polls.type%TYPE, p_details polls.details%TYPE)
+                                       p_type      polls.type%TYPE, p_details polls.details%TYPE,
+                                       p_owner_id  people.person_id%TYPE)
   RETURNS polls.poll_id%TYPE AS $$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
   ret_id    polls.poll_id%TYPE;
 BEGIN
 
-  INSERT INTO polls (room_id, name, type, details)
-  VALUES (p_room_id, p_name, p_type, p_details)
+  INSERT INTO polls (room_id, name, owner_id, type, details)
+  VALUES (p_room_id, p_name, p_owner_id, p_type, p_details)
   RETURNING poll_id
     INTO ret_id;
 
@@ -169,7 +171,7 @@ BEGIN
   END IF;
 
   UPDATE polls
-  SET votes = json_object_set_key(votes, p_person_id::TEXT, json_object_set_key(p_vote, 'name', ret_name))
+  SET votes = json_object_set_key(votes, p_person_id :: TEXT, json_object_set_key(p_vote, 'name', ret_name))
   WHERE poll_id = p_poll_id;
 
   IF NOT found

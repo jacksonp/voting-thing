@@ -1,7 +1,7 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, type, details) {
+  exports.Poll = function (name, ownerId, type, details) {
 
     if (!name) {
       throw 'Poll needs a Name.';
@@ -29,6 +29,7 @@
     }
 
     this.name = name;
+    this.owner_id = ownerId;
     this.type = type;
     this.details = details;
     if (!this.details.decimals) {
@@ -126,6 +127,7 @@ $(function () {
 
   // assumes type is "range" for now.
   function createPoll (poll, haveIVoted) {
+    console.log(poll.owner_id);
     var targetMiddleVal = poll.details.min + ((poll.details.max - poll.details.min) / 2);
     var defaultVal = poll.details.min;
     while (defaultVal + poll.details.step <= targetMiddleVal) {
@@ -145,6 +147,9 @@ $(function () {
     html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
     html += '</table>';
     html += '</div>';
+    if (poll.owner_id === myData.person_id) {
+      html += '<button class="delete-poll-button" data-theme="b">Delete Poll</button>';
+    }
     html += '</div>';
     if (haveIVoted) {
       $(html).prependTo(voteArea);
@@ -233,7 +238,7 @@ $(function () {
   $('#create-poll-button').on('tap', function (e) {
     var poll;
     try {
-      poll = new Poll.Poll(newVoteNameInput.val(), 'range', {
+      poll = new Poll.Poll(newVoteNameInput.val(), myData.person_id, 'range', {
         min : newVoteMinInput.val(),
         max : newVoteMaxInput.val(),
         step: newVoteStepInput.val()
@@ -247,6 +252,21 @@ $(function () {
   });
   socket.on('create poll', function (poll) {
     createPoll(poll);
+  });
+  //</editor-fold>
+
+  //<editor-fold desc="Action: delete poll">
+  socket.on('delete poll', function (poll_id) {
+    var voteInstanceArea = $('.vote-instance-area[data-poll-id=' + poll_id + ']');
+    voteInstanceArea.slideUp(400, function () {
+      $(this).remove();
+    });
+  });
+  voteArea.delegate('.delete-poll-button', 'click', function () {
+    if (confirm('Are you sure you want to delete this poll?')) {
+      var voteInstanceArea = $(this).closest('.vote-instance-area');
+      myEmit('delete poll', {poll_id: voteInstanceArea.attr('data-poll-id')});
+    }
   });
   //</editor-fold>
 

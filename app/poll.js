@@ -1,7 +1,7 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, type, details) {
+  exports.Poll = function (name, ownerId, type, details) {
 
     if (!name) {
       throw 'Poll needs a Name.';
@@ -29,6 +29,7 @@
     }
 
     this.name = name;
+    this.owner_id = ownerId;
     this.type = type;
     this.details = details;
     if (!this.details.decimals) {

@@ -42,7 +42,7 @@ io.on('connection', function (socket) {
         rows.forEach(function (r) {
           io.to(r.r_socket_id).emit('enter room', inRoom);
         });
-        query("SELECT poll_id, name, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, rows, result) {
+        query("SELECT poll_id, name, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, rows, result) {
           if (err) {
             console.error(err);
             io.to(socket.id).emit('error', err.messagePrimary);
@@ -70,19 +70,30 @@ io.on('connection', function (socket) {
   socket.on('create poll', function (data) {
     var poll;
     try {
-      poll = new Poll(data.name, data.type, data.details);
+      poll = new Poll(data.name, data.person_id, data.type, data.details);
     } catch (e) {
       console.log(e);
       io.to(socket.id).emit('error', e);
       return;
     }
-    query('SELECT create_poll($1, $2, $3, $4) AS poll_id', [data.room, poll.name, poll.type, poll.details], function (err, rows, result) {
+    query('SELECT create_poll($1, $2, $3, $4, $5) AS poll_id', [data.room, poll.name, poll.type, poll.details, data.person_id], function (err, rows, result) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('error', err.messagePrimary);
       } else {
         poll.poll_id = rows[0].poll_id;
         emitToRoom(data.room, 'create poll', poll);
+      }
+    });
+  });
+
+  socket.on('delete poll', function (data) {
+    query('DELETE FROM polls WHERE poll_id = $1', [data.poll_id], function (err, rows, result) {
+      if (err) {
+        console.log(err);
+        io.to(socket.id).emit('error', err.messagePrimary);
+      } else {
+        emitToRoom(data.room, 'delete poll', data.poll_id);
       }
     });
   });
