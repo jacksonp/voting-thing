@@ -52,8 +52,6 @@ $(function () {
   } else {
     setName();
   }
-
-  $('.my-name').text(name);
   //</editor-fold>
 
   function addPersonToRoom (name, personId) {
