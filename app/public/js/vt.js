@@ -111,7 +111,7 @@ $(function () {
 
   // assumes type is "range" for now.
   function createPoll (poll, haveIVoted) {
-    var html = '<div data-role="collapsible" data-collapsed="false" class="vote-instance-area" data-uuid="' + poll.uuid + '">';
+    var html = '<div data-role="collapsible" data-collapsed="false" class="vote-instance-area" data-poll-id="' + poll.poll_id + '">';
     html += '<h2>' + poll.name + '</h2>';
     if (!haveIVoted) {
       html += '<div class="vote-instance-input-area">';
@@ -224,27 +224,6 @@ $(function () {
       alert(e);
       return;
     }
-
-
-    //var
-    //  poll = {
-    //    name   : newVoteNameInput.val(),
-    //    type   : 'range',
-    //    details: {
-    //      min : parseFloat(newVoteMinInput.val()),
-    //      max : parseFloat(newVoteMaxInput.val()),
-    //      step: parseFloat(newVoteStepInput.val())
-    //    }
-    //  };
-    //if (!poll.name) {
-    //  alert('Poll needs a Name.');
-    //}
-    //if (poll.details.min >= poll.details.max) {
-    //  alert('Max must be more than Min.');
-    //}
-    //if (poll.details.step > poll.details.max - poll.details.min) {
-    //  alert('Step must fit between Max and Min.');
-    //}
     myEmit('create poll', poll);
     $(".new-poll-area").collapsible("collapse");
   });

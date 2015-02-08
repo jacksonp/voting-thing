@@ -24,7 +24,6 @@ CREATE TABLE people (
 CREATE TABLE polls (
   poll_id SERIAL PRIMARY KEY,
   room_id TEXT REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
-  uuid    TEXT                     NOT NULL,
   created TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   name    TEXT                     NOT NULL,
   type    TEXT                     NOT NULL,
@@ -120,18 +119,18 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION create_poll(p_room_name rooms.name%TYPE, p_name polls.name%TYPE,
                                        p_type      polls.type%TYPE, p_details polls.details%TYPE)
-  RETURNS polls.uuid%TYPE AS $$
+  RETURNS polls.poll_id%TYPE AS $$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
-  ret_uuid  polls.uuid%TYPE;
+  ret_id  polls.poll_id%TYPE;
 BEGIN
 
-  INSERT INTO polls (room_id, uuid, name, type, details)
-  VALUES (p_room_id, uuid_generate_v4(), p_name, p_type, p_details)
-  RETURNING uuid
-    INTO ret_uuid;
+  INSERT INTO polls (room_id, name, type, details)
+  VALUES (p_room_id, p_name, p_type, p_details)
+  RETURNING poll_id
+    INTO ret_id;
 
-  RETURN ret_uuid;
+  RETURN ret_id;
 
 END;
 $$ LANGUAGE plpgsql;

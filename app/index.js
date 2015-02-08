@@ -42,7 +42,7 @@ io.on('connection', function (socket) {
         rows.forEach(function (r) {
           io.to(r.r_socket_id).emit('enter room', inRoom);
         });
-        query("SELECT uuid, name, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, rows, result) {
+        query("SELECT poll_id, name, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, rows, result) {
           if (err) {
             console.error(err);
             io.to(socket.id).emit('error', err.messagePrimary);
@@ -83,12 +83,12 @@ io.on('connection', function (socket) {
       io.to(socket.id).emit('error', e);
       return;
     }
-    query('SELECT create_poll($1, $2, $3, $4) AS uuid', [data.room, poll.name, poll.type, poll.details], function (err, rows, result) {
+    query('SELECT create_poll($1, $2, $3, $4) AS poll_id', [data.room, poll.name, poll.type, poll.details], function (err, rows, result) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('error', err.messagePrimary);
       } else {
-        poll.uuid = rows[0].uuid;
+        poll.id = rows[0].poll_id;
         emitToRoom(data.room, 'create poll', poll);
       }
     });
