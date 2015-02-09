@@ -102,7 +102,7 @@ $(function () {
     while (defaultVal + poll.details.step <= targetMiddleVal) {
       defaultVal += poll.details.step;
     }
-    var html = '<div data-role="collapsible" data-collapsed="false" class="vote-instance-area" data-poll-id="' + poll.poll_id + '">';
+    var html = '<div data-role="collapsible" data-collapsed="false" class="poll-instance-area" data-poll-id="' + poll.poll_id + '">';
     html += '<h2>' + poll.name + '</h2>';
     if (!haveIVoted) {
       html += '<div class="vote-instance-input-area">';
@@ -131,7 +131,7 @@ $(function () {
   }
 
   function addVote (pollId, vote) {
-    var voteInstanceResultArea = $('.vote-instance-area[data-poll-id=' + pollId + '] .vote-instance-result-area');
+    var voteInstanceResultArea = $('.poll-instance-area[data-poll-id=' + pollId + '] .vote-instance-result-area');
     var decimals = voteInstanceResultArea.attr('data-decimals');
     voteInstanceResultArea.slideDown();
     var resultsTable = voteInstanceResultArea.find('table');
@@ -155,7 +155,7 @@ $(function () {
 
   //<editor-fold desc="Action: enter room">
   socket.on('enter room', function (people) {
-    $('.vote-instance-area').remove(); // remove any polls from previous room
+    $('.poll-instance-area').remove(); // remove any polls from previous room
     $.each(people, function (k, u) {
       if (!$('.roomies li[data-person-id="' + u.person_id + '"]').length) {
         addPersonToRoom(u.name, u.person_id);
@@ -220,14 +220,14 @@ $(function () {
 
   //<editor-fold desc="Action: delete poll">
   socket.on('delete poll', function (poll_id) {
-    var voteInstanceArea = $('.vote-instance-area[data-poll-id=' + poll_id + ']');
+    var voteInstanceArea = $('.poll-instance-area[data-poll-id=' + poll_id + ']');
     voteInstanceArea.slideUp(400, function () {
       $(this).remove();
     });
   });
   voteArea.delegate('.delete-poll-button', 'tap', function () {
     if (confirm('Are you sure you want to delete this poll?')) {
-      var voteInstanceArea = $(this).closest('.vote-instance-area');
+      var voteInstanceArea = $(this).closest('.poll-instance-area');
       myEmit('delete poll', {poll_id: voteInstanceArea.attr('data-poll-id')});
     }
   });
@@ -238,7 +238,7 @@ $(function () {
     addVote(data.poll_id, data.vote);
   });
   voteArea.delegate('.vote-button', 'tap', function () {
-    var voteInstanceArea = $(this).closest('.vote-instance-area');
+    var voteInstanceArea = $(this).closest('.poll-instance-area');
     var vote = voteInstanceArea.find('input[name=vote-input]').val();
     if (!$.isNumeric(vote)) {
       if (vote != '') {
