@@ -67,7 +67,6 @@ $(function () {
 
   // assumes type is "range" for now.
   function createPoll (poll, haveIVoted) {
-    console.log(poll.owner_id);
     var targetMiddleVal = poll.details.min + ((poll.details.max - poll.details.min) / 2);
     var defaultVal = poll.details.min;
     while (defaultVal + poll.details.step <= targetMiddleVal) {
@@ -175,7 +174,7 @@ $(function () {
   //</editor-fold>
 
   //<editor-fold desc="Action: create poll">
-  $('#create-poll-button').on('tap', function (e) {
+  $('#create-poll-button').on('tap', function () {
     var poll;
     try {
       poll = new Poll.Poll(newVoteNameInput.val(), myData.person_id, 'range', {
@@ -202,7 +201,7 @@ $(function () {
       $(this).remove();
     });
   });
-  voteArea.delegate('.delete-poll-button', 'click', function () {
+  voteArea.delegate('.delete-poll-button', 'tap', function () {
     if (confirm('Are you sure you want to delete this poll?')) {
       var voteInstanceArea = $(this).closest('.vote-instance-area');
       myEmit('delete poll', {poll_id: voteInstanceArea.attr('data-poll-id')});
