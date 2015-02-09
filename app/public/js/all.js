@@ -155,6 +155,7 @@ $(function () {
 
   //<editor-fold desc="Action: enter room">
   socket.on('enter room', function (people) {
+    $('.vote-instance-area').remove(); // remove any polls from previous room
     $.each(people, function (k, u) {
       if (!$('.roomies li[data-person-id="' + u.person_id + '"]').length) {
         addPersonToRoom(u.name, u.person_id);
