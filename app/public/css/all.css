@@ -1,4 +1,6 @@
 .hidden,
+.poll-and-votes-area,
+.room-area,
 .vote-instance-result-area table.not-voted td:nth-of-type(2),
 .vote-instance-result-area table.not-voted th:nth-of-type(2),
 .vote-instance-result-area table.not-voted tfoot {
@@ -17,15 +19,15 @@
 }
 
 .vote-results-table {
-    counter-reset: rowNumber;
+  counter-reset : rowNumber;
 }
 
 .vote-results-table tr {
-    counter-increment: rowNumber;
+  counter-increment : rowNumber;
 }
 
 .vote-results-table tr td:first-child::before {
-    content: counter(rowNumber) ".";
-    min-width: 1em;
-    margin-right: 0.5em;
+  content      : counter(rowNumber) ".";
+  min-width    : 1em;
+  margin-right : 0.5em;
 }

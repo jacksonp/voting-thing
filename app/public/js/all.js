@@ -2,9 +2,8 @@ $(function () {
   'use strict';
 
   var
-    name,
     myData = {
-      room: 'bosh'//$.mobile.path.getDocumentUrl(true).filename
+      room: location.hash.replace('#', '')
     },
     socket = io(),
     newVoteNameInput = $('#new-vote-name'),
@@ -32,32 +31,63 @@ $(function () {
 
   //<editor-fold desc="Sort out name">
   function setName () {
-    var res = window.prompt("What is your name?", name);
-    if (res === null && name) {
+    var newName = window.prompt('What is your name?', myData.name);
+    if (newName === null && myData.name) {
       return;
     }
-    res = res.trim().substring(0, 20);
-    if (!res) {
+    newName = newName.trim().substring(0, 20);
+    if (!newName) {
       setName();
     } else {
-      name = res;
-      localStorage.setItem('name', name);
-      $('.my-name').text(name);
-      myEmit('name change', {name: name});
+      if (myData.name) { // if there was a name set previously.
+        myEmit('name change', {new_name: newName});
+      }
+      myData.name = newName;
+      localStorage.setItem('name', newName);
     }
   }
 
   if (localStorage.getItem('name')) {
-    name = localStorage.getItem('name');
+    myData.name = localStorage.getItem('name');
   } else {
     setName();
   }
   //</editor-fold>
 
+  //<editor-fold desc="Sort out room name">
+  if (!myData.room && localStorage.getItem('room_name')) {
+    myData.room = localStorage.getItem('room_name');
+    history.pushState(null, null, '#' + myData.room);
+  }
+
+  function setRoom (roomName) {
+    myData.room = roomName;
+    $('#room-input').val(roomName);
+    localStorage.setItem('room_name', roomName);
+    $('h1').text(roomName);
+    myEmit('enter room', {name: myData.name});
+  }
+
+  if (myData.room) {
+    $('.set-room-text-area').hide();
+    $('.poll-and-votes-area').show();
+    $('.room-area').show();
+    setRoom(myData.room);
+  } else { // We need the user to select a room
+    // currently no action
+  }
+  $('#enter-room-button').on('tap', function () {
+    var newRoomName = $('#room-input').val();
+    $('#vt-panel').panel('close');
+    setRoom(newRoomName);
+    history.pushState(null, null, '#' + newRoomName);
+  });
+  //</editor-fold>
+
   function addPersonToRoom (name, personId) {
     var li = $('<li>').attr('data-person-id', personId);
     if (personId === myData.person_id) {
-      li.attr('data-icon', 'edit').append($('<a>').addClass('my-name').text(name)).on('tap', setName);
+      li.attr('data-icon', 'edit').append($('<a>').text(name)).on('tap', setName);
     } else {
       li.text(name);
     }
@@ -131,7 +161,6 @@ $(function () {
       }
     });
   });
-  myEmit('enter room', {name: name});
   //</editor-fold>
 
   socket.on('polls sync', function (polls) {
@@ -151,12 +180,12 @@ $(function () {
     var existingUser = $('.roomies li[data-person-id="' + data.person_id + '"]');
     if (existingUser.length) {
       if (existingUser.find('a').length) {
-        existingUser.find('a').text(data.name);
+        existingUser.find('a').text(data.new_name);
       } else {
-        existingUser.text(data.name);
+        existingUser.text(data.new_name);
       }
     } else {
-      addPersonToRoom(data.name, data.person_id);
+      addPersonToRoom(data.new_name, data.person_id);
     }
   });
   //</editor-fold>

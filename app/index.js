@@ -55,7 +55,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('name change', function (data) {
-    query("UPDATE people SET name = $2 WHERE person_id = $1 RETURNING room_id", [data.person_id, data.name], function (err, rows, result) {
+    query("UPDATE people SET name = $2 WHERE person_id = $1 RETURNING room_id", [data.person_id, data.new_name], function (err, rows, result) {
       if (err) {
         console.error(err);
         io.to(socket.id).emit('error', err.messagePrimary);
