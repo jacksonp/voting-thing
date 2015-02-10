@@ -3,7 +3,8 @@ $(function () {
 
   var
     myData = {
-      room: location.hash.replace('#', '')
+      room: location.hash.replace('#', ''),
+      name: localStorage.getItem('name')
     },
     socket = io(),
     newVoteNameInput = $('#new-vote-name'),
@@ -29,6 +30,27 @@ $(function () {
   }
   //</editor-fold>
 
+  $('#setup-name').val(myData.name);
+  $('#setup-room').val(myData.room);
+
+  $('#setup-form').submit(function (event) {
+    event.preventDefault();
+    var
+      personName =$('#setup-name').val(),
+      roomName = $('#setup-room').val();
+    // Validate room name
+    if (!roomName.match(/[0-9A-Za-z]/)) {
+      alert('Room name must contain some letters or numbers.');
+      return;
+    }
+    myData.name = personName;
+    localStorage.setItem('name', personName);
+    setRoom(roomName);
+    setupDone();
+    history.pushState(null, null, '#' + roomName);
+  });
+
+
   //<editor-fold desc="Sort out name">
   function setName () {
     var newName = window.prompt('What is your name?', myData.name);
@@ -45,12 +67,6 @@ $(function () {
       myData.name = newName;
       localStorage.setItem('name', newName);
     }
-  }
-
-  if (localStorage.getItem('name')) {
-    myData.name = localStorage.getItem('name');
-  } else {
-    setName();
   }
   //</editor-fold>
 
@@ -69,13 +85,13 @@ $(function () {
     myEmit('enter room', {name: myData.name});
   }
 
-  if (myData.room) {
-    $('.set-room-text-area').hide();
-    $('.poll-and-votes-area').show();
-    $('.room-area').show();
+  function setupDone () {
+    $('.not-setup').removeClass('not-setup').addClass('done-setup');
+  }
+
+  if (myData.room && myData.name) {
     setRoom(myData.room);
-  } else { // We need the user to select a room
-    // currently no action
+    setupDone();
   }
 
   $('#enter-room-form').submit(function (event) {

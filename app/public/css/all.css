@@ -1,10 +1,12 @@
 .hidden,
-.poll-and-votes-area,
-.room-area,
+.not-setup .poll-and-votes-area,
+.not-setup .room-area,
+.not-setup .hamburger,
+.done-setup .setup-area,
 .vote-instance-result-area table.not-voted td:nth-of-type(2),
 .vote-instance-result-area table.not-voted th:nth-of-type(2),
 .vote-instance-result-area table.not-voted tfoot {
-  display : none;
+  display : none !important;
 }
 
 .vote-results-table tbody tr:nth-child(even) td,
