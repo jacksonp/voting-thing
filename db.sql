@@ -62,7 +62,7 @@ BEGIN
 
   IF norm_name IS NULL OR norm_name = ''
   THEN
-    RAISE 'Room name must contain some letters or numbers.';
+    RAISE 'Room name must contain some letters or numbers.' USING HINT = 'Room name must contain some letters or numbers.';
   END IF;
 
   SELECT room_id
@@ -167,7 +167,7 @@ BEGIN
 
   IF NOT found
   THEN
-    RAISE 'Voter not found.';
+    RAISE 'Voter not found.' USING HINT = 'Voter not found.';
   END IF;
 
   UPDATE polls
@@ -176,7 +176,7 @@ BEGIN
 
   IF NOT found
   THEN
-    RAISE 'Poll not found.';
+    RAISE 'Poll not found.' USING HINT = 'Poll not found.';
   END IF;
 
   RETURN ret_name;

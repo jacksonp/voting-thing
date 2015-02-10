@@ -61,6 +61,7 @@ $(function () {
   }
 
   function setRoom (roomName) {
+    $('.poll-instance-area').remove(); // remove any polls from previous room
     myData.room = roomName;
     $('#room-input').val(roomName);
     localStorage.setItem('room_name', roomName);
@@ -76,10 +77,19 @@ $(function () {
   } else { // We need the user to select a room
     // currently no action
   }
+  
   $('#enter-room-form').submit(function (event) {
     event.preventDefault();
     var newRoomName = $('#room-input').val();
+    // Validate room name
+    if (!newRoomName.match(/[0-9A-Za-z]/)) {
+      alert('Room name must contain some letters or numbers.');
+      return;
+    }
     $('#vt-panel').panel('close');
+    if (myData.room === newRoomName) {
+      return; // Already in the room.
+    }
     setRoom(newRoomName);
     history.pushState(null, null, '#' + newRoomName);
   });
@@ -156,7 +166,6 @@ $(function () {
 
   //<editor-fold desc="Action: enter room">
   socket.on('enter room', function (people) {
-    $('.poll-instance-area').remove(); // remove any polls from previous room
     $.each(people, function (k, u) {
       if (!$('.roomies li[data-person-id="' + u.person_id + '"]').length) {
         addPersonToRoom(u.name, u.person_id);
