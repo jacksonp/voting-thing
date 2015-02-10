@@ -11,9 +11,11 @@
 <div data-role="page">
 
   <div data-role="panel" id="vt-panel" data-display="overlay" data-position="right">
-    <label for="room-input">Room</label>
-    <input id="room-input" type="text" maxlength="20" data-clear-btn="true">
-    <button id="enter-room-button" data-theme="b">Enter Room</button>
+    <form id="enter-room-form">
+      <label for="room-input">Room</label>
+      <input id="room-input" type="text" maxlength="20" data-clear-btn="true" required>
+      <button data-theme="b">Enter Room</button>
+    </form>
     <div class="room-area" data-role="collapsible" data-collapsed="false">
       <h2>Who's in the Room</h2>
       <ul data-role="listview" class="roomies"></ul>

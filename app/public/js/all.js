@@ -76,7 +76,8 @@ $(function () {
   } else { // We need the user to select a room
     // currently no action
   }
-  $('#enter-room-button').on('tap', function () {
+  $('#enter-room-form').submit(function (event) {
+    event.preventDefault();
     var newRoomName = $('#room-input').val();
     $('#vt-panel').panel('close');
     setRoom(newRoomName);
