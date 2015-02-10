@@ -198,6 +198,16 @@ $(function () {
   //</editor-fold>
 
   //<editor-fold desc="Action: create poll">
+  $('.new-poll-area').collapsible({
+    // Slide up and down to prevent ghost clicks:
+    collapse: function (event, ui) {
+      $(this).children().next().slideUp(300);
+    },
+    expand  : function (event, ui) {
+      $(this).children().next().hide();
+      $(this).children().next().slideDown(300);
+    }
+  });
   $('#create-poll-button').on('tap', function () {
     var poll;
     try {
@@ -221,7 +231,7 @@ $(function () {
   //<editor-fold desc="Action: delete poll">
   socket.on('delete poll', function (poll_id) {
     var voteInstanceArea = $('.poll-instance-area[data-poll-id=' + poll_id + ']');
-    voteInstanceArea.slideUp(400, function () {
+    voteInstanceArea.slideUp(300, function () {
       $(this).remove();
     });
   });
@@ -247,7 +257,7 @@ $(function () {
       return;
     }
     myEmit('vote', {poll_id: voteInstanceArea.attr('data-poll-id'), vote: parseFloat(vote)});
-    voteInstanceArea.find('.vote-instance-input-area').slideUp(400, function () {
+    voteInstanceArea.find('.vote-instance-input-area').slideUp(300, function () {
       $(this).remove();
     });
     voteInstanceArea.find('table').removeClass('not-voted');
