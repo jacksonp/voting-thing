@@ -77,7 +77,7 @@ $(function () {
   } else { // We need the user to select a room
     // currently no action
   }
-  
+
   $('#enter-room-form').submit(function (event) {
     event.preventDefault();
     var newRoomName = $('#room-input').val();
@@ -114,7 +114,7 @@ $(function () {
       defaultVal += poll.details.step;
     }
     var html = '<div data-role="collapsible" data-collapsed="false" class="poll-instance-area" data-poll-id="' + poll.poll_id + '">';
-    html += '<h2>' + poll.name + '</h2>';
+    html += '<h2>' + poll.poll_name + '</h2>';
     if (!haveIVoted) {
       html += '<div class="vote-instance-input-area">';
       html += '<input name="vote-input" value="' + defaultVal + '" min="' + poll.details.min + '" max="' + poll.details.max + '" step="' + poll.details.step + '" type="range">';

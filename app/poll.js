@@ -1,9 +1,9 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, ownerId, type, details) {
+  exports.Poll = function (pollName, ownerId, type, details) {
 
-    if (!name) {
+    if (!pollName) {
       throw 'Poll needs a Name.';
     }
 
@@ -28,7 +28,7 @@
       }
     }
 
-    this.name = name;
+    this.poll_name = pollName;
     this.owner_id = ownerId;
     this.type = type;
     this.details = details;
