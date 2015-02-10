@@ -36,8 +36,8 @@ $(function () {
   $('#setup-form').submit(function (event) {
     event.preventDefault();
     var
-      personName =$('#setup-name').val(),
-      roomName = $('#setup-room').val();
+      personName = $('#setup-name').val().trim(),
+      roomName = $('#setup-room').val().trim();
     // Validate room name
     if (!roomName.match(/[0-9A-Za-z]/)) {
       alert('Room name must contain some letters or numbers.');
@@ -50,30 +50,15 @@ $(function () {
     history.pushState(null, null, '#' + roomName);
   });
 
-
-  //<editor-fold desc="Sort out name">
-  function setName () {
-    var newName = window.prompt('What is your name?', myData.name);
-    if (newName === null && myData.name) {
-      return;
-    }
-    newName = newName.trim().substring(0, 20);
-    if (!newName) {
-      setName();
-    } else {
-      if (myData.name) { // if there was a name set previously.
-        myEmit('name change', {new_name: newName});
-      }
-      myData.name = newName;
-      localStorage.setItem('name', newName);
-    }
-  }
-  //</editor-fold>
-
   //<editor-fold desc="Sort out room name">
   if (!myData.room && localStorage.getItem('room_name')) {
     myData.room = localStorage.getItem('room_name');
     history.pushState(null, null, '#' + myData.room);
+  }
+
+  function setName (newName) {
+    myData.name = newName;
+    localStorage.setItem('name', newName);
   }
 
   function setRoom (roomName) {
@@ -114,7 +99,7 @@ $(function () {
   function addPersonToRoom (name, personId) {
     var li = $('<li>').attr('data-person-id', personId);
     if (personId === myData.person_id) {
-      li.attr('data-icon', 'edit').append($('<a>').text(name)).on('tap', setName);
+      li.attr('data-icon', 'edit').append($('<a>').text(name)).on('tap', editName);
     } else {
       li.text(name);
     }
@@ -203,6 +188,19 @@ $(function () {
   });
 
   //<editor-fold desc="Action: name change">
+  function editName () {
+    var newName = window.prompt('What is your name?', myData.name);
+    if (!newName) {
+      return;
+    }
+    newName = newName.trim().substring(0, 20);
+    if (!newName) {
+      return;
+    }
+    myEmit('name change', {new_name: newName});
+    setName(newName);
+  }
+
   socket.on('name change', function (data) {
     var existingUser = $('.roomies li[data-person-id="' + data.person_id + '"]');
     if (existingUser.length) {
