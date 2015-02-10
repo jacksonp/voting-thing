@@ -50,7 +50,6 @@ $(function () {
     history.pushState(null, null, '#' + roomName);
   });
 
-  //<editor-fold desc="Sort out room name">
   if (!myData.room && localStorage.getItem('room_name')) {
     myData.room = localStorage.getItem('room_name');
     history.pushState(null, null, '#' + myData.room);
@@ -94,7 +93,6 @@ $(function () {
     setRoom(newRoomName);
     history.pushState(null, null, '#' + newRoomName);
   });
-  //</editor-fold>
 
   function addPersonToRoom (name, personId) {
     var li = $('<li>').attr('data-person-id', personId);
