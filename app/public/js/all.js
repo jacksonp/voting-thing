@@ -1,3 +1,4 @@
+//document.addEventListener('deviceready', function () {
 $(function () {
   'use strict';
 
@@ -19,7 +20,7 @@ $(function () {
       room: location.hash.replace('#', ''),
       name: localStorage.getItem('name')
     },
-    socket = io(),
+    socket = io('http://192.168.1.69:3000/'),
     newVoteNameInput = $('#new-vote-name'),
     newVoteMinInput = $('#new-vote-min'),
     newVoteMaxInput = $('#new-vote-max'),
@@ -231,9 +232,9 @@ $(function () {
   //<editor-fold desc="Sort out default new vote form values">
   (function () {
     newVoteNameInput.val(localStorage.getItem('new-vote-name') ? localStorage.getItem('new-vote-name') : 'Poll Name');
-    newVoteMinInput.val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 5);
-    newVoteMaxInput.val(localStorage.getItem('new-vote-max') ? localStorage.getItem('new-vote-max') : 15);
-    newVoteStepInput.val(localStorage.getItem('new-vote-step') ? localStorage.getItem('new-vote-step') : 0.5);
+    newVoteMinInput.val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 1);
+    newVoteMaxInput.val(localStorage.getItem('new-vote-max') ? localStorage.getItem('new-vote-max') : 10);
+    newVoteStepInput.val(localStorage.getItem('new-vote-step') ? localStorage.getItem('new-vote-step') : 1);
   }());
   //</editor-fold>
 
@@ -343,7 +344,8 @@ $(function () {
       return;
     }
     myEmit('create poll', poll);
-    $(".new-poll-area").collapsible("collapse");
+    $('.new-poll-area').collapsible('collapse');
+    $('.item-choices li').remove();
   });
   socket.on('create poll', function (poll) {
     createPoll(poll);
@@ -411,3 +413,4 @@ $(function () {
   //</editor-fold>
 
 });
+//});
