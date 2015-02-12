@@ -1,19 +1,11 @@
 'use strict';
 
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io').listen(3883);
+
 var query = require('pg-query');
 query.connectionParameters = 'postgres://vt@localhost/vt';
 
 var Poll = require('./poll').Poll;
-
-app.use(express.static(__dirname + '/public'));
-
-app.get('/', function (req, res) {
-  res.sendFile('index.html', {root: __dirname + '/public/'});
-});
 
 io.on('connection', function (socket) {
 
@@ -122,9 +114,4 @@ io.on('connection', function (socket) {
     });
   });
 
-});
-
-
-http.listen(3000, function () {
-  console.log('listening on *:3000');
 });

@@ -1,3 +1,4 @@
 .idea
 node_modules
-app/public/js/vt.min.js
+www/js/*.min.js
+www/css/*.min.css

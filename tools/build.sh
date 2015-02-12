@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
 
-cat app/poll.js app/public/js/all.js > app/public/js/vt.min.js
+cat css/jquery.mobile-1.4.5.min.css css/vt.css > www/css/all.min.css
+
+
+# The <(echo) is to add a needed newline after jquery mobile.
+cat \
+  js/jquery-2.1.3.min.js \
+  js/jquery.mobile-1.4.5.min.js <(echo) \
+  js/socket.io.js \
+  app/poll.js \
+  js/vt.js \
+> www/js/all.min.js
 
 
 
-cp app/public/index.html vt/www/
-rsync app/public/js/* vt/www/js/
-rsync -r app/public/css/* vt/www/css/
+cp www/index.html vt/www/
+rsync www/js/* vt/www/js/
+rsync -r www/css/* vt/www/css/
