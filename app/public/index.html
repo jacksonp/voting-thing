@@ -43,29 +43,45 @@
         <label for="new-vote-name">Name</label>
         <input id="new-vote-name" type="text" maxlength="20" data-clear-btn="true">
 
-        <div class="ui-grid-b">
-          <div class="ui-block-a">
-            <div class="ui-field-contain">
-              <label for="new-vote-min">Min</label>
-              <input id="new-vote-min" type="number" step="any">
-            </div>
+        <div data-role="tabs" id="tabs">
+          <div data-role="navbar" class="poll-type-select">
+            <ul>
+              <li><a href="#poll-type-item-choice" data-poll-type="item-choice" data-ajax="false" class="ui-btn-active">Item Choice</a></li>
+              <li><a href="#poll-type-range" data-poll-type="range" data-ajax="false">Range</a></li>
+            </ul>
           </div>
-          <div class="ui-block-b">
-            <div class="ui-field-contain">
-              <label for="new-vote-max">Max</label>
-              <input id="new-vote-max" type="number" step="any">
-            </div>
+          <div id="poll-type-item-choice">
+            <label for="new-item-choice" class="ui-hidden-accessible">New Item</label>
+            <input id="new-item-choice" type="text" maxlength="20" data-clear-btn="true" placeholder="New Item">
+            <button id="add-item-choice">Add Item</button>
+            <ol data-role="listview" class="item-choices" data-inset="true"></ol>
           </div>
-          <div class="ui-block-c">
-            <div class="ui-field-contain">
-              <label for="new-vote-step">Step</label>
-              <input id="new-vote-step" type="number" step="any">
+          <div id="poll-type-range">
+            <div class="ui-grid-b">
+              <div class="ui-block-a">
+                <div class="ui-field-contain">
+                  <label for="new-vote-min">Min</label>
+                  <input id="new-vote-min" type="number" step="any">
+                </div>
+              </div>
+              <div class="ui-block-b">
+                <div class="ui-field-contain">
+                  <label for="new-vote-max">Max</label>
+                  <input id="new-vote-max" type="number" step="any">
+                </div>
+              </div>
+              <div class="ui-block-c">
+                <div class="ui-field-contain">
+                  <label for="new-vote-step">Step</label>
+                  <input id="new-vote-step" type="number" step="any">
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <button id="create-poll-button" data-theme="b">Create Poll</button>
       </div>
-      <div class="vote-area"></div>
+      <div class="poll-list-area"></div>
     </div>
   </div>
 

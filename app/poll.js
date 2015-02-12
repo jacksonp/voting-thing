@@ -26,15 +26,21 @@
       if (details.step > details.max - details.min) {
         throw 'Step is too large.';
       }
+      if (!details.decimals) {
+        details.decimals = decimalPlaces(details.step);
+      }
+    } else if (type === 'item-choice') {
+      if (details.items.length < 2) {
+        throw 'Add at least two items.'
+      }
+    } else {
+      throw 'Could not figure out poll type.';
     }
 
     this.poll_name = pollName;
     this.owner_id = ownerId;
     this.type = type;
     this.details = details;
-    if (!this.details.decimals) {
-      this.details.decimals = decimalPlaces(details.step);
-    }
     this.votes = [];
 
   };

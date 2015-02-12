@@ -3,14 +3,14 @@
 .not-setup .room-area,
 .not-setup .hamburger,
 .done-setup .setup-area,
-.vote-instance-result-area table.not-voted td:nth-of-type(2),
-.vote-instance-result-area table.not-voted th:nth-of-type(2),
-.vote-instance-result-area table.not-voted tfoot {
+.poll-instance-result-area table.not-voted td:nth-of-type(2),
+.poll-instance-result-area table.not-voted th:nth-of-type(2),
+.poll-instance-result-area table.not-voted tfoot {
   display : none;
 }
 
-.vote-results-table tbody tr:nth-child(even) td,
-.vote-results-table tbody tr:nth-child(even) th {
+.poll-results-table tbody tr:nth-child(even) td,
+.poll-results-table tbody tr:nth-child(even) th {
   background-color : #eeeeee; /* non-RGBA fallback  */
   background-color : rgba(0, 0, 0, .04);
 }
@@ -20,15 +20,15 @@
   font-family : "Courier New", Courier, monospace;
 }
 
-.vote-results-table {
+.poll-results-table {
   counter-reset : rowNumber;
 }
 
-.vote-results-table tr {
+.poll-results-table tr {
   counter-increment : rowNumber;
 }
 
-.vote-results-table tr td:first-child::before {
+.poll-results-table tr td:first-child::before {
   content      : counter(rowNumber) ".";
   min-width    : 1em;
   margin-right : 0.5em;

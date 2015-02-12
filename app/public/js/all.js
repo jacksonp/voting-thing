@@ -1,6 +1,19 @@
 $(function () {
   'use strict';
 
+  var entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;'
+  };
+
+  function escapeHtml (string) {
+    return String(string).replace(/[&<>"]/g, function (s) {
+      return entityMap[s];
+    });
+  }
+
   var
     myData = {
       room: location.hash.replace('#', ''),
@@ -11,7 +24,7 @@ $(function () {
     newVoteMinInput = $('#new-vote-min'),
     newVoteMaxInput = $('#new-vote-max'),
     newVoteStepInput = $('#new-vote-step'),
-    voteArea = $('.vote-area'),
+    pollListArea = $('.poll-list-area'),
     roomArea = $('.roomies');
 
   function myEmit (action, extraData) {
@@ -105,53 +118,94 @@ $(function () {
     roomArea.listview('refresh');
   }
 
-  // assumes type is "range" for now.
   function createPoll (poll, haveIVoted) {
-    var targetMiddleVal = poll.details.min + ((poll.details.max - poll.details.min) / 2);
-    var defaultVal = poll.details.min;
-    while (defaultVal + poll.details.step <= targetMiddleVal) {
-      defaultVal += poll.details.step;
+
+    function getVoteInput (pollType, details) {
+      if (pollType === 'range') {
+        var targetMiddleVal = details.min + ((details.max - details.min) / 2);
+        var defaultVal = details.min;
+        while (defaultVal + details.step <= targetMiddleVal) {
+          defaultVal += details.step;
+        }
+        return '<input name="vote-input" value="' + defaultVal + '" min="' + details.min + '" max="' + details.max + '" step="' + details.step + '" type="range">';
+      } else if (pollType === 'item-choice') {
+        var html = '<fieldset data-role="controlgroup">';
+        //<legend>Radio buttons, vertical controlgroup:</legend>
+        details.items.forEach(function (i) {
+          var id = Math.random(); // HACK, jquery doesn't support putting the input inside the label (at least with pre-rendered markup).
+          // Pre-rendered markup so jquery doesn't have to enhance this after we add it:
+          html += '<div class="ui-radio">';
+          html += '<label for="' + id + '" class="ui-btn ui-btn-inherit ui-btn-icon-left ui-radio-off">' + escapeHtml(i) + '</label>';
+          html += '<input name="vote-input" value="' + escapeHtml(i) + '" type="radio" id="' + id + '" data-enhanced="true">';
+          html += '</div>';
+        });
+        html += '</fieldset>';
+        $(".selector").checkboxradio("refresh");
+        return html;
+      }
     }
-    var html = '<div data-role="collapsible" data-collapsed="false" class="poll-instance-area" data-poll-id="' + poll.poll_id + '">';
-    html += '<h2>' + poll.poll_name + '</h2>';
+
+    function getResults (pollType, details, haveIVoted) {
+      var html = '';
+      if (pollType === 'range') {
+        html += '<table class="ui-table poll-results-table' + (haveIVoted ? '' : ' not-voted') + '" data-decimals="' + details.decimals + '"><thead></thead><tbody></tbody>';
+        html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
+        html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
+        html += '</table>';
+      } else if (pollType === 'item-choice') {
+        html += '<table class="ui-table poll-results-summary-table' + (haveIVoted ? '' : ' not-voted') + '"><tbody></tbody></table>';
+        html += '<table class="ui-table poll-results-table' + (haveIVoted ? '' : ' not-voted') + '"><tbody></tbody></table>';
+      }
+      return html;
+    }
+
+    var html = '<div data-role="collapsible" data-collapsed="false" class="poll-instance-area" data-poll-id="' + poll.poll_id + '" data-poll-type="' + poll.type + '">';
+    html += '<h2>' + escapeHtml(poll.poll_name) + '</h2>';
     if (!haveIVoted) {
       html += '<div class="vote-instance-input-area">';
-      html += '<input name="vote-input" value="' + defaultVal + '" min="' + poll.details.min + '" max="' + poll.details.max + '" step="' + poll.details.step + '" type="range">';
+      html += getVoteInput(poll.type, poll.details);
       html += '<button class="vote-button" data-theme="b">Send My Vote</button>';
       html += '</div>';
     }
-    html += '<div class="vote-instance-result-area' + (haveIVoted ? '' : ' hidden') + '" data-decimals="' + poll.details.decimals + '">';
-    html += '<table class="ui-table vote-results-table' + (haveIVoted ? '' : ' not-voted') + '"><thead></thead><tbody></tbody>';
-    html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
-    html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
-    html += '</table>';
+    html += '<div class="poll-instance-result-area' + (haveIVoted ? '' : ' hidden') + '">';
+    html += getResults(poll.type, poll.details, haveIVoted);
     html += '</div>';
     if (poll.owner_id === myData.person_id) {
       html += '<button class="delete-poll-button" data-theme="b">Delete Poll</button>';
     }
     html += '</div>';
+
     if (haveIVoted) {
-      $(html).prependTo(voteArea);
-      voteArea.enhanceWithin();
+      $(html).prependTo(pollListArea);
+      pollListArea.enhanceWithin();
     } else {
-      var newVote = $(html).hide().prependTo(voteArea);
-      voteArea.enhanceWithin();
+      var newVote = $(html).hide().prependTo(pollListArea);
+      pollListArea.enhanceWithin();
       newVote.slideDown();
     }
   }
 
   function addVote (pollId, vote) {
-    var voteInstanceResultArea = $('.poll-instance-area[data-poll-id=' + pollId + '] .vote-instance-result-area');
-    var decimals = voteInstanceResultArea.attr('data-decimals');
-    voteInstanceResultArea.slideDown();
-    var resultsTable = voteInstanceResultArea.find('table');
-    resultsTable.find('tbody').append('<tr><td>' + vote.name + '</td><td class="num result-val">' + vote.vote.toFixed(decimals) + '</td></tr>');
-    var sum = 0;
-    resultsTable.find('.result-val').each(function () {
-      sum += parseFloat($(this).text());
-    });
-    resultsTable.find('.results-sum').text(sum.toFixed(decimals));
-    resultsTable.find('.results-avg').text((sum / resultsTable.find('.result-val').length).toFixed(decimals));
+    var
+      pollInstanceArea = $('.poll-instance-area[data-poll-id=' + pollId + ']'),
+      pollInstanceResultArea = pollInstanceArea.find('.poll-instance-result-area'),
+      pollType = pollInstanceArea.attr('data-poll-type'),
+      resultsTable = pollInstanceResultArea.find('.poll-results-table');
+
+    pollInstanceResultArea.slideDown();
+
+    if (pollType === 'range') {
+      var decimals = resultsTable.attr('data-decimals');
+      resultsTable.find('tbody').append('<tr><td>' + escapeHtml(vote.name) + '</td><td class="num result-val">' + vote.vote.toFixed(decimals) + '</td></tr>');
+      var sum = 0;
+      resultsTable.find('.result-val').each(function () {
+        sum += parseFloat($(this).text());
+      });
+      resultsTable.find('.results-sum').text(sum.toFixed(decimals));
+      resultsTable.find('.results-avg').text((sum / resultsTable.find('.result-val').length).toFixed(decimals));
+    } else if (pollType === 'item-choice') {
+      resultsTable.find('tbody').append('<tr><td>' + escapeHtml(vote.name) + '</td><td class="result-val">' + vote.vote + '</td></tr>');
+    }
   }
 
   //<editor-fold desc="Sort out default new vote form values">
@@ -222,22 +276,50 @@ $(function () {
   //<editor-fold desc="Action: create poll">
   $('.new-poll-area').collapsible({
     // Slide up and down to prevent ghost clicks:
-    collapse: function (event, ui) {
+    collapse: function () {
       $(this).children().next().slideUp(300);
     },
-    expand  : function (event, ui) {
+    expand  : function () {
       $(this).children().next().hide();
       $(this).children().next().slideDown(300);
     }
   });
+  $('#add-item-choice').on('tap', function () {
+    var input = $('#new-item-choice');
+    var itemText = input.val().trim();
+    if (!itemText) {
+      return;
+    }
+    var li = $('<li>').text(itemText);
+    var ic = $('.item-choices');
+    input.val('');
+    ic.append(li);
+    ic.listview('refresh');
+  });
   $('#create-poll-button').on('tap', function () {
-    var poll;
-    try {
-      poll = new Poll.Poll(newVoteNameInput.val(), myData.person_id, 'range', {
+    var
+      pollType = $('.poll-type-select .ui-btn-active').attr('data-poll-type'),
+      poll, details;
+    if (pollType === 'range') {
+      details = {
         min : newVoteMinInput.val(),
         max : newVoteMaxInput.val(),
         step: newVoteStepInput.val()
+      };
+    } else if (pollType === 'item-choice') {
+      var items = [];
+      $('.item-choices li').each(function () {
+        items.push($(this).text());
       });
+      details = {
+        items: items
+      };
+    } else {
+      alert('Could not figure out poll type.');
+      return;
+    }
+    try {
+      poll = new Poll.Poll(newVoteNameInput.val(), myData.person_id, pollType, details);
     } catch (e) {
       alert(e);
       return;
@@ -252,15 +334,15 @@ $(function () {
 
   //<editor-fold desc="Action: delete poll">
   socket.on('delete poll', function (poll_id) {
-    var voteInstanceArea = $('.poll-instance-area[data-poll-id=' + poll_id + ']');
-    voteInstanceArea.slideUp(300, function () {
+    var pollInstanceArea = $('.poll-instance-area[data-poll-id=' + poll_id + ']');
+    pollInstanceArea.slideUp(300, function () {
       $(this).remove();
     });
   });
-  voteArea.delegate('.delete-poll-button', 'tap', function () {
+  pollListArea.delegate('.delete-poll-button', 'tap', function () {
     if (confirm('Are you sure you want to delete this poll?')) {
-      var voteInstanceArea = $(this).closest('.poll-instance-area');
-      myEmit('delete poll', {poll_id: voteInstanceArea.attr('data-poll-id')});
+      var pollInstanceArea = $(this).closest('.poll-instance-area');
+      myEmit('delete poll', {poll_id: pollInstanceArea.attr('data-poll-id')});
     }
   });
   //</editor-fold>
@@ -269,20 +351,37 @@ $(function () {
   socket.on('vote', function (data) {
     addVote(data.poll_id, data.vote);
   });
-  voteArea.delegate('.vote-button', 'tap', function () {
-    var voteInstanceArea = $(this).closest('.poll-instance-area');
-    var vote = voteInstanceArea.find('input[name=vote-input]').val();
-    if (!$.isNumeric(vote)) {
-      if (vote != '') {
-        alert('Enter a number.');
+  pollListArea.delegate('.vote-button', 'tap', function () {
+    var
+      vote,
+      pollInstanceArea = $(this).closest('.poll-instance-area'),
+      pollType = pollInstanceArea.attr('data-poll-type');
+
+    if (pollType === 'range') {
+      vote = pollInstanceArea.find('input[name=vote-input]').val();
+      if (!$.isNumeric(vote)) {
+        if (vote != '') {
+          alert('Enter a number.');
+        }
+        return;
       }
+      vote = parseFloat(vote);
+    } else if (pollType === 'item-choice') {
+      vote = pollInstanceArea.find('input[name=vote-input]:checked');
+      if (!vote.length) {
+        alert('Select an item.');
+        return;
+      }
+      vote = vote.val();
+    } else {
+      alert('Could not figure out poll type.');
       return;
     }
-    myEmit('vote', {poll_id: voteInstanceArea.attr('data-poll-id'), vote: parseFloat(vote)});
-    voteInstanceArea.find('.vote-instance-input-area').slideUp(300, function () {
+    myEmit('vote', {poll_id: pollInstanceArea.attr('data-poll-id'), vote: vote});
+    pollInstanceArea.find('.vote-instance-input-area').slideUp(300, function () {
       $(this).remove();
     });
-    voteInstanceArea.find('table').removeClass('not-voted');
+    pollInstanceArea.find('table').removeClass('not-voted');
   });
   //</editor-fold>
 
