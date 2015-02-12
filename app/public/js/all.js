@@ -153,7 +153,11 @@ $(function () {
         html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
         html += '</table>';
       } else if (pollType === 'item-choice') {
-        html += '<table class="ui-table poll-results-summary-table' + (haveIVoted ? '' : ' not-voted') + '"><tbody></tbody></table>';
+        html += '<table class="ui-table poll-results-summary-table' + (haveIVoted ? '' : ' not-voted') + '"><tbody>';
+        details.items.forEach(function (i) {
+          html += '<tr><td class="results-item">' + escapeHtml(i) + '</td><td class="results-item-votes num">0</td></tr>';
+        });
+        html += '</tbody></table><hr>';
         html += '<table class="ui-table poll-results-table' + (haveIVoted ? '' : ' not-voted') + '"><tbody></tbody></table>';
       }
       return html;
@@ -206,8 +210,20 @@ $(function () {
       resultsTable.find('.results-sum').text(sum.toFixed(decimals));
       resultsTable.find('.results-avg').text((sum / resultsTable.find('.result-val').length).toFixed(decimals));
     } else if (pollType === 'item-choice') {
+      var
+        results = {},
+        resultSummaryTable = pollInstanceArea.find('.poll-results-summary-table tbody'),
+        trs = resultSummaryTable.find('tr');
+      trs.each(function () {
+        results[$(this).find('.results-item').text()] = parseFloat($(this).find('.results-item-votes').text());
+        $(this).remove();
+      });
       Object.keys(votes).forEach(function (person_id) {
+        results[votes[person_id].vote] += 1;
         resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td class="result-val">' + votes[person_id].vote + '</td></tr>');
+      });
+      Object.keys(results).forEach(function (i) {
+        resultSummaryTable.append('<tr><td class="results-item">' + escapeHtml(i) + '</td><td class="results-item-votes num">' + results[i] + '</td></tr>');
       });
     }
   }
