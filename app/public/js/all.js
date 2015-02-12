@@ -185,7 +185,7 @@ $(function () {
     }
   }
 
-  function addVote (pollId, vote) {
+  function addVotes (pollId, votes) {
     var
       pollInstanceArea = $('.poll-instance-area[data-poll-id=' + pollId + ']'),
       pollInstanceResultArea = pollInstanceArea.find('.poll-instance-result-area'),
@@ -196,7 +196,9 @@ $(function () {
 
     if (pollType === 'range') {
       var decimals = resultsTable.attr('data-decimals');
-      resultsTable.find('tbody').append('<tr><td>' + escapeHtml(vote.name) + '</td><td class="num result-val">' + vote.vote.toFixed(decimals) + '</td></tr>');
+      Object.keys(votes).forEach(function (person_id) {
+        resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td class="num result-val">' + votes[person_id].vote.toFixed(decimals) + '</td></tr>');
+      });
       var sum = 0;
       resultsTable.find('.result-val').each(function () {
         sum += parseFloat($(this).text());
@@ -204,7 +206,9 @@ $(function () {
       resultsTable.find('.results-sum').text(sum.toFixed(decimals));
       resultsTable.find('.results-avg').text((sum / resultsTable.find('.result-val').length).toFixed(decimals));
     } else if (pollType === 'item-choice') {
-      resultsTable.find('tbody').append('<tr><td>' + escapeHtml(vote.name) + '</td><td class="result-val">' + vote.vote + '</td></tr>');
+      Object.keys(votes).forEach(function (person_id) {
+        resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td class="result-val">' + votes[person_id].vote + '</td></tr>');
+      });
     }
   }
 
@@ -233,9 +237,7 @@ $(function () {
         return myData.person_id === person_id;
       });
       createPoll(poll, haveIVoted);
-      Object.keys(poll.votes).forEach(function (person_id) {
-        addVote(poll.poll_id, poll.votes[person_id]);
-      });
+      addVotes(poll.poll_id, poll.votes);
     });
   });
 
@@ -349,7 +351,7 @@ $(function () {
 
   //<editor-fold desc="Action: vote">
   socket.on('vote', function (data) {
-    addVote(data.poll_id, data.vote);
+    addVotes(data.poll_id, [data.vote]);
   });
   pollListArea.delegate('.vote-button', 'tap', function () {
     var
