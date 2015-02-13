@@ -13,15 +13,14 @@ body {
 .not-setup .room-area,
 .not-setup .hamburger,
 .done-setup .setup-area,
-.poll-results-table.not-voted td:nth-of-type(2),
-.poll-results-table.not-voted th:nth-of-type(2),
+.poll-results-table.not-voted .result-val,
+.poll-results-table.voted .result-placeholder,
 .poll-results-table.not-voted tfoot,
 .poll-results-summary-table.not-voted {
   display : none;
 }
 
-.poll-results-table tbody tr:nth-child(even) td,
-.poll-results-table tbody tr:nth-child(even) th {
+.poll-results-table tbody tr:nth-child(even) td {
   background-color : #eeeeee; /* non-RGBA fallback  */
   background-color : rgba(0, 0, 0, .04);
 }

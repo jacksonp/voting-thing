@@ -149,17 +149,17 @@ $(function () {
     function getResults (pollType, details, haveIVoted) {
       var html = '';
       if (pollType === 'range') {
-        html += '<table class="ui-table poll-results-table' + (haveIVoted ? '' : ' not-voted') + '" data-decimals="' + details.decimals + '"><thead></thead><tbody></tbody>';
+        html += '<table class="ui-table poll-results-table ' + (haveIVoted ? 'voted' : 'not-voted') + '" data-decimals="' + details.decimals + '"><thead></thead><tbody></tbody>';
         html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
         html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
         html += '</table>';
       } else if (pollType === 'item-choice') {
-        html += '<table class="ui-table poll-results-summary-table' + (haveIVoted ? '' : ' not-voted') + '"><tbody>';
+        html += '<table class="ui-table poll-results-summary-table ' + (haveIVoted ? 'voted' : 'not-voted') + '"><tbody>';
         details.items.forEach(function (i) {
           html += '<tr><td class="results-item">' + escapeHtml(i) + '</td><td class="results-item-votes num">0</td></tr>';
         });
         html += '</tbody></table><hr>';
-        html += '<table class="ui-table poll-results-table' + (haveIVoted ? '' : ' not-voted') + '"><tbody></tbody></table>';
+        html += '<table class="ui-table poll-results-table ' + (haveIVoted ? 'voted' : 'not-voted') + '"><tbody></tbody></table>';
       }
       return html;
     }
@@ -202,7 +202,7 @@ $(function () {
     if (pollType === 'range') {
       var decimals = resultsTable.attr('data-decimals');
       Object.keys(votes).forEach(function (person_id) {
-        resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td class="num result-val">' + votes[person_id].vote.toFixed(decimals) + '</td></tr>');
+        resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td class="num"><span class="result-placeholder">?</span><span class="result-val">' + votes[person_id].vote.toFixed(decimals) + '</span></td></tr>');
       });
       var sum = 0;
       resultsTable.find('.result-val').each(function () {
@@ -221,7 +221,7 @@ $(function () {
       });
       Object.keys(votes).forEach(function (person_id) {
         results[votes[person_id].vote] += 1;
-        resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td class="result-val">' + votes[person_id].vote + '</td></tr>');
+        resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td><span class="result-placeholder">?</span><span class="result-val">' + votes[person_id].vote + '</span></td></tr>');
       });
       Object.keys(results).forEach(function (i) {
         resultSummaryTable.append('<tr><td class="results-item">' + escapeHtml(i) + '</td><td class="results-item-votes num">' + results[i] + '</td></tr>');
@@ -401,7 +401,7 @@ $(function () {
     pollInstanceArea.find('.vote-instance-input-area').slideUp(300, function () {
       $(this).remove();
     });
-    pollInstanceArea.find('table').removeClass('not-voted');
+    pollInstanceArea.find('table').removeClass('not-voted').addClass('voted');
   });
   //</editor-fold>
 
