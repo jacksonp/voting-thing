@@ -309,11 +309,21 @@ $(function () {
     if (!itemText) {
       return;
     }
+    var itemChoices = $('.item-choices');
+    var exists = false;
+    itemChoices.each(function () {
+      if ($(this).text() === itemText) {
+        exists = true;
+      }
+    });
+    if (exists) {
+      alert('Duplicate!');
+      return;
+    }
     var li = $('<li>').text(itemText);
-    var ic = $('.item-choices');
     input.val('');
-    ic.append(li);
-    ic.listview('refresh');
+    itemChoices.append(li);
+    itemChoices.listview('refresh');
   });
   $('#create-poll-button').on('tap', function () {
     var
