@@ -104,6 +104,9 @@
 
     function setRoom (roomName) {
       $('.poll-instance-area').remove(); // remove any polls from previous room
+      //if (!$('.poll-type-select .ui-btn-active').length) {
+      //  $('.poll-type-select li').first().addClass('ui-btn-active');
+      //}
       myData.room = roomName;
       $('#room-input').val(roomName);
       localStorage.setItem('room_name', roomName);
@@ -355,7 +358,7 @@
     });
     $('#create-poll-button').on('tap', function () {
       var
-        pollType = $('.poll-type-select .ui-btn-active').attr('data-poll-type'),
+        pollType = $('.poll-type-select .ui-state-active a').attr('data-poll-type'),
         poll, details;
       if (pollType === 'range') {
         details = {
