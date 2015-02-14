@@ -449,10 +449,10 @@
     //</editor-fold>
 
     //<editor-fold desc="Action: error">
-    socket.on('error', function (message) {
-      window.location.reload();
-      console.log(message);
-      //alert(message);
+    socket.on('vt_error', function (message) {
+      //window.location.reload();
+      //console.log(message);
+      alert(message);
     });
     //</editor-fold>
 

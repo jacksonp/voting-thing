@@ -25,7 +25,7 @@ io.on('connection', function (socket) {
     query('SELECT * FROM add_person_to_room($1, $2, $3, $4)', [data.room, data.name, data.person_id, socket.id], function (err, rows) {
       if (err) {
         console.log(err);
-        io.to(socket.id).emit('error', err.hint);
+        io.to(socket.id).emit('vt_error', err.hint);
       } else {
         var inRoom = [];
         rows.forEach(function (r) {
@@ -37,7 +37,7 @@ io.on('connection', function (socket) {
         query("SELECT poll_id, name AS poll_name, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, rows) {
           if (err) {
             console.error(err);
-            io.to(socket.id).emit('error', err.hint);
+            io.to(socket.id).emit('vt_error', err.hint);
           } else {
             io.to(socket.id).emit('polls sync', rows);
           }
@@ -50,7 +50,7 @@ io.on('connection', function (socket) {
     query("UPDATE people SET name = $2 WHERE person_id = $1 RETURNING room_id", [data.person_id, data.new_name], function (err, rows) {
       if (err) {
         console.error(err);
-        io.to(socket.id).emit('error', err.hint);
+        io.to(socket.id).emit('vt_error', err.hint);
       } else {
         rows.forEach(function (r) {
           emitToRoom(r.room_id, 'name change', data);
@@ -65,13 +65,13 @@ io.on('connection', function (socket) {
       poll = new Poll(data.poll_name, data.person_id, data.type, data.details);
     } catch (e) {
       console.log(e);
-      io.to(socket.id).emit('error', e);
+      io.to(socket.id).emit('vt_error', e);
       return;
     }
     query('SELECT create_poll($1, $2, $3, $4, $5) AS poll_id', [data.room, poll.poll_name, poll.type, poll.details, data.person_id], function (err, rows) {
       if (err) {
         console.log(err);
-        io.to(socket.id).emit('error', err.hint);
+        io.to(socket.id).emit('vt_error', err.hint);
       } else {
         poll.poll_id = rows[0].poll_id;
         emitToRoom(data.room, 'create poll', poll);
@@ -83,7 +83,7 @@ io.on('connection', function (socket) {
     query('DELETE FROM polls WHERE poll_id = $1', [data.poll_id], function (err, rows) {
       if (err) {
         console.log(err);
-        io.to(socket.id).emit('error', err.hint);
+        io.to(socket.id).emit('vt_error', err.hint);
       } else {
         emitToRoom(data.room, 'delete poll', data.poll_id);
       }
@@ -94,7 +94,7 @@ io.on('connection', function (socket) {
     query('SELECT vote($1, $2, $3, $4) AS name', [data.room, data.poll_id, data.person_id, {vote: data.vote}], function (err, rows) {
       if (err) {
         console.log(err);
-        io.to(socket.id).emit('error', err.hint);
+        io.to(socket.id).emit('vt_error', err.hint);
       } else {
         emitToRoom(data.room, 'vote', {poll_id: data.poll_id, vote: {vote: data.vote, name: rows[0].name}});
       }
@@ -105,7 +105,7 @@ io.on('connection', function (socket) {
     query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id, person_id', [socket.id], function (err, rows) {
       if (err) {
         console.log(err);
-        io.to(socket.id).emit('error', err.hint);
+        io.to(socket.id).emit('vt_error', err.hint);
       } else {
         rows.forEach(function (r) {
           emitToRoom(r.room_id, 'person left', r.person_id);
