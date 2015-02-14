@@ -101,6 +101,17 @@ io.on('connection', function (socket) {
     });
   });
 
+  socket.on('leave room', function (data) {
+    query('DELETE FROM people WHERE person_id = $1 AND room_id = $2', [data.person_id, data.room], function (err, rows) {
+      if (err) {
+        console.log(err);
+        io.to(socket.id).emit('vt_error', err.hint);
+      } else {
+        emitToRoom(data.room, 'person left', data.person_id);
+      }
+    });
+  });
+
   socket.on('disconnect', function () {
     query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id, person_id', [socket.id], function (err, rows) {
       if (err) {

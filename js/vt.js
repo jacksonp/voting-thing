@@ -56,6 +56,7 @@
       roomArea = $('.roomies');
 
     function myEmit (action, extraData) {
+      extraData = extraData || {};
       socket.emit(action, $.extend(extraData, myData));
     }
 
@@ -135,6 +136,7 @@
       if (myData.room === newRoomName) {
         return; // Already in the room.
       }
+      myEmit('leave room');
       setRoom(newRoomName);
       history.pushState(null, null, '#' + newRoomName);
     });
@@ -448,7 +450,7 @@
     });
     //</editor-fold>
 
-    //<editor-fold desc="Action: error">
+    //<editor-fold desc="Action: vt_error">
     socket.on('vt_error', function (message) {
       //window.location.reload();
       //console.log(message);
