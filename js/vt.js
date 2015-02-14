@@ -410,7 +410,9 @@
 
     //<editor-fold desc="Action: vote">
     socket.on('vote', function (data) {
-      addVotes(data.poll_id, [data.vote]);
+      var votes = {};
+      votes[myData.person_id] = data.vote;
+      addVotes(data.poll_id, votes);
     });
     pollListArea.delegate('.vote-button', 'tap', function () {
       var
