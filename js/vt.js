@@ -6,17 +6,17 @@
     domReady = false;
 
   // APP_EXCLUDE_START
-  window.setTimeout(function () {
-    var e = document.createEvent('Events');
-    e.initEvent('deviceready', true, false);
-    document.dispatchEvent(e);
-  }, 50);
+  deviceReady = true;
   // APP_EXCLUDE_END
-
+  // WEB_EXCLUDE_START
   document.addEventListener('deviceready', function () {
     deviceReady = true;
     init();
   }, false);
+  document.addEventListener('resume', function () {
+    
+  }, false);
+  // WEB_EXCLUDE_END
 
   $(function () {
     domReady = true;
