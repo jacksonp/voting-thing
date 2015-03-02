@@ -14,7 +14,7 @@
     init();
   }, false);
   document.addEventListener('resume', function () {
-    
+
   }, false);
   // WEB_EXCLUDE_END
 
@@ -52,8 +52,7 @@
       newVoteMinInput = $('#new-vote-min'),
       newVoteMaxInput = $('#new-vote-max'),
       newVoteStepInput = $('#new-vote-step'),
-      pollListArea = $('.poll-list-area'),
-      roomArea = $('.roomies');
+      pollListArea = $('.poll-list-area');
 
     function myEmit (action, extraData) {
       extraData = extraData || {};
@@ -98,11 +97,6 @@
       history.pushState(null, null, '#' + myData.room);
     }
 
-    function setName (newName) {
-      myData.name = newName;
-      localStorage.setItem('name', newName);
-    }
-
     function setRoom (roomName) {
       $('.poll-instance-area').remove(); // remove any polls from previous room
       //if (!$('.poll-type-select .ui-btn-active').length) {
@@ -141,16 +135,66 @@
       history.pushState(null, null, '#' + newRoomName);
     });
 
-    function addPersonToRoom (name, personId) {
-      var li = $('<li>').attr('data-person-id', personId);
-      if (personId === myData.person_id) {
-        li.attr('data-icon', 'edit').append($('<a>').text(name)).on('tap', editName);
-      } else {
-        li.text(name);
-      }
-      roomArea.append(li);
-      roomArea.listview('refresh');
+
+    function Person (id, name, isMe) {
+      var self = this;
+      self.id = id;
+      self.name = ko.observable(name);
+      self.is_me = isMe;
     }
+
+    function RoomViewModel () {
+      var self = this;
+
+      self.people = ko.observableArray([]);
+
+      self.addPerson = function (id, name) {
+        self.people.push(new Person(id, name, id === myData.person_id));
+      };
+
+      self.removePerson = function (id) {
+        self.people.remove(function (item) {
+          return item.id === id;
+        });
+      };
+
+      self.renamePerson = function (id, name) {
+        for (var i = 0; i < self.people().length; i++) {
+          if (self.people()[i].id === id) {
+            self.people()[i].name(name);
+            return;
+          }
+        }
+        // If we get here person was not found
+        self.addPerson(id, name);
+      };
+
+      self.editName = function () {
+        var newName = window.prompt('What is your name?', myData.name);
+        if (!newName) {
+          return;
+        }
+        newName = newName.trim().substring(0, 20);
+        if (!newName) {
+          return;
+        }
+        myEmit('name change', {new_name: newName});
+        myData.name = newName;
+        localStorage.setItem('name', newName);
+      };
+
+    }
+
+    var roomModel = new RoomViewModel();
+
+    ko.bindingHandlers.jqmRefreshList = {
+      update: function (element, valueAccessor) {
+        ko.utils.unwrapObservable(valueAccessor()); // make this update fire each time the array is updated.
+        $(element).listview('refresh');
+      }
+    };
+
+    ko.applyBindings(roomModel);
 
     function createPoll (poll, haveIVoted) {
 
@@ -274,9 +318,7 @@
     //<editor-fold desc="Action: enter room">
     socket.on('enter room', function (people) {
       $.each(people, function (k, u) {
-        if (!$('.roomies li[data-person-id="' + u.person_id + '"]').length) {
-          addPersonToRoom(u.name, u.person_id);
-        }
+        roomModel.addPerson(u.person_id, u.name);
       });
     });
     //</editor-fold>
@@ -292,36 +334,14 @@
     });
 
     //<editor-fold desc="Action: name change">
-    function editName () {
-      var newName = window.prompt('What is your name?', myData.name);
-      if (!newName) {
-        return;
-      }
-      newName = newName.trim().substring(0, 20);
-      if (!newName) {
-        return;
-      }
-      myEmit('name change', {new_name: newName});
-      setName(newName);
-    }
-
     socket.on('name change', function (data) {
-      var existingUser = $('.roomies li[data-person-id="' + data.person_id + '"]');
-      if (existingUser.length) {
-        if (existingUser.find('a').length) {
-          existingUser.find('a').text(data.new_name);
-        } else {
-          existingUser.text(data.new_name);
-        }
-      } else {
-        addPersonToRoom(data.new_name, data.person_id);
-      }
+      roomModel.renamePerson(data.person_id, data.new_name);
     });
     //</editor-fold>
 
     //<editor-fold desc="Action: person left">
     socket.on('person left', function (personId) {
-      $('.roomies li[data-person-id="' + personId + '"]').remove();
+      roomModel.removePerson(personId);
     });
     //</editor-fold>
 
