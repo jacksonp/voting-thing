@@ -47,7 +47,8 @@
         room: location.hash.replace('#', ''),
         name: localStorage.getItem('name')
       },
-      socket = io('http://votingthing.com:3883/'),
+      //socket = io('http://votingthing.com:3883/'),
+      socket = io('http://127.0.0.1:3883/'),
       newVoteNameInput = $('#new-vote-name'),
       newVoteMinInput = $('#new-vote-min'),
       newVoteMaxInput = $('#new-vote-max'),
@@ -183,9 +184,19 @@
         localStorage.setItem('name', newName);
       };
 
+      self.polls = ko.observableArray([]);
+
+      self.addPoll = function (name, personId, type, details, haveIVoted, ownPoll) {
+        self.polls.unshift(new Poll.Poll(name, personId, type, details, haveIVoted, ownPoll));
+      };
+
+
     }
 
     var roomModel = new RoomViewModel();
+
+    roomModel.addPoll('aha', '1', 'item-choice', {items: [1, 2]}, '1', false, true);
+    roomModel.addPoll('boohoo', '1', 'range', {min: 1, max: 3, step: 0.2}, '2', false, false);
 
     ko.bindingHandlers.jqmRefreshList = {
       update: function (element, valueAccessor) {
@@ -194,8 +205,27 @@
       }
     };
 
+    ko.bindingHandlers.jqmRefreshCheckBoxRadio = {
+      init: function (element, valueAccessor) {
+        $(element).controlgroup();
+        $('input[type="radio"]', element).on('checkboxradiocreate', function (event, ui) {
+          $(element).checkboxradio('refresh');
+        });
+      }
+    };
+
+    ko.bindingHandlers.jqmRefreshSlider = {
+      init: function (element, valueAccessor) {
+        $(element).slider();
+        //$(element).on('slidecreate', function () {
+        //  $(element).slider('refresh');
+        //});
+      }
+    };
+
     ko.applyBindings(roomModel);
 
+    /*
     function createPoll (poll, haveIVoted) {
 
       function getVoteInput (pollType, details) {
@@ -208,7 +238,6 @@
           return '<input name="vote-input" value="' + defaultVal + '" min="' + details.min + '" max="' + details.max + '" step="' + details.step + '" type="range">';
         } else if (pollType === 'item-choice') {
           var html = '<fieldset data-role="controlgroup">';
-          //<legend>Radio buttons, vertical controlgroup:</legend>
           details.items.forEach(function (i) {
             var id = Math.random(); // HACK, jquery doesn't support putting the input inside the label (at least with pre-rendered markup).
             // Pre-rendered markup so jquery doesn't have to enhance this after we add it:
@@ -249,7 +278,7 @@
         html += '<button class="vote-button" data-theme="b">Send My Vote</button>';
         html += '</div>';
       }
-      html += '<div class="poll-instance-result-area' + (haveIVoted ? '' : ' hidden') + '">';
+      html += '<div class="poll-instance-result-area">';
       html += getResults(poll.type, poll.details, haveIVoted);
       html += '</div>';
       if (poll.owner_id === myData.person_id) {
@@ -266,6 +295,7 @@
         newVote.slideDown();
       }
     }
+    */
 
     function addVotes (pollId, votes) {
       var
@@ -328,8 +358,9 @@
         var haveIVoted = Object.keys(poll.votes).some(function (person_id) {
           return myData.person_id === person_id;
         });
-        createPoll(poll, haveIVoted);
-        addVotes(poll.poll_id, poll.votes);
+        roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === myData.person_id);
+
+        //addVotes(poll.poll_id, poll.votes);
       });
     });
 
@@ -411,7 +442,7 @@
       $('.item-choices li').remove();
     });
     socket.on('create poll', function (poll) {
-      createPoll(poll);
+      roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === myData.person_id);
     });
     //</editor-fold>
 

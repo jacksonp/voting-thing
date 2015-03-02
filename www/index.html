@@ -2,7 +2,7 @@
 <meta charset="UTF-8">
 <meta name=viewport content="width=device-width, initial-scale=1">
 
-<title>Voting Room</title>
+<title>Voting Thing</title>
 <link rel="stylesheet" href="css/all.min.css">
 <script src="cordova.js"></script>
 <script src="js/all.min.js"></script>
@@ -89,6 +89,69 @@
           </div>
         </div>
         <button id="create-poll-button" data-theme="b">Create Poll</button>
+      </div>
+      <div data-bind="foreach: polls">
+        <div data-role="collapsible" data-collapsed="false">
+          <h2 data-bind="text: poll_name"></h2>
+
+          <div class="vote-instance-input-area" data-bind="ifnot: haveIVoted">
+            <!-- ko if: type === 'range' -->
+            <input name="vote-input" type="number" data-bind="attr: {value: details.min, min: details.min, max: details.max, step: details.step}, jqmRefreshSlider">
+            <!-- /ko -->
+            <!-- ko if: type === 'item-choice' -->
+            <fieldset data-role="controlgroup" data-bind="foreach: details.items, jqmRefreshCheckBoxRadio: details.items">
+              <div class="ui-radio">
+                <label class="ui-btn ui-btn-inherit ui-btn-icon-left ui-radio-off" data-bind="text: $data"></label>
+                <input name="vote-input" type="radio" data-enhanced="true" data-bind="attr: {value: $data}">
+              </div>
+            </fieldset>
+            <!-- /ko -->
+            <button class="vote-button" data-theme="b">Send My Vote</button>
+          </div>
+
+          <div data-bind="attr: {class: haveIVoted ? 'voted' : 'not-voted'}">
+            <!-- ko if: type === 'range' -->
+
+            <table class="ui-table poll-results-table">
+              <!--  data-decimals="' + details.decimals + '" -->
+              <thead></thead>
+              <tbody></tbody>
+              <tfoot>
+              <tr>
+                <th>Total</th>
+                <th class="results-sum num"></th>
+              </tr>
+              <tr>
+                <th>Average</th>
+                <th class="results-avg num"></th>
+              </tr>
+              </tfoot>
+            </table>
+            <!-- /ko -->
+            <!-- ko if: type === 'item-choice' -->
+            <table class="ui-table poll-results-summary-table">
+              <tbody data-bind="foreach: details.items">
+
+              <tr>
+                <td class="results-item" data-bind="text: $data"></td>
+                <td class="results-item-votes num">0</td>
+              </tr>
+
+              </tbody>
+            </table>
+            <hr>
+            <table class="ui-table poll-results-table">
+              <tbody></tbody>
+            </table>
+
+            <!-- /ko -->
+          </div>
+
+          <!-- ko if: ownPoll -->
+          <button class="delete-poll-button" data-theme="b">Delete Poll</button>
+          <!-- /ko -->
+
+        </div>
       </div>
       <div class="poll-list-area"></div>
     </div>

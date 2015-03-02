@@ -1,9 +1,9 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (pollName, ownerId, type, details) {
+  exports.Poll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
 
-    if (!pollName) {
+    if (!name) {
       throw 'Poll needs a Name.';
     }
 
@@ -30,6 +30,9 @@
         details.decimals = decimalPlaces(details.step);
       }
     } else if (type === 'item-choice') {
+      if (!details.items) {
+        throw 'No items';
+      }
       if (details.items.length < 2) {
         throw 'Add at least two items.'
       }
@@ -37,11 +40,16 @@
       throw 'Could not figure out poll type.';
     }
 
-    this.poll_name = pollName;
+    this.poll_name = name;
     this.owner_id = ownerId;
     this.type = type;
     this.details = details;
-    this.votes = [];
+    this.poll_id = pollId;
+    this.haveIVoted = !!haveIVoted;
+    this.ownPoll = !!ownPoll;
+    if (typeof ko !== 'undefined') { // knockout - client-side only
+      this.votes = ko.observableArray([]);
+    }
 
   };
 
