@@ -96,7 +96,10 @@ io.on('connection', function (socket) {
         console.log(err);
         io.to(socket.id).emit('vt_error', err.hint);
       } else {
-        emitToRoom(data.room, 'vote', {poll_id: data.poll_id, vote: {vote: data.vote, name: rows[0].name}});
+        emitToRoom(data.room, 'vote', {
+          poll_id: data.poll_id,
+          vote   : {vote: data.vote, name: rows[0].name, person_id: data.person_id}
+        });
       }
     });
   });

@@ -41,7 +41,8 @@
         name: localStorage.getItem('name')
       },
       //socket = io('http://votingthing.com:3883/'),
-      socket = io('http://127.0.0.1:3883/'),
+      //socket = io('http://127.0.0.1:3883/'),
+      socket = io('http://192.168.1.69:3883/'),
       newVoteNameInput = $('#new-vote-name'),
       newVoteMinInput = $('#new-vote-min'),
       newVoteMaxInput = $('#new-vote-max'),
@@ -131,12 +132,21 @@
 
       self.polls = ko.observableArray([]);
 
+      function getPoll (id) {
+        return ko.utils.arrayFirst(self.polls(), function (p) {
+          return p.poll_id === id;
+        });
+      }
+
       self.jqmEnhancePollList = function (element) {
         $(element).parent().enhanceWithin();
       };
 
       self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
-        self.polls.unshift(new Poll.Poll(name, ownerId, type, details, pollId, haveIVoted, ownPoll));
+        var poll = getPoll(pollId);
+        if (!poll) {
+          self.polls.unshift(new Poll.Poll(name, ownerId, type, details, pollId, haveIVoted, ownPoll));
+        }
       };
 
       self.deletePollConfirm = function (poll) {
@@ -158,11 +168,18 @@
         self.polls([]);
       };
 
-      self.addVote = function (pollId, vote) {
-        var poll = ko.utils.arrayFirst(self.polls(), function (p) {
-          return p.poll_id === pollId;
+      function getVote (poll, person_id) {
+        return ko.utils.arrayFirst(poll.votes(), function (v) {
+          return v.person_id === person_id;
         });
-        poll.votes.push(vote);
+      }
+
+      self.addVote = function (pollId, vote) {
+        var poll = getPoll(pollId);
+        var voteExists = getVote(poll, vote.person_id);
+        if (!voteExists) {
+          poll.votes.push(vote);
+        }
       };
 
       //<editor-fold desc="Action: vote">
@@ -292,8 +309,9 @@
           return myData.person_id === person_id;
         });
         roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === myData.person_id);
-        Object.keys(poll.votes).forEach(function (key) {
-          roomModel.addVote(poll.poll_id, poll.votes[key]);
+        Object.keys(poll.votes).forEach(function (person_id) {
+          poll.votes[person_id].person_id = person_id;
+          roomModel.addVote(poll.poll_id, poll.votes[person_id]);
         });
       });
     });
@@ -390,7 +408,7 @@
 
     // <editor-fold desc="Action: reconnect">
     socket.on('reconnect', function (num) {
-      console.log(num);
+      myEmit('enter room');
     });
     //</editor-fold>
 
