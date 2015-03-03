@@ -56,19 +56,6 @@
       return;
     }
 
-    var entityMap = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;'
-    };
-
-    function escapeHtml (string) {
-      return String(string).replace(/[&<>"]/g, function (s) {
-        return entityMap[s];
-      });
-    }
-
     var
       myData = {
         room: location.hash.replace('#', ''),
@@ -281,121 +268,7 @@
 
     var roomModel = new RoomViewModel();
 
-    //roomModel.addPoll('aha', '1', 'item-choice', {items: [1, 2]}, '1', false, true);
-    //roomModel.addPoll('boohoo', '1', 'range', {min: 1, max: 3, step: 0.2}, '2', false, false);
-
     ko.applyBindings(roomModel);
-
-    /*
-     function createPoll (poll, haveIVoted) {
-
-     function getVoteInput (pollType, details) {
-     if (pollType === 'range') {
-     var targetMiddleVal = details.min + ((details.max - details.min) / 2);
-     var defaultVal = details.min;
-     while (defaultVal + details.step <= targetMiddleVal) {
-     defaultVal += details.step;
-     }
-     return '<input name="vote-input" value="' + defaultVal + '" min="' + details.min + '" max="' + details.max + '" step="' + details.step + '" type="range">';
-     } else if (pollType === 'item-choice') {
-     var html = '<fieldset data-role="controlgroup">';
-     details.items.forEach(function (i) {
-     var id = Math.random(); // HACK, jquery doesn't support putting the input inside the label (at least with pre-rendered markup).
-     // Pre-rendered markup so jquery doesn't have to enhance this after we add it:
-     html += '<div class="ui-radio">';
-     html += '<label for="' + id + '" class="ui-btn ui-btn-inherit ui-btn-icon-left ui-radio-off">' + escapeHtml(i) + '</label>';
-     html += '<input name="vote-input" value="' + escapeHtml(i) + '" type="radio" id="' + id + '" data-enhanced="true">';
-     html += '</div>';
-     });
-     html += '</fieldset>';
-     $(".selector").checkboxradio("refresh");
-     return html;
-     }
-     }
-
-     function getResults (pollType, details, haveIVoted) {
-     var html = '';
-     if (pollType === 'range') {
-     html += '<table class="ui-table poll-results-table ' + (haveIVoted ? 'voted' : 'not-voted') + '" data-decimals="' + details.decimals + '"><thead></thead><tbody></tbody>';
-     html += '<tfoot><tr><th>Total</th><th class="results-sum num"></th></tr>';
-     html += '<tr><th>Average</th><th class="results-avg num"></th></tr></tfoot>';
-     html += '</table>';
-     } else if (pollType === 'item-choice') {
-     html += '<table class="ui-table poll-results-summary-table ' + (haveIVoted ? 'voted' : 'not-voted') + '"><tbody>';
-     details.items.forEach(function (i) {
-     html += '<tr><td class="results-item">' + escapeHtml(i) + '</td><td class="results-item-votes num">0</td></tr>';
-     });
-     html += '</tbody></table><hr>';
-     html += '<table class="ui-table poll-results-table ' + (haveIVoted ? 'voted' : 'not-voted') + '"><tbody></tbody></table>';
-     }
-     return html;
-     }
-
-     var html = '<div data-role="collapsible" data-collapsed="false" class="poll-instance-area" data-poll-id="' + poll.poll_id + '" data-poll-type="' + poll.type + '">';
-     html += '<h2>' + escapeHtml(poll.poll_name) + '</h2>';
-     if (!haveIVoted) {
-     html += '<div class="vote-instance-input-area">';
-     html += getVoteInput(poll.type, poll.details);
-     html += '<button class="vote-button" data-theme="b">Send My Vote</button>';
-     html += '</div>';
-     }
-     html += '<div class="poll-instance-result-area">';
-     html += getResults(poll.type, poll.details, haveIVoted);
-     html += '</div>';
-     if (poll.owner_id === myData.person_id) {
-     html += '<button class="delete-poll-button" data-theme="b">Delete Poll</button>';
-     }
-     html += '</div>';
-
-     if (haveIVoted) {
-     $(html).prependTo(pollListArea);
-     pollListArea.enhanceWithin();
-     } else {
-     var newVote = $(html).hide().prependTo(pollListArea);
-     pollListArea.enhanceWithin();
-     newVote.slideDown();
-     }
-     }
-     */
-
-    function addVotes (pollId, votes) {
-      var
-        pollInstanceArea = $('.poll-instance-area[data-poll-id=' + pollId + ']'),
-        pollInstanceResultArea = pollInstanceArea.find('.poll-instance-result-area'),
-        pollType = pollInstanceArea.attr('data-poll-type'),
-        resultsTable = pollInstanceResultArea.find('.poll-results-table');
-
-      pollInstanceResultArea.slideDown();
-
-      if (pollType === 'range') {
-        var decimals = resultsTable.attr('data-decimals');
-        Object.keys(votes).forEach(function (person_id) {
-          resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td class="num"><span class="result-placeholder">?</span><span class="result-val">' + votes[person_id].vote.toFixed(decimals) + '</span></td></tr>');
-        });
-        var sum = 0;
-        resultsTable.find('.result-val').each(function () {
-          sum += parseFloat($(this).text());
-        });
-        resultsTable.find('.results-sum').text(sum.toFixed(decimals));
-        resultsTable.find('.results-avg').text((sum / resultsTable.find('.result-val').length).toFixed(decimals));
-      } else if (pollType === 'item-choice') {
-        var
-          results = {},
-          resultSummaryTable = pollInstanceArea.find('.poll-results-summary-table tbody'),
-          trs = resultSummaryTable.find('tr');
-        trs.each(function () {
-          results[$(this).find('.results-item').text()] = parseFloat($(this).find('.results-item-votes').text());
-          $(this).remove();
-        });
-        Object.keys(votes).forEach(function (person_id) {
-          results[votes[person_id].vote] += 1;
-          resultsTable.find('tbody').append('<tr><td>' + escapeHtml(votes[person_id].name) + '</td><td><span class="result-placeholder">?</span><span class="result-val">' + votes[person_id].vote + '</span></td></tr>');
-        });
-        Object.keys(results).forEach(function (i) {
-          resultSummaryTable.append('<tr><td class="results-item">' + escapeHtml(i) + '</td><td class="results-item-votes num">' + results[i] + '</td></tr>');
-        });
-      }
-    }
 
     //<editor-fold desc="Sort out default new vote form values">
     (function () {
