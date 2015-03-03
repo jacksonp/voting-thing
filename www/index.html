@@ -117,9 +117,7 @@
               <tbody data-bind="foreach: votes">
               <tr>
                 <td data-bind="text: name"></td>
-                <td class="num">
-                  <span class="result-placeholder">?</span><span class="result-val" data-bind="text: vote.toFixed($parent.decimals)"></span>
-                </td>
+                <td class="num" data-bind="text: $parent.haveIVoted ? vote.toFixed($parent.decimals) : '?'"></td>
               </tr>
               </tbody>
               <tfoot>

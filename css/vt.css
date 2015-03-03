@@ -13,8 +13,6 @@ body {
 .not-setup .room-area,
 .not-setup .hamburger,
 .done-setup .setup-area,
-.not-voted .poll-results-table .result-val,
-.voted .poll-results-table .result-placeholder,
 .not-voted .poll-results-table tfoot,
 .not-voted .poll-results-summary-table {
   display : none;
