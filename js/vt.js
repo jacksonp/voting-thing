@@ -163,7 +163,17 @@
 
       self.people = ko.observableArray([]);
 
+      function getPerson (id) {
+        return ko.utils.arrayFirst(self.people(), function (p) {
+          return p.id === id;
+        });
+      }
+
       self.addPerson = function (id, name) {
+        var person = getPerson(id);
+        if (person) {
+          return;
+        }
         self.people.push(new Person(id, name, id === myData.person_id));
       };
 
@@ -174,14 +184,12 @@
       };
 
       self.renamePerson = function (id, name) {
-        for (var i = 0; i < self.people().length; i++) {
-          if (self.people()[i].id === id) {
-            self.people()[i].name(name);
-            return;
-          }
+        var person = getPerson(id);
+        if (person) {
+          person.name(name);
+        } else {
+          self.addPerson(id, name);
         }
-        // If we get here person was not found
-        self.addPerson(id, name);
       };
 
       self.editName = function () {
