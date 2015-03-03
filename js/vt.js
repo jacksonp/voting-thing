@@ -407,7 +407,15 @@
     //</editor-fold>
 
     // <editor-fold desc="Action: reconnect">
+    socket.on('reconnecting', function (num) {
+      // WEB_EXCLUDE_START
+        window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
+      // WEB_EXCLUDE_END
+    });
     socket.on('reconnect', function (num) {
+      // WEB_EXCLUDE_START
+        window.plugins.toast.showShortBottom('Reconnected');
+      // WEB_EXCLUDE_END
       myEmit('enter room');
     });
     //</editor-fold>
