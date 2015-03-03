@@ -61,10 +61,10 @@
           for (var i = 0; i < self.votes().length; i++) {
             tot += self.votes()[i].vote;
           }
-          return tot.toFixed(self.decimals);
+          return tot.toFixed(self.details.decimals);
         });
         self.voteAvg = ko.pureComputed(function () {
-          return (self.voteSum() / self.votes().length).toFixed(self.decimals);
+          return (self.voteSum() / self.votes().length).toFixed(self.details.decimals);
         });
       } else if (type === 'item-choice') {
         self.itemTot = function (item) {
