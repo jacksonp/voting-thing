@@ -47,9 +47,12 @@
     self.type = type;
     self.details = details;
     self.poll_id = pollId;
-    self.haveIVoted = !!haveIVoted;
     self.ownPoll = !!ownPoll;
+
     if (typeof ko !== 'undefined') { // knockout - client-side only
+
+      self.haveIVoted = ko.observable(!!haveIVoted);
+
       self.votes = ko.observableArray([]);
 
       if (self.type === 'range') {

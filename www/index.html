@@ -109,15 +109,15 @@
             <button data-theme="b" data-bind="click: $parent.vote">Send My Vote</button>
           </div>
 
-          <div data-bind="attr: {class: haveIVoted ? 'voted' : 'not-voted'}">
-            <!-- ko if: type === 'range' -->
+          <div data-bind="attr: {class: haveIVoted() ? 'voted' : 'not-voted'}">
 
+            <!-- ko if: type === 'range' -->
             <table class="ui-table poll-results-table">
               <thead></thead>
               <tbody data-bind="foreach: votes">
               <tr>
                 <td data-bind="text: name"></td>
-                <td class="num" data-bind="text: $parent.haveIVoted ? vote.toFixed($parent.decimals) : '?'"></td>
+                <td class="num" data-bind="text: $parent.haveIVoted() ? vote.toFixed($parent.decimals) : '?'"></td>
               </tr>
               </tbody>
               <tfoot>
@@ -132,23 +132,22 @@
               </tfoot>
             </table>
             <!-- /ko -->
+
             <!-- ko if: type === 'item-choice' -->
             <table class="ui-table poll-results-summary-table">
               <tbody data-bind="foreach: details.items">
-
               <tr>
                 <td class="results-item" data-bind="text: $data"></td>
                 <td class="results-item-votes num">0</td>
               </tr>
-
               </tbody>
             </table>
             <hr>
             <table class="ui-table poll-results-table">
               <tbody></tbody>
             </table>
-
             <!-- /ko -->
+
           </div>
 
           <!-- ko if: ownPoll -->

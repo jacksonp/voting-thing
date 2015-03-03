@@ -269,6 +269,7 @@
           return;
         }
         myEmit('vote', {poll_id: poll.poll_id, vote: vote});
+        poll.haveIVoted(true);
         pollInstanceArea.find('.vote-instance-input-area').slideUp(300, function () {
           $(this).remove();
         });
@@ -422,8 +423,6 @@
         Object.keys(poll.votes).forEach(function (key) {
           roomModel.addVote(poll.poll_id, poll.votes[key]);
         });
-
-        //addVotes(poll.poll_id, poll.votes);
       });
     });
 
