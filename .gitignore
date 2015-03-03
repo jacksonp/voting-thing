@@ -2,3 +2,31 @@
 node_modules
 www/js/*.min.js
 www/css/*.min.css
+
+
+# iOS
+vt/platforms/ios/build/
+vt/platforms/ios/www/
+vt/platforms/ios/cordova/console.log
+*.xcuserdatad
+
+# android
+vt/platforms/android/assets/www
+vt/platforms/android/bin
+vt/platforms/android/gen
+vt/platforms/android/local.properties
+vt/platforms/android/ant-build
+vt/platforms/android/ant-gen
+vt/platforms/android/CordovaLib/ant-build
+vt/platforms/android/CordovaLib/ant-gen
+vt/platforms/android/CordovaLib/bin
+vt/platforms/android/CordovaLib/gen
+vt/platforms/android/CordovaLib/local.properties
+
+# wp8
+vt/platforms/wp8/bin
+vt/platforms/wp8/obj
+vt/platforms/wp8/www
+vt/platforms/wp8/.staging
+vt/platforms/wp8/*.suo
+vt/platforms/wp8/*.csproj.user
