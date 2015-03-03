@@ -62,12 +62,23 @@
             tot += self.votes()[i].vote;
           }
           return tot.toFixed(self.decimals);
-        }, self);
+        });
         self.voteAvg = ko.pureComputed(function () {
           return (self.voteSum() / self.votes().length).toFixed(self.decimals);
-        }, self);
+        });
+      } else if (type === 'item-choice') {
+        self.itemTot = function (item) {
+          return ko.pureComputed(function () {
+            var tot = 0;
+            for (var i = 0; i < self.votes().length; i++) {
+              if (self.votes()[i].vote === item) {
+                tot += 1;
+              }
+            }
+            return tot;
+          })();
+        };
       }
-
     }
 
   };
