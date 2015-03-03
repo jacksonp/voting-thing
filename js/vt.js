@@ -1,6 +1,33 @@
 (function () {
   'use strict';
 
+  //<editor-fold desc="Custom knockout bindings">
+  ko.bindingHandlers.jqmRefreshList = {
+    update: function (element, valueAccessor) {
+      ko.utils.unwrapObservable(valueAccessor()); // make this update fire each time the array is updated.
+      $(element).listview('refresh');
+    }
+  };
+
+  ko.bindingHandlers.jqmRefreshCheckBoxRadio = {
+    init: function (element, valueAccessor) {
+      $(element).controlgroup();
+      $('input[type="radio"]', element).on('checkboxradiocreate', function (event, ui) {
+        $(element).checkboxradio('refresh');
+      });
+    }
+  };
+
+  ko.bindingHandlers.jqmRefreshSlider = {
+    init: function (element, valueAccessor) {
+      $(element).slider();
+      //$(element).on('slidecreate', function () {
+      //  $(element).slider('refresh');
+      //});
+    }
+  };
+  //</editor-fold>
+
   var
     deviceReady = false,
     domReady = false;
@@ -186,9 +213,23 @@
 
       self.polls = ko.observableArray([]);
 
-      self.addPoll = function (name, personId, type, details, haveIVoted, ownPoll) {
-        self.polls.unshift(new Poll.Poll(name, personId, type, details, haveIVoted, ownPoll));
+      self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
+        self.polls.unshift(new Poll.Poll(name, ownerId, type, details, pollId, haveIVoted, ownPoll));
       };
+
+      self.deletePollConfirm = function (poll) {
+        if (confirm('Are you sure you want to delete this poll?')) {
+          myEmit('delete poll', {poll_id: poll.poll_id});
+        }
+      };
+      socket.on('delete poll', function (poll_id) {
+        self.polls.remove(function (poll) {
+          return poll.poll_id === poll_id;
+        });
+        //pollInstanceArea.slideUp(300, function () {
+        //  $(this).remove();
+        //});
+      });
 
 
     }
@@ -197,31 +238,6 @@
 
     roomModel.addPoll('aha', '1', 'item-choice', {items: [1, 2]}, '1', false, true);
     roomModel.addPoll('boohoo', '1', 'range', {min: 1, max: 3, step: 0.2}, '2', false, false);
-
-    ko.bindingHandlers.jqmRefreshList = {
-      update: function (element, valueAccessor) {
-        ko.utils.unwrapObservable(valueAccessor()); // make this update fire each time the array is updated.
-        $(element).listview('refresh');
-      }
-    };
-
-    ko.bindingHandlers.jqmRefreshCheckBoxRadio = {
-      init: function (element, valueAccessor) {
-        $(element).controlgroup();
-        $('input[type="radio"]', element).on('checkboxradiocreate', function (event, ui) {
-          $(element).checkboxradio('refresh');
-        });
-      }
-    };
-
-    ko.bindingHandlers.jqmRefreshSlider = {
-      init: function (element, valueAccessor) {
-        $(element).slider();
-        //$(element).on('slidecreate', function () {
-        //  $(element).slider('refresh');
-        //});
-      }
-    };
 
     ko.applyBindings(roomModel);
 
@@ -443,21 +459,6 @@
     });
     socket.on('create poll', function (poll) {
       roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === myData.person_id);
-    });
-    //</editor-fold>
-
-    //<editor-fold desc="Action: delete poll">
-    socket.on('delete poll', function (poll_id) {
-      var pollInstanceArea = $('.poll-instance-area[data-poll-id=' + poll_id + ']');
-      pollInstanceArea.slideUp(300, function () {
-        $(this).remove();
-      });
-    });
-    pollListArea.delegate('.delete-poll-button', 'tap', function () {
-      if (confirm('Are you sure you want to delete this poll?')) {
-        var pollInstanceArea = $(this).closest('.poll-instance-area');
-        myEmit('delete poll', {poll_id: pollInstanceArea.attr('data-poll-id')});
-      }
     });
     //</editor-fold>
 
