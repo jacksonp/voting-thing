@@ -66,8 +66,7 @@
       newVoteNameInput = $('#new-vote-name'),
       newVoteMinInput = $('#new-vote-min'),
       newVoteMaxInput = $('#new-vote-max'),
-      newVoteStepInput = $('#new-vote-step'),
-      pollListArea = $('.poll-list-area');
+      newVoteStepInput = $('#new-vote-step');
 
     function myEmit (action, extraData) {
       extraData = extraData || {};
@@ -171,10 +170,9 @@
 
       self.addPerson = function (id, name) {
         var person = getPerson(id);
-        if (person) {
-          return;
+        if (!person) {
+          self.people.push(new Person(id, name, id === myData.person_id));
         }
-        self.people.push(new Person(id, name, id === myData.person_id));
       };
 
       self.removePerson = function (id) {
@@ -221,6 +219,7 @@
         self.polls.remove(function (poll) {
           return poll.poll_id === poll_id;
         });
+        // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
         //pollInstanceArea.slideUp(300, function () {
         //  $(this).remove();
         //});
@@ -265,10 +264,6 @@
         }
         myEmit('vote', {poll_id: poll.poll_id, vote: vote});
         poll.haveIVoted(true);
-        pollInstanceArea.find('.vote-instance-input-area').slideUp(300, function () {
-          $(this).remove();
-        });
-        pollInstanceArea.find('table').removeClass('not-voted').addClass('voted');
       };
       //</editor-fold>
 

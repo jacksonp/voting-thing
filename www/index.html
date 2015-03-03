@@ -94,7 +94,7 @@
         <div data-role="collapsible" data-collapsed="false" class="poll">
           <h2 data-bind="text: poll_name"></h2>
 
-          <div class="vote-instance-input-area" data-bind="ifnot: haveIVoted">
+          <div data-bind="ifnot: haveIVoted">
             <!-- ko if: type === 'range' -->
             <input name="vote-input" type="number" data-bind="attr: {value: details.min, min: details.min, max: details.max, step: details.step}, jqmRefreshSlider">
             <!-- /ko -->
@@ -156,13 +156,11 @@
           </div>
 
           <!-- ko if: ownPoll -->
-          <button class="delete-poll-button" data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete Poll
-          </button>
+          <button data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete Poll</button>
           <!-- /ko -->
 
         </div>
       </div>
-      <div class="poll-list-area"></div>
     </div>
   </div>
 
