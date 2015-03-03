@@ -232,6 +232,52 @@
       });
 
 
+      //<editor-fold desc="Action: vote">
+      socket.on('vote', function (data) {
+        var poll = ko.utils.arrayFirst(self.polls(), function (p) {
+          return p.poll_id === data.poll_id;
+        });
+        var votes = {};
+        votes[myData.person_id] = data.vote;
+        poll.push(votes);
+        //addVotes(data.poll_id, votes);
+      });
+      self.vote = function (poll, event) {
+
+console.log(event);
+
+        var
+          vote,
+          pollInstanceArea = $(event.currentTarget).closest('.poll');
+
+        if (poll.type === 'range') {
+          vote = pollInstanceArea.find('input[name=vote-input]').val();
+          if (!$.isNumeric(vote)) {
+            if (vote != '') {
+              alert('Enter a number.');
+            }
+            return;
+          }
+          vote = parseFloat(vote);
+        } else if (poll.type === 'item-choice') {
+          vote = pollInstanceArea.find('input[name=vote-input]:checked');
+          if (!vote.length) {
+            alert('Select an item.');
+            return;
+          }
+          vote = vote.val();
+        } else {
+          alert('Could not figure out poll type.');
+          return;
+        }
+        myEmit('vote', {poll_id: pollInstanceArea.attr('data-poll-id'), vote: vote});
+        pollInstanceArea.find('.vote-instance-input-area').slideUp(300, function () {
+          $(this).remove();
+        });
+        pollInstanceArea.find('table').removeClass('not-voted').addClass('voted');
+      };
+      //</editor-fold>
+
     }
 
     var roomModel = new RoomViewModel();
@@ -459,46 +505,6 @@
     });
     socket.on('create poll', function (poll) {
       roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === myData.person_id);
-    });
-    //</editor-fold>
-
-    //<editor-fold desc="Action: vote">
-    socket.on('vote', function (data) {
-      var votes = {};
-      votes[myData.person_id] = data.vote;
-      addVotes(data.poll_id, votes);
-    });
-    pollListArea.delegate('.vote-button', 'tap', function () {
-      var
-        vote,
-        pollInstanceArea = $(this).closest('.poll-instance-area'),
-        pollType = pollInstanceArea.attr('data-poll-type');
-
-      if (pollType === 'range') {
-        vote = pollInstanceArea.find('input[name=vote-input]').val();
-        if (!$.isNumeric(vote)) {
-          if (vote != '') {
-            alert('Enter a number.');
-          }
-          return;
-        }
-        vote = parseFloat(vote);
-      } else if (pollType === 'item-choice') {
-        vote = pollInstanceArea.find('input[name=vote-input]:checked');
-        if (!vote.length) {
-          alert('Select an item.');
-          return;
-        }
-        vote = vote.val();
-      } else {
-        alert('Could not figure out poll type.');
-        return;
-      }
-      myEmit('vote', {poll_id: pollInstanceArea.attr('data-poll-id'), vote: vote});
-      pollInstanceArea.find('.vote-instance-input-area').slideUp(300, function () {
-        $(this).remove();
-      });
-      pollInstanceArea.find('table').removeClass('not-voted').addClass('voted');
     });
     //</editor-fold>
 

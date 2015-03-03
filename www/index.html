@@ -91,7 +91,7 @@
         <button id="create-poll-button" data-theme="b">Create Poll</button>
       </div>
       <div data-bind="foreach: polls">
-        <div data-role="collapsible" data-collapsed="false">
+        <div data-role="collapsible" data-collapsed="false" class="poll">
           <h2 data-bind="text: poll_name"></h2>
 
           <div class="vote-instance-input-area" data-bind="ifnot: haveIVoted">
@@ -106,7 +106,7 @@
               </div>
             </fieldset>
             <!-- /ko -->
-            <button class="vote-button" data-theme="b">Send My Vote</button>
+            <button data-theme="b" data-bind="click: $parent.vote">Send My Vote</button>
           </div>
 
           <div data-bind="attr: {class: haveIVoted ? 'voted' : 'not-voted'}">
