@@ -90,78 +90,80 @@
         </div>
         <button id="create-poll-button" data-theme="b">Create Poll</button>
       </div>
-      <div data-bind="foreach: polls">
-        <div data-role="collapsible" data-collapsed="false" class="poll">
-          <h2 data-bind="text: poll_name"></h2>
-
-          <div data-bind="ifnot: haveIVoted">
-            <!-- ko if: type === 'range' -->
-            <input name="vote-input" type="number" data-bind="attr: {value: details.min, min: details.min, max: details.max, step: details.step}, jqmRefreshSlider">
-            <!-- /ko -->
-            <!-- ko if: type === 'item-choice' -->
-            <fieldset data-role="controlgroup" data-bind="foreach: details.items, jqmRefreshCheckBoxRadio: details.items">
-              <div class="ui-radio">
-                <label class="ui-btn ui-btn-inherit ui-btn-icon-left ui-radio-off" data-bind="text: $data"></label>
-                <input name="vote-input" type="radio" data-enhanced="true" data-bind="attr: {value: $data}">
-              </div>
-            </fieldset>
-            <!-- /ko -->
-            <button data-theme="b" data-bind="click: $parent.vote">Send My Vote</button>
-          </div>
-
-          <div data-bind="attr: {class: haveIVoted() ? 'voted' : 'not-voted'}">
-
-            <!-- ko if: type === 'range' -->
-            <table class="ui-table poll-results-table">
-              <thead></thead>
-              <tbody data-bind="foreach: votes">
-              <tr>
-                <td data-bind="text: name"></td>
-                <td class="num" data-bind="text: $parent.haveIVoted() ? vote.toFixed($parent.details.decimals) : '?'"></td>
-              </tr>
-              </tbody>
-              <tfoot>
-              <tr>
-                <th>Total</th>
-                <th class="num" data-bind="text: voteSum"></th>
-              </tr>
-              <tr>
-                <th>Average</th>
-                <th class="num" data-bind="text: voteAvg"></th>
-              </tr>
-              </tfoot>
-            </table>
-            <!-- /ko -->
-
-            <!-- ko if: type === 'item-choice' -->
-            <table class="ui-table poll-results-summary-table">
-              <tbody data-bind="foreach: details.items">
-              <tr>
-                <td data-bind="text: $data"></td>
-                <td class="num" data-bind="text: $parent.itemTot($data)"></td>
-              </tr>
-              </tbody>
-            </table>
-            <hr>
-            <table class="ui-table poll-results-table">
-              <tbody data-bind="foreach: votes">
-              <tr>
-                <td data-bind="text: name"></td>
-                <td class="num" data-bind="text: $parent.haveIVoted() ? vote : '?'"></td>
-              </tr>
-              </tbody>
-            </table>
-            <!-- /ko -->
-
-          </div>
-
-          <!-- ko if: ownPoll -->
-          <button data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete Poll</button>
-          <!-- /ko -->
-
-        </div>
-      </div>
+      <div data-bind="template: {name: 'poll-template', foreach: polls, afterAdd: jqmEnhancePollList}"></div>
     </div>
   </div>
 
 </div>
+
+<script type="text/html" id="poll-template">
+<div data-role="collapsible" data-collapsed="false" class="poll">
+  <h2 data-bind="text: poll_name"></h2>
+
+  <div data-bind="ifnot: haveIVoted">
+    <!-- ko if: type === 'range' -->
+    <input name="vote-input" type="range" data-bind="attr: {value: details.min, min: details.min, max: details.max, step: details.step}">
+    <!-- /ko -->
+    <!-- ko if: type === 'item-choice' -->
+    <fieldset data-role="controlgroup" data-bind="foreach: details.items">
+      <div class="ui-radio">
+        <label class="ui-btn ui-btn-inherit ui-btn-icon-left ui-radio-off" data-bind="text: $data"></label>
+        <input name="vote-input" type="radio" data-enhanced="true" data-bind="attr: {value: $data}">
+      </div>
+    </fieldset>
+    <!-- /ko -->
+    <button data-theme="b" data-bind="click: $parent.vote">Send My Vote</button>
+  </div>
+
+  <div data-bind="attr: {class: haveIVoted() ? 'voted' : 'not-voted'}">
+
+    <!-- ko if: type === 'range' -->
+    <table class="ui-table poll-results-table">
+      <thead></thead>
+      <tbody data-bind="foreach: votes">
+      <tr>
+        <td data-bind="text: name"></td>
+        <td class="num" data-bind="text: $parent.haveIVoted() ? vote.toFixed($parent.details.decimals) : '?'"></td>
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <th>Total</th>
+        <th class="num" data-bind="text: voteSum"></th>
+      </tr>
+      <tr>
+        <th>Average</th>
+        <th class="num" data-bind="text: voteAvg"></th>
+      </tr>
+      </tfoot>
+    </table>
+    <!-- /ko -->
+
+    <!-- ko if: type === 'item-choice' -->
+    <table class="ui-table poll-results-summary-table">
+      <tbody data-bind="foreach: details.items">
+      <tr>
+        <td data-bind="text: $data"></td>
+        <td class="num" data-bind="text: $parent.itemTot($data)"></td>
+      </tr>
+      </tbody>
+    </table>
+    <hr>
+    <table class="ui-table poll-results-table">
+      <tbody data-bind="foreach: votes">
+      <tr>
+        <td data-bind="text: name"></td>
+        <td class="num" data-bind="text: $parent.haveIVoted() ? vote : '?'"></td>
+      </tr>
+      </tbody>
+    </table>
+    <!-- /ko -->
+
+  </div>
+
+  <!-- ko if: ownPoll -->
+  <button data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete Poll</button>
+  <!-- /ko -->
+
+</div>
+</script>

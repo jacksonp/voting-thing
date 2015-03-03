@@ -14,7 +14,8 @@ body {
 .not-setup .hamburger,
 .done-setup .setup-area,
 .not-voted .poll-results-table tfoot,
-.not-voted .poll-results-summary-table {
+.not-voted .poll-results-summary-table,
+.not-voted hr {
   display : none;
 }
 

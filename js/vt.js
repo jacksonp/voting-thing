@@ -8,24 +8,6 @@
       $(element).listview('refresh');
     }
   };
-
-  ko.bindingHandlers.jqmRefreshCheckBoxRadio = {
-    init: function (element) {
-      $(element).controlgroup();
-      $('input[type="radio"]', element).on('checkboxradiocreate', function () {
-        $(element).checkboxradio('refresh');
-      });
-    }
-  };
-
-  ko.bindingHandlers.jqmRefreshSlider = {
-    init: function (element) {
-      $(element).slider();
-      //$(element).on('slidecreate', function () {
-      //  $(element).slider('refresh');
-      //});
-    }
-  };
   //</editor-fold>
 
   var
@@ -148,6 +130,10 @@
       };
 
       self.polls = ko.observableArray([]);
+
+      self.jqmEnhancePollList = function (element) {
+        $(element).parent().enhanceWithin();
+      };
 
       self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
         self.polls.unshift(new Poll.Poll(name, ownerId, type, details, pollId, haveIVoted, ownPoll));
