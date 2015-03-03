@@ -34,7 +34,7 @@ io.on('connection', function (socket) {
         rows.forEach(function (r) {
           io.to(r.r_socket_id).emit('enter room', inRoom);
         });
-        query("SELECT poll_id, name AS poll_name, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1)", [data.room], function (err, rows) {
+        query("SELECT poll_id, name AS poll_name, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1) ORDER BY poll_id", [data.room], function (err, rows) {
           if (err) {
             console.error(err);
             io.to(socket.id).emit('vt_error', err.hint);
