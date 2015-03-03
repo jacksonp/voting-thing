@@ -10,16 +10,16 @@
   };
 
   ko.bindingHandlers.jqmRefreshCheckBoxRadio = {
-    init: function (element, valueAccessor) {
+    init: function (element) {
       $(element).controlgroup();
-      $('input[type="radio"]', element).on('checkboxradiocreate', function (event, ui) {
+      $('input[type="radio"]', element).on('checkboxradiocreate', function () {
         $(element).checkboxradio('refresh');
       });
     }
   };
 
   ko.bindingHandlers.jqmRefreshSlider = {
-    init: function (element, valueAccessor) {
+    init: function (element) {
       $(element).slider();
       //$(element).on('slidecreate', function () {
       //  $(element).slider('refresh');
@@ -39,9 +39,6 @@
   document.addEventListener('deviceready', function () {
     deviceReady = true;
     init();
-  }, false);
-  document.addEventListener('resume', function () {
-
   }, false);
   // WEB_EXCLUDE_END
 
@@ -68,6 +65,12 @@
       newVoteMaxInput = $('#new-vote-max'),
       newVoteStepInput = $('#new-vote-step');
 
+    // WEB_EXCLUDE_START
+    document.addEventListener('resume', function () {
+      socket.io.reconnect();
+    }, false);
+    // WEB_EXCLUDE_END
+
     function myEmit (action, extraData) {
       extraData = extraData || {};
       socket.emit(action, $.extend(extraData, myData));
@@ -88,66 +91,6 @@
     $('#setup-name').val(myData.name);
     $('#setup-room').val(myData.room);
 
-    $('#setup-form').submit(function (event) {
-      event.preventDefault();
-      var
-        personName = $('#setup-name').val().trim(),
-        roomName = $('#setup-room').val().trim();
-      // Validate room name
-      if (!roomName.match(/[0-9A-Za-z]/)) {
-        alert('Room name must contain some letters or numbers.');
-        return;
-      }
-      myData.name = personName;
-      localStorage.setItem('name', personName);
-      setRoom(roomName);
-      setupDone();
-      history.pushState(null, null, '#' + roomName);
-      return false;
-    });
-
-    if (!myData.room && localStorage.getItem('room_name')) {
-      myData.room = localStorage.getItem('room_name');
-      history.pushState(null, null, '#' + myData.room);
-    }
-
-    function setRoom (roomName) {
-      $('.poll-instance-area').remove(); // remove any polls from previous room
-      //if (!$('.poll-type-select .ui-btn-active').length) {
-      //  $('.poll-type-select li').first().addClass('ui-btn-active');
-      //}
-      myData.room = roomName;
-      $('#room-input').val(roomName);
-      localStorage.setItem('room_name', roomName);
-      $('h1').text(roomName);
-      myEmit('enter room', {name: myData.name});
-    }
-
-    function setupDone () {
-      $('.not-setup').removeClass('not-setup').addClass('done-setup');
-    }
-
-    if (myData.room && myData.name) {
-      setRoom(myData.room);
-      setupDone();
-    }
-
-    $('#enter-room-form').submit(function (event) {
-      event.preventDefault();
-      var newRoomName = $('#room-input').val();
-      // Validate room name
-      if (!newRoomName.match(/[0-9A-Za-z]/)) {
-        alert('Room name must contain some letters or numbers.');
-        return;
-      }
-      $('#vt-panel').panel('close');
-      if (myData.room === newRoomName) {
-        return; // Already in the room.
-      }
-      myEmit('leave room');
-      setRoom(newRoomName);
-      history.pushState(null, null, '#' + newRoomName);
-    });
 
 
     function Person (id, name, isMe) {
@@ -225,6 +168,10 @@
         //});
       });
 
+      self.clearPolls = function () {
+        self.polls([]);
+      };
+
       self.addVote = function (pollId, vote) {
         var poll = ko.utils.arrayFirst(self.polls(), function (p) {
           return p.poll_id === pollId;
@@ -272,6 +219,69 @@
     var roomModel = new RoomViewModel();
 
     ko.applyBindings(roomModel);
+
+
+    $('#setup-form').submit(function (event) {
+      event.preventDefault();
+      var
+        personName = $('#setup-name').val().trim(),
+        roomName = $('#setup-room').val().trim();
+      // Validate room name
+      if (!roomName.match(/[0-9A-Za-z]/)) {
+        alert('Room name must contain some letters or numbers.');
+        return;
+      }
+      myData.name = personName;
+      localStorage.setItem('name', personName);
+      setRoom(roomName);
+      setupDone();
+      history.pushState(null, null, '#' + roomName);
+      return false;
+    });
+
+    if (!myData.room && localStorage.getItem('room_name')) {
+      myData.room = localStorage.getItem('room_name');
+      history.pushState(null, null, '#' + myData.room);
+    }
+
+    function setRoom (roomName) {
+      roomModel.clearPolls();
+      //if (!$('.poll-type-select .ui-btn-active').length) {
+      //  $('.poll-type-select li').first().addClass('ui-btn-active');
+      //}
+      myData.room = roomName;
+      $('#room-input').val(roomName);
+      localStorage.setItem('room_name', roomName);
+      $('h1').text(roomName);
+      myEmit('enter room');
+    }
+
+    function setupDone () {
+      $('.not-setup').removeClass('not-setup').addClass('done-setup');
+    }
+
+    if (myData.room && myData.name) {
+      setRoom(myData.room);
+      setupDone();
+    }
+
+    $('#enter-room-form').submit(function (event) {
+      event.preventDefault();
+      var newRoomName = $('#room-input').val();
+      // Validate room name
+      if (!newRoomName.match(/[0-9A-Za-z]/)) {
+        alert('Room name must contain some letters or numbers.');
+        return;
+      }
+      $('#vt-panel').panel('close');
+      if (myData.room === newRoomName) {
+        return; // Already in the room.
+      }
+      myEmit('leave room');
+      setRoom(newRoomName);
+      history.pushState(null, null, '#' + newRoomName);
+    });
+
 
     //<editor-fold desc="Sort out default new vote form values">
     (function () {
@@ -389,6 +399,12 @@
       //window.location.reload();
       //console.log(message);
       alert(message);
+    });
+    //</editor-fold>
+
+    // <editor-fold desc="Action: reconnect">
+    socket.on('reconnect', function (num) {
+      console.log(num);
     });
     //</editor-fold>
 
