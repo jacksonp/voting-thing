@@ -224,8 +224,8 @@
     $('#setup-form').submit(function (event) {
       event.preventDefault();
       var
-        personName = $('#setup-name').val().trim(),
-        roomName = $('#setup-room').val().trim();
+        personName = $.trim($('#setup-name').val()),
+        roomName = $.trim($('#setup-room').val());
       // Validate room name
       if (!roomName.match(/[0-9A-Za-z]/)) {
         alert('Room name must contain some letters or numbers.');
