@@ -3,6 +3,8 @@
 
   exports.Poll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
 
+    var self = this;
+
     if (!name) {
       throw 'Poll needs a Name.';
     }
@@ -40,15 +42,29 @@
       throw 'Could not figure out poll type.';
     }
 
-    this.poll_name = name;
-    this.owner_id = ownerId;
-    this.type = type;
-    this.details = details;
-    this.poll_id = pollId;
-    this.haveIVoted = !!haveIVoted;
-    this.ownPoll = !!ownPoll;
+    self.poll_name = name;
+    self.owner_id = ownerId;
+    self.type = type;
+    self.details = details;
+    self.poll_id = pollId;
+    self.haveIVoted = !!haveIVoted;
+    self.ownPoll = !!ownPoll;
     if (typeof ko !== 'undefined') { // knockout - client-side only
-      this.votes = ko.observableArray([]);
+      self.votes = ko.observableArray([]);
+
+      if (self.type === 'range') {
+        self.voteSum = ko.pureComputed(function () {
+          var tot = 0;
+          for (var i = 0; i < self.votes().length; i++) {
+            tot += self.votes()[i].vote;
+          }
+          return tot.toFixed(self.decimals);
+        }, self);
+        self.voteAvg = ko.pureComputed(function () {
+          return (self.voteSum() / self.votes().length).toFixed(self.decimals);
+        }, self);
+      }
+
     }
 
   };

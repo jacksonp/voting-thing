@@ -113,17 +113,23 @@
             <!-- ko if: type === 'range' -->
 
             <table class="ui-table poll-results-table">
-              <!--  data-decimals="' + details.decimals + '" -->
               <thead></thead>
-              <tbody></tbody>
+              <tbody data-bind="foreach: votes">
+              <tr>
+                <td data-bind="text: name"></td>
+                <td class="num">
+                  <span class="result-placeholder">?</span><span class="result-val" data-bind="text: vote.toFixed($parent.decimals)"></span>
+                </td>
+              </tr>
+              </tbody>
               <tfoot>
               <tr>
                 <th>Total</th>
-                <th class="results-sum num"></th>
+                <th class="num" data-bind="text: voteSum"></th>
               </tr>
               <tr>
                 <th>Average</th>
-                <th class="results-avg num"></th>
+                <th class="num" data-bind="text: voteAvg"></th>
               </tr>
               </tfoot>
             </table>
@@ -148,7 +154,8 @@
           </div>
 
           <!-- ko if: ownPoll -->
-          <button class="delete-poll-button" data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete Poll</button>
+          <button class="delete-poll-button" data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete Poll
+          </button>
           <!-- /ko -->
 
         </div>
