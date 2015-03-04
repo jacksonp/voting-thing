@@ -10,6 +10,8 @@ cat \
   bower_components/knockout/dist/knockout.js \
   js/socket.io.js \
   app/poll.js \
+  js/person.js \
+  js/room.js \
   js/vt.js \
 > www/js/all.min.js
 
