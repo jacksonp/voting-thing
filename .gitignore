@@ -2,7 +2,7 @@
 node_modules
 www/js/*.min.js
 www/css/*.min.css
-
+vt/www
 
 # iOS
 vt/platforms/ios/build/
