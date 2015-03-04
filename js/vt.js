@@ -75,7 +75,6 @@
     $('#setup-room').val(myData.room);
 
 
-
     function Person (id, name, isMe) {
       var self = this;
       self.id = id;
@@ -409,12 +408,12 @@
     // <editor-fold desc="Action: reconnect">
     socket.on('reconnecting', function (num) {
       // WEB_EXCLUDE_START
-        window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
+      window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
       // WEB_EXCLUDE_END
     });
     socket.on('reconnect', function (num) {
       // WEB_EXCLUDE_START
-        window.plugins.toast.showShortBottom('Reconnected');
+      window.plugins.toast.showShortBottom('Reconnected');
       // WEB_EXCLUDE_END
       myEmit('enter room');
     });
