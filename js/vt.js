@@ -143,9 +143,11 @@
 
       self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
         var poll = getPoll(pollId);
-        if (!poll) {
-          self.polls.unshift(new Poll.Poll(name, ownerId, type, details, pollId, haveIVoted, ownPoll));
+        if (poll) {
+          return false; // Already exists.
         }
+        self.polls.unshift(new Poll.Poll(name, ownerId, type, details, pollId, haveIVoted, ownPoll));
+        return true;
       };
 
       self.deletePollConfirm = function (poll) {
@@ -303,16 +305,23 @@
     //</editor-fold>
 
     socket.on('polls sync', function (polls) {
+      var pollAdded = false, thisAdded;
       polls.forEach(function (poll) {
         var haveIVoted = Object.keys(poll.votes).some(function (person_id) {
           return myData.person_id === person_id;
         });
-        roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === myData.person_id);
+        thisAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === myData.person_id);
+        if (!pollAdded && thisAdded) {
+          pollAdded = true;
+        }
         Object.keys(poll.votes).forEach(function (person_id) {
           poll.votes[person_id].person_id = person_id;
           roomModel.addVote(poll.poll_id, poll.votes[person_id]);
         });
       });
+      if (pollAdded) {
+        revealFirstPoll();
+      }
     });
 
     //<editor-fold desc="Action: name change">
@@ -393,9 +402,16 @@
       $('.item-choices li').remove();
     });
     socket.on('create poll', function (poll) {
-      roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === myData.person_id);
+      var pollAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === myData.person_id);
+      if (pollAdded) {
+        revealFirstPoll();
+      }
     });
     //</editor-fold>
+
+    function revealFirstPoll () {
+      $(".poll").first().collapsible("expand");
+    }
 
     //<editor-fold desc="Action: vt_error">
     socket.on('vt_error', function (message) {
