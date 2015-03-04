@@ -87,21 +87,11 @@ function RoomViewModel (myData, myEmit) {
     self.polls([]);
   };
 
-  function getVote (poll, person_id) {
-    return ko.utils.arrayFirst(poll.votes(), function (v) {
-      return v.person_id === person_id;
-    });
-  }
-
   self.addVote = function (pollId, vote) {
     var poll = getPoll(pollId);
-    var voteExists = getVote(poll, vote.person_id);
-    if (!voteExists) {
-      poll.votes.push(vote);
-    }
+    poll.addVote(vote);
   };
 
-  //<editor-fold desc="Action: vote">
   self.vote = function (poll, event) {
 
     var
@@ -131,6 +121,5 @@ function RoomViewModel (myData, myEmit) {
     myEmit('vote', {poll_id: poll.poll_id, vote: vote});
     poll.haveIVoted(true);
   };
-  //</editor-fold>
 
 }

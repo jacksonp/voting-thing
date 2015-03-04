@@ -55,6 +55,19 @@
 
       self.votes = ko.observableArray([]);
 
+      self.getVote = function (person_id) {
+        return ko.utils.arrayFirst(self.votes(), function (v) {
+          return v.person_id === person_id;
+        });
+      };
+
+      self.addVote = function (vote) {
+        var voteExists = self.getVote(vote.person_id);
+        if (!voteExists) {
+          self.votes.push(vote);
+        }
+      };
+
       if (self.type === 'range') {
         self.voteSum = ko.pureComputed(function () {
           var tot = 0;
