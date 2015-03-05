@@ -40,9 +40,8 @@
         room: location.hash.replace('#', ''),
         name: localStorage.getItem('name')
       },
-      //socket = io('http://votingthing.com:3883/'),
-      //socket = io('http://127.0.0.1:3883/'),
-      socket = io('http://192.168.1.69:3883/'),
+      socket = io('http://votingthing.com:3883/'),
+      //socket = io('http://192.168.1.69:3883/'),
       newVoteNameInput = $('#new-vote-name'),
       newVoteMinInput = $('#new-vote-min'),
       newVoteMaxInput = $('#new-vote-max'),
