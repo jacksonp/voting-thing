@@ -36,6 +36,7 @@
     }
 
     var
+      appRunning = true,
       myData = {
         room: location.hash.replace('#', ''),
         name: localStorage.getItem('name')
@@ -48,7 +49,11 @@
       newVoteStepInput = $('#new-vote-step');
 
     // WEB_EXCLUDE_START
+    document.addEventListener('pause', function () {
+      appRunning = false;
+    }, false);
     document.addEventListener('resume', function () {
+      appRunning = true;
       socket.io.reconnect();
     }, false);
     // WEB_EXCLUDE_END
@@ -125,12 +130,16 @@
       $('.not-setup').removeClass('not-setup').addClass('done-setup');
       socket.on('reconnecting', function (num) {
         // WEB_EXCLUDE_START
-        window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
+        if (appRunning) {
+          window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
+        }
         // WEB_EXCLUDE_END
       });
       socket.on('reconnect', function (num) {
         // WEB_EXCLUDE_START
-        window.plugins.toast.showShortBottom('Reconnected');
+        if (appRunning) {
+          window.plugins.toast.showShortBottom('Reconnected');
+        }
         // WEB_EXCLUDE_END
         myEmit('enter room');
       });
