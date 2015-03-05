@@ -4,6 +4,9 @@
     <feature name="WebSocket">
         <param name="android-package" value="com.knowledgecode.cordova.websocket.WebSocket" />
     </feature>
+    <feature name="Toast">
+        <param name="android-package" value="nl.xservices.plugins.Toast" />
+    </feature>
     <name>Voting Thing</name>
     <description>
         Create polls and vote amongst friends.
