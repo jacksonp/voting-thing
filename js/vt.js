@@ -242,7 +242,7 @@
       itemChoices.append(li);
       itemChoices.listview('refresh');
     });
-    $('#create-poll-button').on('tap', function () {
+    $('#create-poll-button').click(function () {
       var
         pollType = $('.poll-type-select .ui-state-active a').attr('data-poll-type'),
         poll, details;
