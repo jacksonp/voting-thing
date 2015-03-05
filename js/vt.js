@@ -124,6 +124,17 @@
 
     function setupDone () {
       $('.not-setup').removeClass('not-setup').addClass('done-setup');
+      socket.on('reconnecting', function (num) {
+        // WEB_EXCLUDE_START
+        window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
+        // WEB_EXCLUDE_END
+      });
+      socket.on('reconnect', function (num) {
+        // WEB_EXCLUDE_START
+        window.plugins.toast.showShortBottom('Reconnected');
+        // WEB_EXCLUDE_END
+        myEmit('enter room');
+      });
     }
 
     if (myData.room && myData.name) {
@@ -280,20 +291,6 @@
       //window.location.reload();
       //console.log(message);
       alert(message);
-    });
-    //</editor-fold>
-
-    // <editor-fold desc="Action: reconnect">
-    socket.on('reconnecting', function (num) {
-      // WEB_EXCLUDE_START
-      window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
-      // WEB_EXCLUDE_END
-    });
-    socket.on('reconnect', function (num) {
-      // WEB_EXCLUDE_START
-      window.plugins.toast.showShortBottom('Reconnected');
-      // WEB_EXCLUDE_END
-      myEmit('enter room');
     });
     //</editor-fold>
 
