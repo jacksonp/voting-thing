@@ -10,7 +10,7 @@
 <div data-role="page" class="not-setup">
 
   <div data-role="panel" id="vt-panel" data-display="overlay" data-position="right">
-    <form id="enter-room-form">
+    <form data-bind="submit: enterRoom">
       <label for="room-input">Room</label>
       <input id="room-input" type="text" maxlength="20" data-clear-btn="true" required>
       <button data-theme="b">Enter Room</button>

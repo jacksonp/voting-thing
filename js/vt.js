@@ -103,7 +103,7 @@
       }
       myData.name = personName;
       localStorage.setItem('name', personName);
-      setRoom(roomName);
+      roomModel.setRoom(roomName);
       setupDone();
       history.pushState(null, null, '#' + roomName);
       return false;
@@ -112,18 +112,6 @@
     if (!myData.room && localStorage.getItem('room_name')) {
       myData.room = localStorage.getItem('room_name');
       history.pushState(null, null, '#' + myData.room);
-    }
-
-    function setRoom (roomName) {
-      roomModel.clearPolls();
-      //if (!$('.poll-type-select .ui-btn-active').length) {
-      //  $('.poll-type-select li').first().addClass('ui-btn-active');
-      //}
-      myData.room = roomName;
-      $('#room-input').val(roomName);
-      localStorage.setItem('room_name', roomName);
-      $('h1').text(roomName);
-      myEmit('enter room');
     }
 
     function setupDone () {
@@ -146,27 +134,9 @@
     }
 
     if (myData.room && myData.name) {
-      setRoom(myData.room);
+      roomModel.setRoom(myData.room);
       setupDone();
     }
-
-    $('#enter-room-form').submit(function (event) {
-      event.preventDefault();
-      var newRoomName = $('#room-input').val();
-      // Validate room name
-      if (!newRoomName.match(/[0-9A-Za-z]/)) {
-        alert('Room name must contain some letters or numbers.');
-        return;
-      }
-      $('#vt-panel').panel('close');
-      if (myData.room === newRoomName) {
-        return; // Already in the room.
-      }
-      myEmit('leave room');
-      setRoom(newRoomName);
-      history.pushState(null, null, '#' + newRoomName);
-    });
-
 
     //<editor-fold desc="Sort out default new vote form values">
     (function () {
@@ -290,8 +260,9 @@
     });
     //</editor-fold>
 
+    // This may be called (once) after multiple polls have been added.
     function revealFirstPoll () {
-      $(".poll").first().collapsible("expand");
+      $('.poll').first().collapsible('expand');
     }
 
     //<editor-fold desc="Action: vt_error">

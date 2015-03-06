@@ -3,6 +3,34 @@ function RoomViewModel (myData, myEmit) {
 
   var self = this;
 
+  self.room = ko.observable(myData.room);
+
+
+  self.setRoom = function (roomName) {
+    self.clearPolls();
+    myData.room = roomName;
+    self.room = roomName;
+    localStorage.setItem('room_name', roomName);
+    $('h1').text(roomName);
+    myEmit('enter room');
+  };
+
+  self.enterRoom = function (formElement) {
+    var newRoomName = $.trim($(formElement).find('#room-input').val());
+    // Validate room name
+    if (!newRoomName.match(/[0-9A-Za-z]/)) {
+      alert('Room name must contain some letters or numbers.');
+      return;
+    }
+    $('#vt-panel').panel('close');
+    if (myData.room === newRoomName) {
+      return; // Already in the room.
+    }
+    myEmit('leave room');
+    self.setRoom(newRoomName);
+    history.pushState(null, null, '#' + newRoomName);
+  };
+
   self.people = ko.observableArray([]);
 
   function getPerson (id) {
