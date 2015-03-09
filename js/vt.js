@@ -93,15 +93,6 @@
       roomModel.deletePoll(poll_id);
     });
 
-    //<editor-fold desc="Sort out default new vote form values">
-    (function () {
-      $('#new-vote-name').val(localStorage.getItem('new-vote-name') ? localStorage.getItem('new-vote-name') : 'Poll Name');
-      $('#new-vote-min').val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 1);
-      $('#new-vote-max').val(localStorage.getItem('new-vote-max') ? localStorage.getItem('new-vote-max') : 10);
-      $('#new-vote-step').val(localStorage.getItem('new-vote-step') ? localStorage.getItem('new-vote-step') : 1);
-    }());
-    //</editor-fold>
-
     //<editor-fold desc="Action: enter room">
     socket.on('enter room', function (people) {
       $.each(people, function (k, u) {

@@ -37,7 +37,7 @@
 
   <div role="main" class="ui-content">
     <!-- ko if: isSetup -->
-    <div data-bind="template: {name: 'poll-area-template', afterRender: jqmRefreshSetup}"></div>
+    <div data-bind="template: {name: 'poll-area-template', afterRender: jqmRefreshPollArea}"></div>
     <!-- /ko -->
     <!-- ko ifnot: isSetup -->
     <div data-bind="template: {name: 'setup-template', afterRender: jqmRefreshSetup}"></div>

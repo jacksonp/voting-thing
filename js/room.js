@@ -128,6 +128,14 @@ function RoomViewModel (socket, setupDoneCB) {
     $(element).enhanceWithin();
   };
 
+  self.jqmRefreshPollArea = function (element) {
+    $(element).enhanceWithin();
+    $('#new-vote-name').val(localStorage.getItem('new-vote-name') ? localStorage.getItem('new-vote-name') : 'Poll Name');
+    $('#new-vote-min').val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 1);
+    $('#new-vote-max').val(localStorage.getItem('new-vote-max') ? localStorage.getItem('new-vote-max') : 10);
+    $('#new-vote-step').val(localStorage.getItem('new-vote-step') ? localStorage.getItem('new-vote-step') : 1);
+  };
+
   self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
     var poll = getPoll(pollId);
     if (poll) {
