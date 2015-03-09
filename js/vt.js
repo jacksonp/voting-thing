@@ -50,7 +50,25 @@
     }, false);
     // WEB_EXCLUDE_END
 
-    var roomModel = new RoomViewModel(socket);
+    function setupDone () {
+      socket.on('reconnecting', function (num) {
+        // WEB_EXCLUDE_START
+        if (appRunning) {
+          window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
+        }
+        // WEB_EXCLUDE_END
+      });
+      socket.on('reconnect', function (num) {
+        // WEB_EXCLUDE_START
+        if (appRunning) {
+          window.plugins.toast.showShortBottom('Reconnected');
+        }
+        // WEB_EXCLUDE_END
+        roomModel.sync();
+      });
+    }
+
+    var roomModel = new RoomViewModel(socket, setupDone);
 
     ko.applyBindings(roomModel);
 

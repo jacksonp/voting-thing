@@ -1,4 +1,4 @@
-function RoomViewModel (socket) {
+function RoomViewModel (socket, setupDoneCB) {
   'use strict';
 
   var self = this;
@@ -23,21 +23,11 @@ function RoomViewModel (socket) {
 
   self.setupDone = function () {
     $('.not-setup').removeClass('not-setup').addClass('done-setup');
-    socket.on('reconnecting', function (num) {
-      // WEB_EXCLUDE_START
-      if (appRunning) {
-        window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
-      }
-      // WEB_EXCLUDE_END
-    });
-    socket.on('reconnect', function (num) {
-      // WEB_EXCLUDE_START
-      if (appRunning) {
-        window.plugins.toast.showShortBottom('Reconnected');
-      }
-      // WEB_EXCLUDE_END
-      myEmit('enter room');
-    });
+    setupDoneCB();
+  };
+
+  self.sync = function () {
+    myEmit('enter room');
   };
 
   self.setup = function () {
