@@ -98,6 +98,45 @@ function RoomViewModel (myData, myEmit) {
     return true;
   };
 
+
+  self.createPoll = function () {
+    var
+      pollType = $('.poll-type-select .ui-state-active a').attr('data-poll-type'),
+      poll, details,
+      newVoteNameInput = $('#new-vote-name'),
+      newVoteMinInput = $('#new-vote-min'),
+      newVoteMaxInput = $('#new-vote-max'),
+      newVoteStepInput = $('#new-vote-step');
+
+    if (pollType === 'range') {
+      details = {
+        min : newVoteMinInput.val(),
+        max : newVoteMaxInput.val(),
+        step: newVoteStepInput.val()
+      };
+    } else if (pollType === 'item-choice') {
+      var items = [];
+      $('.item-choices li').each(function () {
+        items.push($(this).text());
+      });
+      details = {
+        items: items
+      };
+    } else {
+      alert('Could not figure out poll type.');
+      return;
+    }
+    try {
+      poll = new Poll.Poll(newVoteNameInput.val(), self.me.id, pollType, details);
+    } catch (e) {
+      alert(e);
+      return;
+    }
+    myEmit('create poll', poll);
+    $('.new-poll-area').collapsible('collapse');
+    $('.item-choices li').remove();
+  };
+
   self.deletePollConfirm = function (poll) {
     if (confirm('Are you sure you want to delete this poll?')) {
       myEmit('delete poll', {poll_id: poll.poll_id});

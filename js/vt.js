@@ -209,38 +209,7 @@
       itemChoices.append(li);
       itemChoices.listview('refresh');
     });
-    $('#create-poll-button').click(function () {
-      var
-        pollType = $('.poll-type-select .ui-state-active a').attr('data-poll-type'),
-        poll, details;
-      if (pollType === 'range') {
-        details = {
-          min : newVoteMinInput.val(),
-          max : newVoteMaxInput.val(),
-          step: newVoteStepInput.val()
-        };
-      } else if (pollType === 'item-choice') {
-        var items = [];
-        $('.item-choices li').each(function () {
-          items.push($(this).text());
-        });
-        details = {
-          items: items
-        };
-      } else {
-        alert('Could not figure out poll type.');
-        return;
-      }
-      try {
-        poll = new Poll.Poll(newVoteNameInput.val(), roomModel.me.id, pollType, details);
-      } catch (e) {
-        alert(e);
-        return;
-      }
-      myEmit('create poll', poll);
-      $('.new-poll-area').collapsible('collapse');
-      $('.item-choices li').remove();
-    });
+
     socket.on('create poll', function (poll) {
       var pollAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === roomModel.me.id);
       if (pollAdded) {
