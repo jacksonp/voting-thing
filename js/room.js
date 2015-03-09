@@ -1,4 +1,4 @@
-function RoomViewModel (myData, myEmit) {
+function RoomViewModel (myData, myEmit, setupDone) {
   'use strict';
 
   var self = this;
@@ -7,6 +7,23 @@ function RoomViewModel (myData, myEmit) {
 
   self.me = new Person(localStorage.getItem('name'));
 
+
+  self.setup = function () {
+    var
+      personName = $.trim($('#setup-name').val()),
+      roomName = $.trim($('#setup-room').val());
+    // Validate room name
+    if (!roomName.match(/[0-9A-Za-z]/)) {
+      alert('Room name must contain some letters or numbers.');
+      return;
+    }
+    self.me.name(personName);
+    localStorage.setItem('name', personName);
+    self.setRoom(roomName);
+    setupDone();
+    history.pushState(null, null, '#' + roomName);
+
+  };
 
   self.setRoom = function (roomName) {
     self.clearPolls();

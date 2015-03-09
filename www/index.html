@@ -37,7 +37,7 @@
 
   <div role="main" class="ui-content">
     <div class="setup-area">
-      <form id="setup-form">
+      <form data-bind="submit: setup">
         <label for="setup-name">What is your name?</label>
         <input id="setup-name" type="text" maxlength="20" data-clear-btn="true" required>
         <label for="setup-room">What room do you want to go to?</label>

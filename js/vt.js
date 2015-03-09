@@ -59,13 +59,12 @@
 
     function myEmit (action, extraData) {
       extraData = extraData || {};
-      console.log(roomModel.me.name());
       myData.person_id = roomModel.me.id;
       myData.name = roomModel.me.name();
       socket.emit(action, $.extend(extraData, myData));
     }
 
-    var roomModel = new RoomViewModel(myData, myEmit);
+    var roomModel = new RoomViewModel(myData, myEmit, setupDone);
 
     ko.applyBindings(roomModel);
 
@@ -78,25 +77,6 @@
 
     socket.on('delete poll', function (poll_id) {
       roomModel.deletePoll(poll_id);
-    });
-
-
-    $('#setup-form').submit(function (event) {
-      event.preventDefault();
-      var
-        personName = $.trim($('#setup-name').val()),
-        roomName = $.trim($('#setup-room').val());
-      // Validate room name
-      if (!roomName.match(/[0-9A-Za-z]/)) {
-        alert('Room name must contain some letters or numbers.');
-        return;
-      }
-      roomModel.me.name(personName);
-      localStorage.setItem('name', personName);
-      roomModel.setRoom(roomName);
-      setupDone();
-      history.pushState(null, null, '#' + roomName);
-      return false;
     });
 
     if (!myData.room && localStorage.getItem('room_name')) {
