@@ -1,12 +1,25 @@
 (function () {
   'use strict';
 
-  //<editor-fold desc="Custom knockout bindings">
+  //<editor-fold desc="Custom knockout stuff">
   ko.bindingHandlers.jqmRefreshList = {
     update: function (element, valueAccessor) {
       ko.utils.unwrapObservable(valueAccessor()); // make this update fire each time the array is updated.
       $(element).listview('refresh');
     }
+  };
+
+  ko.subscribable.fn.trimmed = function () {
+    return ko.computed({
+      read : function () {
+        return this().trim();
+      },
+      write: function (value) {
+        this(value.trim());
+        this.valueHasMutated();
+      },
+      owner: this
+    });
   };
   //</editor-fold>
 

@@ -3,7 +3,7 @@ function Person (name, id, isMe) {
 
   var self = this;
 
-  self.name = ko.observable(name);
+  self.name = ko.observable(name || '').trimmed();
 
   if (id) {
     self.id = id;

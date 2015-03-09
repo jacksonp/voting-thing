@@ -3,7 +3,7 @@ function RoomViewModel (socket, setupDoneCB) {
 
   var self = this;
 
-  self.room = ko.observable(location.hash.replace('#', ''));
+  self.room = ko.observable(location.hash.replace('#', '')).trimmed();
 
   self.me = new Person(localStorage.getItem('name'));
 
@@ -31,19 +31,15 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.setup = function () {
-    var
-      personName = $.trim($('#setup-name').val()),
-      roomName = $.trim($('#setup-room').val());
     // Validate room name
-    if (!roomName.match(/[0-9A-Za-z]/)) {
+    if (!self.room().match(/[0-9A-Za-z]/)) {
       alert('Room name must contain some letters or numbers.');
       return;
     }
-    self.me.name(personName);
-    localStorage.setItem('name', personName);
-    self.setRoom(roomName);
+    localStorage.setItem('name', self.me.name());
+    self.setRoom(self.room());
     self.setupDone();
-    history.pushState(null, null, '#' + roomName);
+    history.pushState(null, null, '#' + self.room());
   };
 
   self.setRoom = function (roomName) {
