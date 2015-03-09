@@ -60,7 +60,6 @@ function RoomViewModel (socket) {
     self.clearPolls();
     self.room(roomName);
     localStorage.setItem('room_name', roomName);
-    $('h1').text(roomName);
     myEmit('enter room');
   };
 
@@ -238,7 +237,7 @@ function RoomViewModel (socket) {
     poll.haveIVoted(true);
   };
 
-
+  // Are we ready?
   if (self.room() && self.me.name()) {
     self.setRoom(self.room());
     self.setupDone();

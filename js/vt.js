@@ -36,13 +36,9 @@
     }
 
     var
-      appRunning = true,
       socket = io('http://votingthing.com:3883/'),
       //socket = io('http://192.168.1.69:3883/'),
-      newVoteNameInput = $('#new-vote-name'),
-      newVoteMinInput = $('#new-vote-min'),
-      newVoteMaxInput = $('#new-vote-max'),
-      newVoteStepInput = $('#new-vote-step');
+      appRunning = true;
 
     // WEB_EXCLUDE_START
     document.addEventListener('pause', function () {
@@ -58,9 +54,6 @@
 
     ko.applyBindings(roomModel);
 
-    $('#setup-name').val(roomModel.me.name());
-    $('#setup-room').val(roomModel.room());
-
     socket.on('vote', function (data) {
       roomModel.addVote(data.poll_id, data.vote);
     });
@@ -71,10 +64,10 @@
 
     //<editor-fold desc="Sort out default new vote form values">
     (function () {
-      newVoteNameInput.val(localStorage.getItem('new-vote-name') ? localStorage.getItem('new-vote-name') : 'Poll Name');
-      newVoteMinInput.val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 1);
-      newVoteMaxInput.val(localStorage.getItem('new-vote-max') ? localStorage.getItem('new-vote-max') : 10);
-      newVoteStepInput.val(localStorage.getItem('new-vote-step') ? localStorage.getItem('new-vote-step') : 1);
+      $('#new-vote-name').val(localStorage.getItem('new-vote-name') ? localStorage.getItem('new-vote-name') : 'Poll Name');
+      $('#new-vote-min').val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 1);
+      $('#new-vote-max').val(localStorage.getItem('new-vote-max') ? localStorage.getItem('new-vote-max') : 10);
+      $('#new-vote-step').val(localStorage.getItem('new-vote-step') ? localStorage.getItem('new-vote-step') : 1);
     }());
     //</editor-fold>
 

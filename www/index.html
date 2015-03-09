@@ -31,7 +31,7 @@
   </div>
 
   <div data-role="header">
-    <h1>Voting Thing</h1>
+    <h1 data-bind="text: room() || 'Voting Thing'"></h1>
     <a href="#vt-panel" class="hamburger ui-btn-right" data-icon="bars" data-iconpos="notext" data-role="button"></a>
   </div>
 
@@ -39,9 +39,9 @@
     <div class="setup-area">
       <form data-bind="submit: setup">
         <label for="setup-name">What is your name?</label>
-        <input id="setup-name" type="text" maxlength="20" data-clear-btn="true" required>
+        <input id="setup-name" type="text" maxlength="20" data-clear-btn="true" required data-bind="value: me.name">
         <label for="setup-room">What room do you want to go to?</label>
-        <input id="setup-room" type="text" maxlength="20" data-clear-btn="true" placeholder="Room name" required>
+        <input id="setup-room" type="text" maxlength="20" data-clear-btn="true" placeholder="Room name" required data-bind="value: room">
         <button data-theme="b">Enter</button>
       </form>
     </div>
