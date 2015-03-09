@@ -37,15 +37,14 @@ function RoomViewModel (socket, setupDoneCB) {
       return;
     }
     localStorage.setItem('name', self.me.name());
-    self.setRoom(self.room());
+    self.changeRoom();
     self.setupDone();
     history.pushState(null, null, '#' + self.room());
   };
 
-  self.setRoom = function (roomName) {
+  self.changeRoom = function () {
     self.clearPolls();
-    self.room(roomName);
-    localStorage.setItem('room_name', roomName);
+    localStorage.setItem('room_name', self.room());
     myEmit('enter room');
   };
 
@@ -61,7 +60,8 @@ function RoomViewModel (socket, setupDoneCB) {
       return; // Already in the room.
     }
     myEmit('leave room');
-    self.setRoom(newRoomName);
+    self.room(newRoomName);
+    self.changeRoom();
     history.pushState(null, null, '#' + newRoomName);
   };
 
@@ -225,7 +225,7 @@ function RoomViewModel (socket, setupDoneCB) {
 
   // Are we ready?
   if (self.room() && self.me.name()) {
-    self.setRoom(self.room());
+    self.changeRoom();
     self.setupDone();
   }
 
