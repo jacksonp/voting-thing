@@ -5,7 +5,7 @@ function RoomViewModel (myData, myEmit) {
 
   self.room = ko.observable(myData.room);
 
-  self.me = new Person(name);
+  self.me = new Person(localStorage.getItem('name'));
 
 
   self.setRoom = function (roomName) {
@@ -64,7 +64,7 @@ function RoomViewModel (myData, myEmit) {
   };
 
   self.editName = function () {
-    var newName = window.prompt('What is your name?', myData.name);
+    var newName = window.prompt('What is your name?', self.me.name());
     if (!newName) {
       return;
     }
@@ -73,7 +73,7 @@ function RoomViewModel (myData, myEmit) {
       return;
     }
     myEmit('name change', {new_name: newName});
-    myData.name = newName;
+    self.me.name(newName);
     localStorage.setItem('name', newName);
   };
 

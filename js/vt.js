@@ -38,8 +38,7 @@
     var
       appRunning = true,
       myData = {
-        room: location.hash.replace('#', ''),
-        name: localStorage.getItem('name')
+        room: location.hash.replace('#', '')
       },
       socket = io('http://votingthing.com:3883/'),
       //socket = io('http://192.168.1.69:3883/'),
@@ -60,16 +59,18 @@
 
     function myEmit (action, extraData) {
       extraData = extraData || {};
+      console.log(roomModel.me.name());
       myData.person_id = roomModel.me.id;
+      myData.name = roomModel.me.name();
       socket.emit(action, $.extend(extraData, myData));
     }
-
-    $('#setup-name').val(myData.name);
-    $('#setup-room').val(myData.room);
 
     var roomModel = new RoomViewModel(myData, myEmit);
 
     ko.applyBindings(roomModel);
+
+    $('#setup-name').val(roomModel.me.name());
+    $('#setup-room').val(myData.room);
 
     socket.on('vote', function (data) {
       roomModel.addVote(data.poll_id, data.vote);
@@ -90,7 +91,7 @@
         alert('Room name must contain some letters or numbers.');
         return;
       }
-      myData.name = personName;
+      roomModel.me.name(personName);
       localStorage.setItem('name', personName);
       roomModel.setRoom(roomName);
       setupDone();
@@ -122,7 +123,7 @@
       });
     }
 
-    if (myData.room && myData.name) {
+    if (myData.room && roomModel.me.name()) {
       roomModel.setRoom(myData.room);
       setupDone();
     }

@@ -3,7 +3,7 @@ function Person (name, id, isMe) {
 
   var self = this;
 
-  self.name = ko.observable(name);
+  self.name = ko.observable(name || 'Anon');
 
   if (id) {
     self.id = id;
@@ -17,7 +17,7 @@ function Person (name, id, isMe) {
         return v.toString(16);
       });
       localStorage.setItem('person_id', self.id);
-    };
+    }
     self.is_me = true;
   }
 
