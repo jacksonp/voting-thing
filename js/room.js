@@ -1,4 +1,4 @@
-function RoomViewModel (myData, myEmit, setupDone) {
+function RoomViewModel (myData, socket) {
   'use strict';
 
   var self = this;
@@ -7,6 +7,31 @@ function RoomViewModel (myData, myEmit, setupDone) {
 
   self.me = new Person(localStorage.getItem('name'));
 
+  function myEmit (action, extraData) {
+    extraData = extraData || {};
+    myData.person_id = self.me.id;
+    myData.name = self.me.name();
+    socket.emit(action, $.extend(extraData, myData));
+  }
+
+  self.setupDone = function () {
+    $('.not-setup').removeClass('not-setup').addClass('done-setup');
+    socket.on('reconnecting', function (num) {
+      // WEB_EXCLUDE_START
+      if (appRunning) {
+        window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
+      }
+      // WEB_EXCLUDE_END
+    });
+    socket.on('reconnect', function (num) {
+      // WEB_EXCLUDE_START
+      if (appRunning) {
+        window.plugins.toast.showShortBottom('Reconnected');
+      }
+      // WEB_EXCLUDE_END
+      myEmit('enter room');
+    });
+  };
 
   self.setup = function () {
     var
@@ -20,7 +45,7 @@ function RoomViewModel (myData, myEmit, setupDone) {
     self.me.name(personName);
     localStorage.setItem('name', personName);
     self.setRoom(roomName);
-    setupDone();
+    self.setupDone();
     history.pushState(null, null, '#' + roomName);
 
   };

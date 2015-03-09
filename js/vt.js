@@ -57,14 +57,7 @@
     }, false);
     // WEB_EXCLUDE_END
 
-    function myEmit (action, extraData) {
-      extraData = extraData || {};
-      myData.person_id = roomModel.me.id;
-      myData.name = roomModel.me.name();
-      socket.emit(action, $.extend(extraData, myData));
-    }
-
-    var roomModel = new RoomViewModel(myData, myEmit, setupDone);
+    var roomModel = new RoomViewModel(myData, socket);
 
     ko.applyBindings(roomModel);
 
@@ -84,28 +77,9 @@
       history.pushState(null, null, '#' + myData.room);
     }
 
-    function setupDone () {
-      $('.not-setup').removeClass('not-setup').addClass('done-setup');
-      socket.on('reconnecting', function (num) {
-        // WEB_EXCLUDE_START
-        if (appRunning) {
-          window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
-        }
-        // WEB_EXCLUDE_END
-      });
-      socket.on('reconnect', function (num) {
-        // WEB_EXCLUDE_START
-        if (appRunning) {
-          window.plugins.toast.showShortBottom('Reconnected');
-        }
-        // WEB_EXCLUDE_END
-        myEmit('enter room');
-      });
-    }
-
     if (myData.room && roomModel.me.name()) {
       roomModel.setRoom(myData.room);
-      setupDone();
+      roomModel.setupDone();
     }
 
     //<editor-fold desc="Sort out default new vote form values">
