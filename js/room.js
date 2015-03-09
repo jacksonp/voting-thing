@@ -3,6 +3,8 @@ function RoomViewModel (socket, setupDoneCB) {
 
   var self = this;
 
+  self.isSetup = ko.observable(false);
+
   self.room = ko.observable(location.hash.replace('#', '')).trimmed();
 
   self.me = new Person(localStorage.getItem('name'));
@@ -22,7 +24,8 @@ function RoomViewModel (socket, setupDoneCB) {
   }
 
   self.setupDone = function () {
-    $('.not-setup').removeClass('not-setup').addClass('done-setup');
+    self.isSetup(true);
+    //$('.not-setup').removeClass('not-setup').addClass('done-setup');
     setupDoneCB();
   };
 
@@ -119,6 +122,10 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.jqmEnhancePollList = function (element) {
     $(element).parent().enhanceWithin();
+  };
+
+  self.jqmRefreshSetup = function (element) {
+    $(element).enhanceWithin();
   };
 
   self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
