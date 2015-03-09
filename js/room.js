@@ -5,6 +5,8 @@ function RoomViewModel (myData, myEmit) {
 
   self.room = ko.observable(myData.room);
 
+  self.me = new Person(name);
+
 
   self.setRoom = function (roomName) {
     self.clearPolls();
@@ -42,7 +44,7 @@ function RoomViewModel (myData, myEmit) {
   self.addPerson = function (id, name) {
     var person = getPerson(id);
     if (!person) {
-      self.people.push(new Person(id, name, id === myData.person_id));
+      self.people.push(new Person(name, id, id === self.me.id));
     }
   };
 

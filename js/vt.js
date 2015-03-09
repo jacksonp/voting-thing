@@ -60,20 +60,9 @@
 
     function myEmit (action, extraData) {
       extraData = extraData || {};
+      myData.person_id = roomModel.me.id;
       socket.emit(action, $.extend(extraData, myData));
     }
-
-    //<editor-fold desc="Sort out person_id">
-    if (localStorage.getItem('person_id')) {
-      myData.person_id = localStorage.getItem('person_id');
-    } else {
-      myData.person_id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { // http://stackoverflow.com/a/2117523
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-      localStorage.setItem('person_id', myData.person_id);
-    }
-    //</editor-fold>
 
     $('#setup-name').val(myData.name);
     $('#setup-room').val(myData.room);
@@ -159,9 +148,9 @@
       var pollAdded = false, thisAdded;
       polls.forEach(function (poll) {
         var haveIVoted = Object.keys(poll.votes).some(function (person_id) {
-          return myData.person_id === person_id;
+          return roomModel.me.id === person_id;
         });
-        thisAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === myData.person_id);
+        thisAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === roomModel.me.id);
         if (!pollAdded && thisAdded) {
           pollAdded = true;
         }
@@ -243,7 +232,7 @@
         return;
       }
       try {
-        poll = new Poll.Poll(newVoteNameInput.val(), myData.person_id, pollType, details);
+        poll = new Poll.Poll(newVoteNameInput.val(), roomModel.me.id, pollType, details);
       } catch (e) {
         alert(e);
         return;
@@ -253,7 +242,7 @@
       $('.item-choices li').remove();
     });
     socket.on('create poll', function (poll) {
-      var pollAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === myData.person_id);
+      var pollAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === roomModel.me.id);
       if (pollAdded) {
         revealFirstPoll();
       }
