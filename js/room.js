@@ -1,17 +1,24 @@
-function RoomViewModel (myData, socket) {
+function RoomViewModel (socket) {
   'use strict';
 
   var self = this;
 
-  self.room = ko.observable(myData.room);
+  self.room = ko.observable(location.hash.replace('#', ''));
 
   self.me = new Person(localStorage.getItem('name'));
 
+  if (!self.room() && localStorage.getItem('room_name')) {
+    self.room(localStorage.getItem('room_name'));
+    history.pushState(null, null, '#' + self.room());
+  }
+
   function myEmit (action, extraData) {
     extraData = extraData || {};
-    myData.person_id = self.me.id;
-    myData.name = self.me.name();
-    socket.emit(action, $.extend(extraData, myData));
+    socket.emit(action, $.extend(extraData, {
+      room     : self.room(),
+      person_id: self.me.id,
+      name     : self.me.name()
+    }));
   }
 
   self.setupDone = function () {
@@ -47,13 +54,11 @@ function RoomViewModel (myData, socket) {
     self.setRoom(roomName);
     self.setupDone();
     history.pushState(null, null, '#' + roomName);
-
   };
 
   self.setRoom = function (roomName) {
     self.clearPolls();
-    myData.room = roomName;
-    self.room = roomName;
+    self.room(roomName);
     localStorage.setItem('room_name', roomName);
     $('h1').text(roomName);
     myEmit('enter room');
@@ -67,7 +72,7 @@ function RoomViewModel (myData, socket) {
       return;
     }
     $('#vt-panel').panel('close');
-    if (myData.room === newRoomName) {
+    if (self.room() === newRoomName) {
       return; // Already in the room.
     }
     myEmit('leave room');
@@ -232,5 +237,11 @@ function RoomViewModel (myData, socket) {
     myEmit('vote', {poll_id: poll.poll_id, vote: vote});
     poll.haveIVoted(true);
   };
+
+
+  if (self.room() && self.me.name()) {
+    self.setRoom(self.room());
+    self.setupDone();
+  }
 
 }

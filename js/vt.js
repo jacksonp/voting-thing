@@ -37,9 +37,6 @@
 
     var
       appRunning = true,
-      myData = {
-        room: location.hash.replace('#', '')
-      },
       socket = io('http://votingthing.com:3883/'),
       //socket = io('http://192.168.1.69:3883/'),
       newVoteNameInput = $('#new-vote-name'),
@@ -57,12 +54,12 @@
     }, false);
     // WEB_EXCLUDE_END
 
-    var roomModel = new RoomViewModel(myData, socket);
+    var roomModel = new RoomViewModel(socket);
 
     ko.applyBindings(roomModel);
 
     $('#setup-name').val(roomModel.me.name());
-    $('#setup-room').val(myData.room);
+    $('#setup-room').val(roomModel.room());
 
     socket.on('vote', function (data) {
       roomModel.addVote(data.poll_id, data.vote);
@@ -71,16 +68,6 @@
     socket.on('delete poll', function (poll_id) {
       roomModel.deletePoll(poll_id);
     });
-
-    if (!myData.room && localStorage.getItem('room_name')) {
-      myData.room = localStorage.getItem('room_name');
-      history.pushState(null, null, '#' + myData.room);
-    }
-
-    if (myData.room && roomModel.me.name()) {
-      roomModel.setRoom(myData.room);
-      roomModel.setupDone();
-    }
 
     //<editor-fold desc="Sort out default new vote form values">
     (function () {
