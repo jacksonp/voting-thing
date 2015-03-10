@@ -139,7 +139,7 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.jqmRefreshPollArea = function (element) {
-    $(element).enhanceWithin();
+    $(element).parent().enhanceWithin();
   };
 
   self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
