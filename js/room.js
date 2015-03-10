@@ -9,6 +9,12 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.me = new Person(localStorage.getItem('name'));
 
+  self.newPollName = ko.observable('').trimmed();
+
+  self.newPollMin = ko.observable(1);
+  self.newPollMax = ko.observable(10);
+  self.newPollStep = ko.observable(1);
+
   if (!self.room() && localStorage.getItem('room_name')) {
     self.room(localStorage.getItem('room_name'));
     history.pushState(null, null, '#' + self.room());
@@ -25,7 +31,6 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.setupDone = function () {
     self.isSetup(true);
-    //$('.not-setup').removeClass('not-setup').addClass('done-setup');
     setupDoneCB();
   };
 
@@ -130,10 +135,6 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.jqmRefreshPollArea = function (element) {
     $(element).enhanceWithin();
-    $('#new-vote-name').val(localStorage.getItem('new-vote-name') ? localStorage.getItem('new-vote-name') : 'Poll Name');
-    $('#new-vote-min').val(localStorage.getItem('new-vote-min') ? localStorage.getItem('new-vote-min') : 1);
-    $('#new-vote-max').val(localStorage.getItem('new-vote-max') ? localStorage.getItem('new-vote-max') : 10);
-    $('#new-vote-step').val(localStorage.getItem('new-vote-step') ? localStorage.getItem('new-vote-step') : 1);
   };
 
   self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
@@ -149,17 +150,13 @@ function RoomViewModel (socket, setupDoneCB) {
   self.createPoll = function () {
     var
       pollType = $('.poll-type-select .ui-state-active a').attr('data-poll-type'),
-      poll, details,
-      newVoteNameInput = $('#new-vote-name'),
-      newVoteMinInput = $('#new-vote-min'),
-      newVoteMaxInput = $('#new-vote-max'),
-      newVoteStepInput = $('#new-vote-step');
+      poll, details;
 
     if (pollType === 'range') {
       details = {
-        min : newVoteMinInput.val(),
-        max : newVoteMaxInput.val(),
-        step: newVoteStepInput.val()
+        min : self.newPollMin(),
+        max : self.newPollMax(),
+        step: self.newPollStep()
       };
     } else if (pollType === 'item-choice') {
       var items = [];
@@ -174,7 +171,7 @@ function RoomViewModel (socket, setupDoneCB) {
       return;
     }
     try {
-      poll = new Poll.Poll(newVoteNameInput.val(), self.me.id, pollType, details);
+      poll = new Poll.Poll(self.newPollName(), self.me.id, pollType, details);
     } catch (e) {
       alert(e);
       return;
