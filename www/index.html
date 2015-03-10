@@ -76,7 +76,7 @@
       </div>
       <div id="poll-type-item-choice">
         <label for="new-item-choice" class="ui-hidden-accessible">New Item</label>
-        <input id="new-item-choice" type="text" maxlength="20" data-clear-btn="true" placeholder="New Item">
+        <input id="new-item-choice" type="text" maxlength="20" data-clear-btn="true" placeholder="New Item" data-bind="value: newItemInput">
         <button type="button" data-bind="click: addItem">Add Item</button>
         <ol data-role="listview" data-inset="true" data-bind="foreach: items, jqmRefreshList: items">
           <li data-bind="text: $data"></li>

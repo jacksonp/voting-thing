@@ -11,24 +11,8 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.newPollName = ko.observable('').trimmed();
 
+  self.newItemInput = ko.observable('').trimmed();
   self.items = ko.observableArray([]);
-
-  self.addItem = function () {
-    var input = $('#new-item-choice');
-    var itemText = input.val().trim();
-    if (!itemText) {
-      return;
-    }
-    var exists = ko.utils.arrayFirst(self.items(), function (i) {
-      return itemText === i;
-    });
-    if (exists) {
-      alert('Duplicate!');
-      return;
-    }
-    input.val('');
-    self.items.push(itemText);
-  };
 
   self.newPollMin = ko.observable(1);
   self.newPollMax = ko.observable(10);
@@ -165,6 +149,21 @@ function RoomViewModel (socket, setupDoneCB) {
     return true;
   };
 
+  self.addItem = function () {
+    var itemText = self.newItemInput();
+    if (!itemText) {
+      return;
+    }
+    var exists = ko.utils.arrayFirst(self.items(), function (i) {
+      return itemText === i;
+    });
+    if (exists) {
+      alert('Duplicate!');
+      return;
+    }
+    self.newItemInput('');
+    self.items.push(itemText);
+  };
 
   self.createPoll = function () {
     var
