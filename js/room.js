@@ -167,6 +167,10 @@ function RoomViewModel (socket, setupDoneCB) {
     self.items.push(itemText);
   };
 
+  self.removeItem = function (item) {
+    self.items.remove(item);
+  };
+
   self.createPoll = function () {
     var
       pollType = $('.poll-type-select .ui-state-active a').attr('data-poll-type'),
