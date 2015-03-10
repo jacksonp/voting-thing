@@ -22,6 +22,10 @@ body {
   background-color : rgba(0, 0, 0, .04);
 }
 
+.right {
+  text-align  : right !important;
+}
+
 .num {
   text-align  : right !important;
   font-family : "Courier New", Courier, monospace;

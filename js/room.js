@@ -11,6 +11,25 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.newPollName = ko.observable('').trimmed();
 
+  self.items = ko.observableArray([]);
+
+  self.addItem = function () {
+    var input = $('#new-item-choice');
+    var itemText = input.val().trim();
+    if (!itemText) {
+      return;
+    }
+    var exists = ko.utils.arrayFirst(self.items(), function (i) {
+      return itemText === i;
+    });
+    if (exists) {
+      alert('Duplicate!');
+      return;
+    }
+    input.val('');
+    self.items.push(itemText);
+  };
+
   self.newPollMin = ko.observable(1);
   self.newPollMax = ko.observable(10);
   self.newPollStep = ko.observable(1);
@@ -159,12 +178,8 @@ function RoomViewModel (socket, setupDoneCB) {
         step: self.newPollStep()
       };
     } else if (pollType === 'item-choice') {
-      var items = [];
-      $('.item-choices li').each(function () {
-        items.push($(this).text());
-      });
       details = {
-        items: items
+        items: self.items()
       };
     } else {
       alert('Could not figure out poll type.');
@@ -178,7 +193,7 @@ function RoomViewModel (socket, setupDoneCB) {
     }
     myEmit('create poll', poll);
     $('.new-poll-area').collapsible('collapse');
-    $('.item-choices li').remove();
+    self.items.removeAll();
   };
 
   self.deletePollConfirm = function (poll) {

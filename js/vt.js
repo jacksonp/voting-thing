@@ -5,7 +5,7 @@
   ko.bindingHandlers.jqmRefreshList = {
     update: function (element, valueAccessor) {
       ko.utils.unwrapObservable(valueAccessor()); // make this update fire each time the array is updated.
-      $(element).listview('refresh');
+      $(element).listview().listview('refresh');
     }
   };
 
@@ -143,28 +143,6 @@
         $(this).children().next().hide();
         $(this).children().next().slideDown(300);
       }
-    });
-    $('#add-item-choice').on('tap', function () {
-      var input = $('#new-item-choice');
-      var itemText = input.val().trim();
-      if (!itemText) {
-        return;
-      }
-      var itemChoices = $('.item-choices');
-      var exists = false;
-      itemChoices.each(function () {
-        if ($(this).text() === itemText) {
-          exists = true;
-        }
-      });
-      if (exists) {
-        alert('Duplicate!');
-        return;
-      }
-      var li = $('<li>').text(itemText);
-      input.val('');
-      itemChoices.append(li);
-      itemChoices.listview('refresh');
     });
 
     socket.on('create poll', function (poll) {
