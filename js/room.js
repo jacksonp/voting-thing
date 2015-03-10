@@ -52,11 +52,13 @@ function RoomViewModel (socket, setupDoneCB) {
     localStorage.setItem('name', self.me.name());
     self.changeRoom();
     self.setupDone();
+    self.roomInput(self.room());
     history.pushState(null, null, '#' + self.room());
   };
 
   self.changeRoom = function () {
     self.clearPolls();
+    $('.new-poll-area').collapsible('collapse');
     localStorage.setItem('room_name', self.room());
     myEmit('enter room');
   };
