@@ -23,6 +23,8 @@ function RoomViewModel (socket, setupDoneCB) {
     history.pushState(null, null, '#' + self.room());
   }
 
+  self.roomInput = ko.observable(self.room()).trimmed();
+
   function myEmit (action, extraData) {
     extraData = extraData || {};
     socket.emit(action, $.extend(extraData, {
@@ -60,7 +62,7 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.enterRoom = function (formElement) {
-    var newRoomName = $.trim($(formElement).find('#room-input').val());
+    var newRoomName = self.roomInput();
     // Validate room name
     if (!newRoomName.match(/[0-9A-Za-z]/)) {
       alert('Room name must contain some letters or numbers.');

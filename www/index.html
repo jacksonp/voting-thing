@@ -7,15 +7,15 @@
 <script src="cordova.js"></script>
 <script src="js/all.min.js"></script>
 
-<div data-role="page" class="not-setup" id="index">
+<div data-role="page" id="index">
 
   <div data-role="panel" id="vt-panel" data-display="overlay" data-position="right">
     <form data-bind="submit: enterRoom">
       <label for="room-input">Room</label>
-      <input id="room-input" type="text" maxlength="20" data-clear-btn="true" required>
+      <input id="room-input" type="text" maxlength="20" data-clear-btn="true" required data-bind="value: roomInput">
       <button data-theme="b">Enter Room</button>
     </form>
-    <div class="room-area" data-role="collapsible" data-collapsed="false">
+    <div data-role="collapsible" data-collapsed="false">
       <h2>Who's in the Room</h2>
       <ul data-role="listview" data-bind="foreach: people, jqmRefreshList: people">
         <li data-icon="edit"><!-- data-bind="attr: {'data-icon1': is_me ? 'edit' : null}" -->
@@ -32,7 +32,9 @@
 
   <div data-role="header">
     <h1 data-bind="text: room() || 'Voting Thing'"></h1>
+    <!-- ko if: isSetup -->
     <a href="#vt-panel" class="hamburger ui-btn-right" data-icon="bars" data-iconpos="notext" data-role="button"></a>
+    <!-- /ko -->
   </div>
 
   <div role="main" class="ui-content">

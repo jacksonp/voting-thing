@@ -9,8 +9,6 @@ body {
 }
 
 .hidden,
-.not-setup .room-area,
-.not-setup .hamburger,
 .not-voted .poll-results-table tfoot,
 .not-voted .poll-results-summary-table,
 .not-voted hr {
