@@ -66,7 +66,7 @@
     function setupDone () {
       socket.on('reconnecting', function (num) {
         // WEB_EXCLUDE_START
-        if (appRunning) {
+        if (appRunning && num > 1) {
           window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
         }
         // WEB_EXCLUDE_END
