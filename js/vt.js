@@ -160,7 +160,6 @@
 
     //<editor-fold desc="Action: vt_error">
     socket.on('vt_error', function (message) {
-      //window.location.reload();
       //console.log(message);
       alert(message);
     });

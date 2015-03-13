@@ -43,6 +43,10 @@ function RoomViewModel (socket, setupDoneCB) {
     myEmit('enter room');
   };
 
+  self.refresh = function () {
+    window.location.reload();
+  };
+
   self.setup = function () {
     // Validate room name
     if (!self.room().match(/[0-9A-Za-z]/)) {
