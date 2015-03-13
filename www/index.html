@@ -9,6 +9,17 @@
 
 <div data-role="page" id="index">
 
+  <!-- APP_EXCLUDE_START -->
+  <div data-role="popup" data-history="false" id="share-popup" class="ui-corner-all">
+    <form>
+      <div style="padding:10px 20px;">
+        <label for="share-link">Share this link</label>
+        <input id="share-link" readonly type="text">
+      </div>
+    </form>
+  </div>
+  <!-- APP_EXCLUDE_END -->
+
   <div data-role="panel" id="vt-panel" data-display="overlay" data-position="right">
     <form data-bind="submit: enterRoom">
       <label for="room-input">Room</label>
@@ -183,9 +194,10 @@
   </div>
 
   <div data-role="controlgroup" data-type="horizontal">
+    <button data-theme="b" data-bind="click: $parent.sharePoll">Share</button>
     <button data-theme="b" data-bind="click: $parent.rerunPoll">New Similar</button>
     <!-- ko if: ownPoll -->
-    <button data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete Poll</button>
+    <button data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete</button>
     <!-- /ko -->
   </div>
 

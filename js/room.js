@@ -207,6 +207,18 @@ function RoomViewModel (socket, setupDoneCB) {
     self.items.removeAll();
   };
 
+  self.sharePoll = function (poll) {
+    // APP_EXCLUDE_START
+    var sharePopup = $('#share-popup');
+    sharePopup.find('input').val('http://www.votingthing.com/#' + self.room());
+    sharePopup.popup('open');
+    sharePopup.find('input').select();
+    // APP_EXCLUDE_END
+    // WEB_EXCLUDE_START
+    window.plugins.socialsharing.share('I just created a poll:', 'Vote in my Poll', null, 'http://www.votingthing.com/#' + self.room());
+    // WEB_EXCLUDE_END
+  };
+
   self.deletePollConfirm = function (poll) {
     if (confirm('Are you sure you want to delete this poll?')) {
       myEmit('delete poll', {poll_id: poll.poll_id});

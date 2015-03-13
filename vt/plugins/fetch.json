@@ -5,5 +5,11 @@
             "url": "https://github.com/Telerik-Verified-Plugins/Toast",
             "subdir": "."
         }
+    },
+    "nl.x-services.plugins.socialsharing": {
+        "source": {
+            "type": "registry",
+            "id": "nl.x-services.plugins.socialsharing"
+        }
     }
 }

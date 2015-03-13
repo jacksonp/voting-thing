@@ -23,3 +23,5 @@ rsync -r www/css/* vt/www/css/
 
 sed -i "/APP_EXCLUDE_START/,/APP_EXCLUDE_END/d" vt/www/js/all.min.js
 sed -i "/WEB_EXCLUDE_START/,/WEB_EXCLUDE_END/d" www/js/all.min.js
+
+sed -i "/APP_EXCLUDE_START/,/APP_EXCLUDE_END/d" vt/www/index.html
