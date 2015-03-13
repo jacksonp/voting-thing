@@ -8,6 +8,15 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="votingthing.com" android:scheme="http" />
+                <data android:host="www.votingthing.com" android:scheme="http" />
+                <data android:host="votingthing.com" android:scheme="https" />
+                <data android:host="www.votingthing.com" android:scheme="https" />
+            </intent-filter>
         </activity>
     </application>
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="21" />

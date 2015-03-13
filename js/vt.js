@@ -33,7 +33,16 @@
   // WEB_EXCLUDE_START
   document.addEventListener('deviceready', function () {
     deviceReady = true;
-    init();
+
+    window.webintent.getUri(function(uri) {
+      if (uri) {
+        var hash = uri.split('#').slice(1).join("#");
+        if (hash) {
+          history.pushState(null, null, '#' + hash);
+        }
+      }
+      init();
+    });
   }, false);
   // WEB_EXCLUDE_END
 
