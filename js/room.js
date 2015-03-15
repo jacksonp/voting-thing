@@ -181,6 +181,7 @@ function RoomViewModel (socket, setupDoneCB) {
       return;
     }
     self.newItemInput('');
+    $('#new-item-choice').focus();
     self.items.push(itemText);
   };
 
