@@ -19,6 +19,7 @@ function RoomViewModel (socket, setupDoneCB) {
 
     self.room.subscribe(function (newRoomName) {
       self.changeRoom();
+      self.roomInput(newRoomName);
       history.pushState(null, null, '#' + newRoomName);
     });
 
