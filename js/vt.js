@@ -95,6 +95,7 @@
 
     ko.applyBindings(roomModel);
 
+    // WEB_EXCLUDE_START
     window.webintent.onNewIntent(function (uri) {
       if (uri) {
         var hash = uri.split('#').slice(1).join("#");
@@ -103,6 +104,7 @@
         }
       }
     });
+    // WEB_EXCLUDE_END
 
     socket.on('vote', function (data) {
       roomModel.addVote(data.poll_id, data.vote);

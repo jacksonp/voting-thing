@@ -17,10 +17,13 @@ function RoomViewModel (socket, setupDoneCB) {
 
     self.room = ko.observable(room).trimmed();
 
-    self.room.subscribe(function(newRoomName) {
+    self.room.subscribe(function (newRoomName) {
       self.changeRoom();
       history.pushState(null, null, '#' + newRoomName);
     });
+
+    // If name already set by hash, then setup is clicked, we need this "ensure that an observable’s subscribers are always notified on a write, even if the value is the same":
+    self.room.extend({notify: 'always'});
 
   }());
 
@@ -61,15 +64,13 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.setup = function () {
     // Validate room name
-    if (!self.room().match(/[0-9A-Za-z]/)) {
+    if (!self.roomInput().match(/[0-9A-Za-z]/)) {
       alert('Room name must contain some letters or numbers.');
       return;
     }
     localStorage.setItem('name', self.me.name());
-    self.changeRoom();
+    self.room(self.roomInput());
     self.setupDone();
-    self.roomInput(self.room());
-    history.pushState(null, null, '#' + self.room());
   };
 
   self.changeRoom = function () {
