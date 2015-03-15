@@ -34,7 +34,7 @@
   document.addEventListener('deviceready', function () {
     deviceReady = true;
 
-    window.webintent.getUri(function(uri) {
+    window.webintent.getUri(function (uri) {
       if (uri) {
         var hash = uri.split('#').slice(1).join("#");
         if (hash) {
@@ -43,6 +43,7 @@
       }
       init();
     });
+
   }, false);
   // WEB_EXCLUDE_END
 
@@ -93,6 +94,15 @@
     var roomModel = new RoomViewModel(socket, setupDone);
 
     ko.applyBindings(roomModel);
+
+    window.webintent.onNewIntent(function (uri) {
+      if (uri) {
+        var hash = uri.split('#').slice(1).join("#");
+        if (hash) {
+          roomModel.room(hash);
+        }
+      }
+    });
 
     socket.on('vote', function (data) {
       roomModel.addVote(data.poll_id, data.vote);

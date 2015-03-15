@@ -5,7 +5,24 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.isSetup = ko.observable(false);
 
-  self.room = ko.observable(location.hash.replace('#', '')).trimmed();
+  (function () {
+
+    var room = location.hash.replace('#', '');
+    if (!room) {
+      room = localStorage.getItem('room_name');
+      if (room) {
+        history.pushState(null, null, '#' + room);
+      }
+    }
+
+    self.room = ko.observable(room).trimmed();
+
+    self.room.subscribe(function(newRoomName) {
+      self.changeRoom();
+      history.pushState(null, null, '#' + newRoomName);
+    });
+
+  }());
 
   self.me = new Person(localStorage.getItem('name'));
 
@@ -17,11 +34,6 @@ function RoomViewModel (socket, setupDoneCB) {
   self.newPollMin = ko.observable(1);
   self.newPollMax = ko.observable(10);
   self.newPollStep = ko.observable(1);
-
-  if (!self.room() && localStorage.getItem('room_name')) {
-    self.room(localStorage.getItem('room_name'));
-    history.pushState(null, null, '#' + self.room());
-  }
 
   self.roomInput = ko.observable(self.room()).trimmed();
 
@@ -80,8 +92,6 @@ function RoomViewModel (socket, setupDoneCB) {
     }
     myEmit('leave room');
     self.room(newRoomName);
-    self.changeRoom();
-    history.pushState(null, null, '#' + newRoomName);
   };
 
   self.people = ko.observableArray([]);
@@ -215,7 +225,7 @@ function RoomViewModel (socket, setupDoneCB) {
     sharePopup.find('input').select();
     // APP_EXCLUDE_END
     // WEB_EXCLUDE_START
-    window.plugins.socialsharing.share('I just created a poll:', 'Vote in my Poll', null, 'http://www.votingthing.com/#' + self.room());
+    window.plugins.socialsharing.share('Vote here:', self.room() + ': ' + poll.poll_name, null, 'http://www.votingthing.com/#' + self.room());
     // WEB_EXCLUDE_END
   };
 
