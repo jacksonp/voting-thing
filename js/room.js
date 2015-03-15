@@ -12,10 +12,14 @@ function RoomViewModel (socket, setupDoneCB) {
       room = localStorage.getItem('room_name');
       if (room) {
         history.pushState(null, null, '#' + room);
+      } else {
+        room = '';
       }
     }
 
     self.room = ko.observable(room).trimmed();
+
+    self.roomInput = ko.observable(room).trimmed();
 
     self.room.subscribe(function (newRoomName) {
       self.changeRoom();
@@ -39,7 +43,6 @@ function RoomViewModel (socket, setupDoneCB) {
   self.newPollMax = ko.observable(10);
   self.newPollStep = ko.observable(1);
 
-  self.roomInput = ko.observable(self.room()).trimmed();
 
   function myEmit (action, extraData) {
     extraData = extraData || {};
