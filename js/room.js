@@ -3,28 +3,36 @@ function RoomViewModel (socket, setupDoneCB) {
 
   var self = this;
 
+  //var prevRooms = [];
+
+  function addRoomToHistory (room) {
+    if (!room) {
+      return;
+    }
+    if (room !== localStorage.getItem('room_name', room)) {
+
+      localStorage.setItem('room_name', room);
+      if (location.hash.replace('#', '') !== room) { // hash change could be root of this event...
+        history.pushState(null, null, '#' + room);
+      }
+      //prevRooms.push(room);
+    }
+  }
+
+  $(window).on('hashchange', function () {
+    var room = location.hash.replace('#', '');
+    if (room) {
+      self.room(room);
+    }
+    //$('h1').text(location.hash.slice(1));
+  });
+
   self.isSetup = ko.observable(false);
 
   self.room = ko.observable('').trimmed();
 
-  (function () {
-
-    // See if room is set in URL hash, and if not if set in localStorage.
-    var room = location.hash.replace('#', '');
-    if (room) {
-      localStorage.setItem('room_name', room);
-    } else {
-      room = localStorage.getItem('room_name');
-      if (room) {
-        history.pushState(null, null, '#' + room);
-      } else {
-        room = '';
-      }
-    }
-
-    self.roomInput = ko.observable(room).trimmed();
-
-  }());
+  // See if room is set in URL hash, and if not if set in localStorage.
+  self.roomInput = ko.observable(location.hash.replace('#', '') || localStorage.getItem('room_name') || '').trimmed();
 
   self.me = new Person(localStorage.getItem('name'));
 
@@ -50,14 +58,14 @@ function RoomViewModel (socket, setupDoneCB) {
   function setupDone () {
     self.isSetup(true);
     self.room(self.roomInput());
+    addRoomToHistory(self.roomInput())
     myEmit('enter room');
     self.room.subscribe(function (newRoomName) {
       self.clearPolls();
       $('.new-poll-area').collapsible('collapse');
-      localStorage.setItem('room_name', self.room());
+      addRoomToHistory(newRoomName);
       myEmit('enter room');
       self.roomInput(newRoomName);
-      history.pushState(null, null, '#' + newRoomName);
     });
     setupDoneCB();
   }
