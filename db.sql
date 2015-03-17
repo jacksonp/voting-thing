@@ -90,14 +90,15 @@ DECLARE
   p_room_id TEXT := get_room(p_room_name);
 BEGIN
 
-  UPDATE people
-  SET name = p_name, socket_id = p_socket_id
-  WHERE person_id = p_person_id AND room_id = p_room_id;
-
-  IF NOT FOUND
-  THEN
-    INSERT INTO people (room_id, person_id, name, socket_id) VALUES (p_room_id, p_person_id, p_name, p_socket_id);
-  END IF;
+  WITH upsert AS (
+    UPDATE people
+    SET name = p_name, socket_id = p_socket_id
+    WHERE person_id = p_person_id AND room_id = p_room_id
+    RETURNING 1
+  )
+  INSERT
+    INTO people (room_id, person_id, name, socket_id)
+    SELECT p_room_id, p_person_id, p_name, p_socket_id WHERE NOT EXISTS (SELECT 1 FROM upsert);
 
   RETURN QUERY
   SELECT
