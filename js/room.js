@@ -9,8 +9,7 @@ function RoomViewModel (socket, setupDoneCB) {
     if (!room) {
       return;
     }
-    if (room !== localStorage.getItem('room_name', room)) {
-
+    if (room !== localStorage.getItem('room_name')) {
       localStorage.setItem('room_name', room);
       if (location.hash.replace('#', '') !== room) { // hash change could be root of this event...
         history.pushState(null, null, '#' + room);
@@ -58,7 +57,7 @@ function RoomViewModel (socket, setupDoneCB) {
   function setupDone () {
     self.isSetup(true);
     self.room(self.roomInput());
-    addRoomToHistory(self.roomInput())
+    addRoomToHistory(self.roomInput());
     myEmit('enter room');
     self.room.subscribe(function (newRoomName) {
       self.clearPolls();
@@ -79,22 +78,12 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.setup = function () {
-    // Validate room name
-    if (!self.roomInput().match(/[0-9A-Za-z]/)) {
-      alert('Room name must contain some letters or numbers.');
-      return;
-    }
     localStorage.setItem('name', self.me.name());
     setupDone();
   };
 
   self.enterRoom = function () {
     var newRoomName = self.roomInput();
-    // Validate room name
-    if (!newRoomName.match(/[0-9A-Za-z]/)) {
-      alert('Room name must contain some letters or numbers.');
-      return;
-    }
     $('#vt-panel').panel('close');
     if (self.room() === newRoomName) {
       return; // Already in the room.
