@@ -5,10 +5,15 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.isSetup = ko.observable(false);
 
+  self.room = ko.observable('').trimmed();
+
   (function () {
 
+    // See if room is set in URL hash, and if not if set in localStorage.
     var room = location.hash.replace('#', '');
-    if (!room) {
+    if (room) {
+      localStorage.setItem('room_name', room);
+    } else {
       room = localStorage.getItem('room_name');
       if (room) {
         history.pushState(null, null, '#' + room);
@@ -17,18 +22,7 @@ function RoomViewModel (socket, setupDoneCB) {
       }
     }
 
-    self.room = ko.observable(room).trimmed();
-
     self.roomInput = ko.observable(room).trimmed();
-
-    self.room.subscribe(function (newRoomName) {
-      self.changeRoom();
-      self.roomInput(newRoomName);
-      history.pushState(null, null, '#' + newRoomName);
-    });
-
-    // If name already set by hash, then setup is clicked, we need this "ensure that an observable’s subscribers are always notified on a write, even if the value is the same":
-    self.room.extend({notify: 'always'});
 
   }());
 
@@ -53,10 +47,19 @@ function RoomViewModel (socket, setupDoneCB) {
     }));
   }
 
-  self.setupDone = function () {
+  function setupDone () {
     self.isSetup(true);
+    self.room(self.roomInput());
+    self.room.subscribe(function (newRoomName) {
+      self.clearPolls();
+      $('.new-poll-area').collapsible('collapse');
+      localStorage.setItem('room_name', self.room());
+      myEmit('enter room');
+      self.roomInput(newRoomName);
+      history.pushState(null, null, '#' + newRoomName);
+    });
     setupDoneCB();
-  };
+  }
 
   self.sync = function () {
     myEmit('enter room');
@@ -73,18 +76,10 @@ function RoomViewModel (socket, setupDoneCB) {
       return;
     }
     localStorage.setItem('name', self.me.name());
-    self.room(self.roomInput());
-    self.setupDone();
+    setupDone();
   };
 
-  self.changeRoom = function () {
-    self.clearPolls();
-    $('.new-poll-area').collapsible('collapse');
-    localStorage.setItem('room_name', self.room());
-    myEmit('enter room');
-  };
-
-  self.enterRoom = function (formElement) {
+  self.enterRoom = function () {
     var newRoomName = self.roomInput();
     // Validate room name
     if (!newRoomName.match(/[0-9A-Za-z]/)) {
@@ -306,9 +301,9 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   // Are we ready?
-  if (self.room() && self.me.name()) {
-    self.changeRoom();
-    self.setupDone();
+  if (self.roomInput() && self.me.name()) {
+    setupDone();
+    myEmit('enter room');
   }
 
 }
