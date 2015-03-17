@@ -3,7 +3,7 @@ function RoomViewModel (socket, setupDoneCB) {
 
   var self = this;
 
-  //var prevRooms = [];
+  var prevRooms = [];
 
   function addRoomToHistory (room) {
     if (!room) {
@@ -11,12 +11,24 @@ function RoomViewModel (socket, setupDoneCB) {
     }
     if (room !== localStorage.getItem('room_name')) {
       localStorage.setItem('room_name', room);
-      if (location.hash.replace('#', '') !== room) { // hash change could be root of this event...
-        history.pushState(null, null, '#' + room);
-      }
-      //prevRooms.push(room);
     }
+    if (location.hash.replace('#', '') !== room) { // hash change could be root of this event...
+      history.pushState(null, null, '#' + room);
+    }
+    prevRooms.push(room);
   }
+
+  // WEB_EXCLUDE_START
+  document.addEventListener('backbutton', function () {
+    var lastRoom = prevRooms.pop(); // current room
+    lastRoom = prevRooms.pop(); // prev room
+    if (lastRoom) {
+      self.room(lastRoom);
+    } else {
+      navigator.app.exitApp();
+    }
+  }, false);
+  // WEB_EXCLUDE_END
 
   $(window).on('hashchange', function () {
     var room = location.hash.replace('#', '');
