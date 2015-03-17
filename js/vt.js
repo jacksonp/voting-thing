@@ -118,47 +118,24 @@
       roomModel.deletePoll(poll_id);
     });
 
-    //<editor-fold desc="Action: enter room">
     socket.on('enter room', function (people) {
       $.each(people, function (k, u) {
         roomModel.addPerson(u.person_id, u.name);
       });
     });
-    //</editor-fold>
 
     socket.on('polls sync', function (polls) {
-      var pollAdded = false, thisAdded;
-      polls.forEach(function (poll) {
-        var haveIVoted = Object.keys(poll.votes).some(function (person_id) {
-          return roomModel.me.id === person_id;
-        });
-        thisAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === roomModel.me.id);
-        if (!pollAdded && thisAdded) {
-          pollAdded = true;
-        }
-        Object.keys(poll.votes).forEach(function (person_id) {
-          poll.votes[person_id].person_id = person_id;
-          roomModel.addVote(poll.poll_id, poll.votes[person_id]);
-        });
-      });
-      if (pollAdded) {
-        revealFirstPoll();
-      }
+      roomModel.pollSync(polls);
     });
 
-    //<editor-fold desc="Action: name change">
     socket.on('name change', function (data) {
       roomModel.renamePerson(data.person_id, data.new_name);
     });
-    //</editor-fold>
 
-    //<editor-fold desc="Action: person left">
     socket.on('person left', function (personId) {
       roomModel.removePerson(personId);
     });
-    //</editor-fold>
 
-    //<editor-fold desc="Action: create poll">
     $('.new-poll-area').collapsible({
       // Slide up and down to prevent ghost clicks:
       collapse: function () {
@@ -171,24 +148,13 @@
     });
 
     socket.on('create poll', function (poll) {
-      var pollAdded = roomModel.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === roomModel.me.id);
-      if (pollAdded) {
-        revealFirstPoll();
-      }
+      roomModel.createPoll(poll);
     });
-    //</editor-fold>
 
-    // This may be called (once) after multiple polls have been added.
-    function revealFirstPoll () {
-      $('.poll').first().collapsible('expand');
-    }
-
-    //<editor-fold desc="Action: vt_error">
     socket.on('vt_error', function (message) {
       //console.log(message);
       alert(message);
     });
-    //</editor-fold>
 
   }
 
