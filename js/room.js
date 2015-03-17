@@ -50,6 +50,7 @@ function RoomViewModel (socket, setupDoneCB) {
   function setupDone () {
     self.isSetup(true);
     self.room(self.roomInput());
+    myEmit('enter room');
     self.room.subscribe(function (newRoomName) {
       self.clearPolls();
       $('.new-poll-area').collapsible('collapse');
@@ -303,7 +304,6 @@ function RoomViewModel (socket, setupDoneCB) {
   // Are we ready?
   if (self.roomInput() && self.me.name()) {
     setupDone();
-    myEmit('enter room');
   }
 
 }
