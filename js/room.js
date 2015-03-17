@@ -13,7 +13,7 @@ function RoomViewModel (socket, setupDoneCB) {
       localStorage.setItem('room_name', room);
     }
     if (location.hash.replace('#', '') !== room) { // hash change could be root of this event...
-      history.pushState(null, null, '#' + room);
+      history.pushState(null, null, '#' + encodeURIComponent(room));
     }
     prevRooms.push(room);
   }
