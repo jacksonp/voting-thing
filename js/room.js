@@ -72,6 +72,7 @@ function RoomViewModel (socket, setupDoneCB) {
     addRoomToHistory(self.roomInput());
     myEmit('enter room');
     self.room.subscribe(function (newRoomName) {
+      $('#vt-header').addClass('vt-loading');
       self.clearPolls();
       $('.new-poll-area').collapsible('collapse');
       addRoomToHistory(newRoomName);

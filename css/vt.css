@@ -21,7 +21,7 @@ body {
 }
 
 .right {
-  text-align  : right !important;
+  text-align : right !important;
 }
 
 .num {
@@ -41,4 +41,33 @@ body {
   content      : counter(rowNumber) ".";
   min-width    : 1em;
   margin-right : 0.5em;
+}
+
+@-webkit-keyframes rotate {
+  from {
+    transform : rotate(0deg);
+  }
+  to {
+    transform : rotate(360deg);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform : rotate(0deg);
+  }
+  to {
+    transform : rotate(360deg);
+  }
+}
+
+.vt-loading .ui-icon-refresh::after {
+  -webkit-animation-name            : rotate;
+  -webkit-animation-duration        : 1.5s;
+  -webkit-animation-iteration-count : infinite;
+  -webkit-animation-timing-function : linear;
+  animation-name            : rotate;
+  animation-duration        : 1.5s;
+  animation-iteration-count : infinite;
+  animation-timing-function : linear;
 }
