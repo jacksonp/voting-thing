@@ -185,63 +185,30 @@ function RoomViewModel (socket, setupDoneCB) {
     //$('.poll').first().collapsible('expand');
   }
 
-  self.pollSync = function (polls) {
-    console.log('pollSync');
-    var i, p, newPolls = [], poll;
+  self.addPolls = function (polls) {
+    var i, p, newPolls = [], poll, votes;
 
     for (i = 0; i < polls.length; i += 1) {
       p = polls[i];
-      poll = getPoll(p.poll_id);
-
-      if (!poll) {
-        // consider doing this when adding votes instead...
-        var haveIVoted = Object.keys(p.votes).some(function (person_id) {
-          return self.me.id === person_id;
-        });
-        poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, haveIVoted, p.owner_id === self.me.id);
-        newPolls.unshift(poll);
-        console.log('Added poll to newPolls.');
-      }
+      votes = [];
 
       Object.keys(p.votes).forEach(function (person_id) {
         p.votes[person_id].person_id = person_id;
-        poll.addVote(p.votes[person_id]);
+        votes.push(p.votes[person_id]);
       });
 
+      // consider doing this when adding votes instead...
+      var haveIVoted = Object.keys(p.votes).some(function (person_id) {
+        return self.me.id === person_id;
+      });
+      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, haveIVoted, p.owner_id === self.me.id, votes);
+      newPolls.unshift(poll);
     }
 
     if (newPolls.length) {
-      console.log('unshift');
       self.polls.unshift.apply(self.polls, newPolls);
-      console.log('Done unshift');
       revealFirstPoll();
     }
-
-    //polls.forEach(function (poll) {
-    //  Object.keys(poll.votes).forEach(function (person_id) {
-    //    poll.votes[person_id].person_id = person_id;
-    //    self.addVote(poll.poll_id, poll.votes[person_id]);
-    //  });
-    //});
-
-    //
-    //
-    //polls.forEach(function (poll) {
-    //  var haveIVoted = Object.keys(poll.votes).some(function (person_id) {
-    //    return self.me.id === person_id;
-    //  });
-    //  thisAdded = self.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === self.me.id);
-    //  if (!pollAdded && thisAdded) {
-    //    pollAdded = true;
-    //  }
-    //  Object.keys(poll.votes).forEach(function (person_id) {
-    //    poll.votes[person_id].person_id = person_id;
-    //    self.addVote(poll.poll_id, poll.votes[person_id]);
-    //  });
-    //});
-    //if (pollAdded) {
-    //  revealFirstPoll();
-    //}
   };
 
   self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {

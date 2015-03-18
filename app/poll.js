@@ -1,7 +1,7 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
+  exports.Poll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll, votes) {
 
     var self = this;
 
@@ -53,7 +53,7 @@
 
       self.haveIVoted = ko.observable(!!haveIVoted);
 
-      self.votes = ko.observableArray([]);
+      self.votes = ko.observableArray(votes || []);
 
       self.getVote = function (person_id) {
         return ko.utils.arrayFirst(self.votes(), function (v) {

@@ -13,7 +13,6 @@
   // Using afterAdd fires each time a thing is added, making it much to slow with lots of polls.
   ko.bindingHandlers.jqmEnhancePollList = {
     update: function(element, valueAccessor) {
-      console.log('jqmEnhancePollList');
       ko.utils.unwrapObservable(valueAccessor());  //grab dependency
       $(element).parent().enhanceWithin();
     }
@@ -135,7 +134,7 @@
     });
 
     socket.on('polls sync', function (polls) {
-      roomModel.pollSync(polls);
+      roomModel.addPolls(polls);
     });
 
     socket.on('name change', function (data) {
@@ -162,7 +161,6 @@
     });
 
     socket.on('vt_error', function (message) {
-      //console.log(message);
       alert(message);
     });
 
