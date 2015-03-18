@@ -67,13 +67,13 @@ function RoomViewModel (socket, setupDoneCB) {
   }
 
   function setupDone () {
-    $('#vt-header').addClass('vt-loading');
+    $('#vt-header').removeClass('vt-synced');
     self.isSetup(true);
     self.room(self.roomInput());
     addRoomToHistory(self.roomInput());
     myEmit('enter room');
     self.room.subscribe(function (newRoomName) {
-      $('#vt-header').addClass('vt-loading');
+      $('#vt-header').removeClass('vt-synced');
       self.clearPolls();
       $('.new-poll-area').collapsible('collapse');
       addRoomToHistory(newRoomName);

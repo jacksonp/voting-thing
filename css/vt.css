@@ -61,7 +61,12 @@ body {
   }
 }
 
-.vt-loading .ui-icon-refresh::after {
-  -webkit-animation : rotate 1.5s infinite;
-  animation         : rotate 1.5s infinite;
+#vt-header .ui-icon-refresh::after {
+  -webkit-animation : rotate 1.5s infinite linear;
+  animation         : rotate 1.5s infinite linear;
+}
+
+#vt-header.vt-synced .ui-icon-refresh::after {
+  -webkit-animation-play-state : paused;
+  animation-play-state         : paused;
 }

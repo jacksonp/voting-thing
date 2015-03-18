@@ -84,7 +84,7 @@
 
     function setupDone () {
       socket.on('reconnecting', function (num) {
-        $('#vt-header').addClass('vt-loading');
+        $('#vt-header').removeClass('vt-synced');
         // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
         // WEB_EXCLUDE_START
         if (appRunning) {
@@ -95,7 +95,7 @@
         // WEB_EXCLUDE_END
       });
       socket.on('reconnect', function (num) {
-        $('#vt-header').removeClass('vt-loading');
+        //$('#vt-header').removeClass('vt-synced'); // let this happen after call to roomModel.sync()
         // WEB_EXCLUDE_START
         if (appRunning) {
           window.plugins.toast.showShortBottom('Connected');
@@ -141,7 +141,7 @@
 
     socket.on('polls sync', function (polls) {
       roomModel.addPolls(polls);
-      $('#vt-header').removeClass('vt-loading');
+      $('#vt-header').addClass('vt-synced');
     });
 
     socket.on('name change', function (data) {
