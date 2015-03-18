@@ -67,6 +67,7 @@ function RoomViewModel (socket, setupDoneCB) {
   }
 
   function setupDone () {
+    $('#vt-header').addClass('vt-loading');
     self.isSetup(true);
     self.room(self.roomInput());
     addRoomToHistory(self.roomInput());
