@@ -82,6 +82,7 @@ function RoomViewModel (socket, setupDoneCB) {
   }
 
   self.sync = function () {
+    self.clearPolls();
     myEmit('enter room');
   };
 

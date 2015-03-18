@@ -41,7 +41,7 @@
     </div>
   </div>
 
-  <div data-role="header">
+  <div data-role="header" data-position="fixed">
     <a href="#" class="ui-btn-left" data-icon="refresh" data-iconpos="notext" data-role="button" data-bind="click: refresh"></a>
     <h1 data-bind="text: room() || 'Voting Thing'"></h1>
     <!-- ko if: isSetup -->
@@ -62,9 +62,9 @@
 
 <script type="text/html" id="setup-template">
 <form data-bind="submit: setup">
-  <label for="setup-name">What is your name?</label>
+  <label for="setup-name">Your name</label>
   <input id="setup-name" type="text" maxlength="20" data-clear-btn="true" required data-bind="value: me.name">
-  <label for="setup-room">What room do you want to go to?</label>
+  <label for="setup-room">Voting room to create or go to</label>
   <input id="setup-room" type="text" maxlength="20" data-clear-btn="true" placeholder="Room name" required data-bind="value: roomInput">
   <button data-theme="b">Enter</button>
 </form>

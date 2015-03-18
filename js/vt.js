@@ -12,7 +12,7 @@
   // See comment on template here: http://stackoverflow.com/a/10231716
   // Using afterAdd fires each time a thing is added, making it much to slow with lots of polls.
   ko.bindingHandlers.jqmEnhancePollList = {
-    update: function(element, valueAccessor) {
+    update: function (element, valueAccessor) {
       ko.utils.unwrapObservable(valueAccessor());  //grab dependency
       $(element).parent().enhanceWithin();
     }
@@ -84,23 +84,27 @@
 
     function setupDone () {
       socket.on('reconnecting', function (num) {
-        $.mobile.loading('show');
+        // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
         // WEB_EXCLUDE_START
-        //if (appRunning) {
-        //  if (num > 1) {
-        //    window.plugins.toast.showShortBottom('Reconnection attempt ' + num);
-        //  }
-        //}
+        if (appRunning) {
+          if (num > 1) {
+            window.plugins.toast.showShortBottom('Reconnection attempt ' + (num - 1)); // lie
+          }
+        }
         // WEB_EXCLUDE_END
       });
       socket.on('reconnect', function (num) {
-        $.mobile.loading('hide');
         // WEB_EXCLUDE_START
         if (appRunning) {
-          window.plugins.toast.showShortBottom('Reconnected');
+          window.plugins.toast.showShortBottom('Connected');
         }
         // WEB_EXCLUDE_END
         roomModel.sync();
+      });
+      $('#vt-panel').on('panelbeforeopen', function (event, ui) {
+        setTimeout(function () {
+          $('#room-input').select().focus();
+        }, 300);
       });
     }
 
