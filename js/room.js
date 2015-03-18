@@ -156,20 +156,11 @@ function RoomViewModel (socket, setupDoneCB) {
     });
   }
 
-  //self.jqmEnhancePollList = function (element) {
-  //  if (element.nodeType === 1) {
-  //    console.log('jqmEnhancePollList');
-  //    $(element).parent().enhanceWithin();
-  //  }
-  //};
-
   self.jqmRefreshSetup = function (element) {
-    console.log('jqmRefreshSetup');
     $(element).enhanceWithin();
   };
 
   self.jqmRefreshPollArea = function (element) {
-    console.log('jqmRefreshPollArea');
     $(element).parent().enhanceWithin();
   };
 
@@ -182,7 +173,10 @@ function RoomViewModel (socket, setupDoneCB) {
 
   // This may be called (once) after multiple polls have been added.
   function revealFirstPoll () {
-    //$('.poll').first().collapsible('expand');
+    var polls = $('.poll');
+    if (polls.length < 3) {
+      polls.first().collapsible('expand');
+    }
   }
 
   self.addPolls = function (polls) {
