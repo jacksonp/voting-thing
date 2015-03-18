@@ -156,15 +156,20 @@ function RoomViewModel (socket, setupDoneCB) {
     });
   }
 
-  self.jqmEnhancePollList = function (element) {
-    $(element).parent().enhanceWithin();
-  };
+  //self.jqmEnhancePollList = function (element) {
+  //  if (element.nodeType === 1) {
+  //    console.log('jqmEnhancePollList');
+  //    $(element).parent().enhanceWithin();
+  //  }
+  //};
 
   self.jqmRefreshSetup = function (element) {
+    console.log('jqmRefreshSetup');
     $(element).enhanceWithin();
   };
 
   self.jqmRefreshPollArea = function (element) {
+    console.log('jqmRefreshPollArea');
     $(element).parent().enhanceWithin();
   };
 
@@ -177,27 +182,66 @@ function RoomViewModel (socket, setupDoneCB) {
 
   // This may be called (once) after multiple polls have been added.
   function revealFirstPoll () {
-    $('.poll').first().collapsible('expand');
+    //$('.poll').first().collapsible('expand');
   }
 
   self.pollSync = function (polls) {
-    var pollAdded = false, thisAdded;
-    polls.forEach(function (poll) {
-      var haveIVoted = Object.keys(poll.votes).some(function (person_id) {
-        return self.me.id === person_id;
-      });
-      thisAdded = self.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === self.me.id);
-      if (!pollAdded && thisAdded) {
-        pollAdded = true;
+    console.log('pollSync');
+    var i, p, newPolls = [], poll;
+
+    for (i = 0; i < polls.length; i += 1) {
+      p = polls[i];
+      poll = getPoll(p.poll_id);
+
+      if (!poll) {
+        // consider doing this when adding votes instead...
+        var haveIVoted = Object.keys(p.votes).some(function (person_id) {
+          return self.me.id === person_id;
+        });
+        poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, haveIVoted, p.owner_id === self.me.id);
+        newPolls.unshift(poll);
+        console.log('Added poll to newPolls.');
       }
-      Object.keys(poll.votes).forEach(function (person_id) {
-        poll.votes[person_id].person_id = person_id;
-        self.addVote(poll.poll_id, poll.votes[person_id]);
+
+      Object.keys(p.votes).forEach(function (person_id) {
+        p.votes[person_id].person_id = person_id;
+        poll.addVote(p.votes[person_id]);
       });
-    });
-    if (pollAdded) {
+
+    }
+
+    if (newPolls.length) {
+      console.log('unshift');
+      self.polls.unshift.apply(self.polls, newPolls);
+      console.log('Done unshift');
       revealFirstPoll();
     }
+
+    //polls.forEach(function (poll) {
+    //  Object.keys(poll.votes).forEach(function (person_id) {
+    //    poll.votes[person_id].person_id = person_id;
+    //    self.addVote(poll.poll_id, poll.votes[person_id]);
+    //  });
+    //});
+
+    //
+    //
+    //polls.forEach(function (poll) {
+    //  var haveIVoted = Object.keys(poll.votes).some(function (person_id) {
+    //    return self.me.id === person_id;
+    //  });
+    //  thisAdded = self.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, haveIVoted, poll.owner_id === self.me.id);
+    //  if (!pollAdded && thisAdded) {
+    //    pollAdded = true;
+    //  }
+    //  Object.keys(poll.votes).forEach(function (person_id) {
+    //    poll.votes[person_id].person_id = person_id;
+    //    self.addVote(poll.poll_id, poll.votes[person_id]);
+    //  });
+    //});
+    //if (pollAdded) {
+    //  revealFirstPoll();
+    //}
   };
 
   self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {

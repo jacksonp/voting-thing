@@ -9,6 +9,16 @@
     }
   };
 
+  // See comment on template here: http://stackoverflow.com/a/10231716
+  // Using afterAdd fires each time a thing is added, making it much to slow with lots of polls.
+  ko.bindingHandlers.jqmEnhancePollList = {
+    update: function(element, valueAccessor) {
+      console.log('jqmEnhancePollList');
+      ko.utils.unwrapObservable(valueAccessor());  //grab dependency
+      $(element).parent().enhanceWithin();
+    }
+  };
+
   ko.subscribable.fn.trimmed = function () {
     return ko.computed({
       read : function () {
