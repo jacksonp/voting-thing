@@ -165,8 +165,9 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.createPoll = function (poll) {
-    var pollAdded = self.addPoll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === self.me.id);
-    if (pollAdded) {
+    var poll = getPoll(pollId);
+    if (!poll) {
+      self.polls.unshift(new Poll.Poll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === self.me.id));
       revealFirstPoll();
     }
   };
@@ -203,15 +204,6 @@ function RoomViewModel (socket, setupDoneCB) {
       self.polls.unshift.apply(self.polls, newPolls);
       revealFirstPoll();
     }
-  };
-
-  self.addPoll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll) {
-    var poll = getPoll(pollId);
-    if (poll) {
-      return false; // Already exists.
-    }
-    self.polls.unshift(new Poll.Poll(name, ownerId, type, details, pollId, haveIVoted, ownPoll));
-    return true;
   };
 
   self.addItem = function () {
