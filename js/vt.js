@@ -157,7 +157,7 @@
     });
 
     socket.on('create poll', function (poll) {
-      roomModel.createPoll(poll);
+      roomModel.addPoll(poll);
     });
 
     socket.on('vt_error', function (message) {

@@ -164,18 +164,15 @@ function RoomViewModel (socket, setupDoneCB) {
     $(element).parent().enhanceWithin();
   };
 
-  self.createPoll = function (poll) {
-    var poll = getPoll(pollId);
-    if (!poll) {
-      self.polls.unshift(new Poll.Poll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === self.me.id));
-      revealFirstPoll();
-    }
+  self.addPoll = function (poll) {
+    self.polls.unshift(new Poll.Poll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === self.me.id));
+    revealFirstPoll(true);
   };
 
   // This may be called (once) after multiple polls have been added.
-  function revealFirstPoll () {
+  function revealFirstPoll (force) {
     var polls = $('.poll');
-    if (polls.length < 3) {
+    if (force || polls.length < 3) {
       polls.first().collapsible('expand');
     }
   }
