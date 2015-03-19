@@ -78,7 +78,9 @@
     }, false);
     document.addEventListener('resume', function () {
       appRunning = true;
-      socket.io.reconnect();
+      if (!socket.connected) {
+        socket.io.reconnect();
+      }
     }, false);
     // WEB_EXCLUDE_END
 
