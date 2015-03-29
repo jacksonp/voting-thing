@@ -74,7 +74,8 @@ function RoomViewModel (socket, setupDoneCB) {
     myEmit('enter room');
     self.room.subscribe(function (newRoomName) {
       $('#vt-header').removeClass('vt-synced');
-      self.clearPolls();
+      self.polls.removeAll();
+      self.people.removeAll();
       $('.new-poll-area').collapsible('collapse');
       addRoomToHistory(newRoomName);
       myEmit('enter room');
@@ -84,7 +85,7 @@ function RoomViewModel (socket, setupDoneCB) {
   }
 
   self.sync = function () {
-    self.clearPolls();
+    self.polls.removeAll();
     myEmit('enter room');
   };
 
@@ -297,10 +298,6 @@ function RoomViewModel (socket, setupDoneCB) {
 
     $('.new-poll-area').collapsible('expand');
     $('#new-poll-name').focus();
-  };
-
-  self.clearPolls = function () {
-    self.polls([]);
   };
 
   self.addVote = function (pollId, vote) {
