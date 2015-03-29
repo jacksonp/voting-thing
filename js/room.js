@@ -168,7 +168,12 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.addPoll = function (poll) {
-    self.polls.unshift(new Poll.Poll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, self.me.id));
+    var poll = new Poll.Poll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, self.me.id);
+    self.polls.unshift(poll);
+    if (poll.ownPoll) { // I just created this poll...
+      $('.new-poll-area').collapsible('collapse');
+      self.items.removeAll();
+    }
     revealFirstPoll(true);
   };
 
@@ -249,8 +254,6 @@ function RoomViewModel (socket, setupDoneCB) {
       return;
     }
     myEmit('create poll', poll);
-    $('.new-poll-area').collapsible('collapse');
-    self.items.removeAll();
   };
 
   self.sharePoll = function (poll) {
