@@ -1,7 +1,7 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, ownerId, type, details, pollId, haveIVoted, ownPoll, votes) {
+  exports.Poll = function (name, ownerId, type, details, pollId, myId, votes) {
 
     var self = this;
 
@@ -47,13 +47,18 @@
     self.type = type;
     self.details = details;
     self.poll_id = pollId;
-    self.ownPoll = !!ownPoll;
+    self.myId = myId;
+    self.ownPoll = ownerId === myId;
 
     if (typeof ko !== 'undefined') { // knockout - client-side only
 
-      self.haveIVoted = ko.observable(!!haveIVoted);
-
       self.votes = ko.observableArray(votes || []);
+
+      self.haveIVoted = ko.computed(function () {
+        return ko.utils.arrayFirst(self.votes(), function (vote) {
+          return vote.person_id === self.myId;
+        });
+      });
 
       self.getVote = function (person_id) {
         return ko.utils.arrayFirst(self.votes(), function (v) {

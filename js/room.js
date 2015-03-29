@@ -168,7 +168,7 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.addPoll = function (poll) {
-    self.polls.unshift(new Poll.Poll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, false, poll.owner_id === self.me.id));
+    self.polls.unshift(new Poll.Poll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, self.me.id));
     revealFirstPoll(true);
   };
 
@@ -192,11 +192,7 @@ function RoomViewModel (socket, setupDoneCB) {
         votes.push(p.votes[person_id]);
       });
 
-      // consider doing this when adding votes instead...
-      var haveIVoted = Object.keys(p.votes).some(function (person_id) {
-        return self.me.id === person_id;
-      });
-      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, haveIVoted, p.owner_id === self.me.id, votes);
+      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, self.me.id, votes);
       newPolls.unshift(poll);
     }
 
@@ -336,7 +332,6 @@ function RoomViewModel (socket, setupDoneCB) {
       return;
     }
     myEmit('vote', {poll_id: poll.poll_id, vote: vote});
-    poll.haveIVoted(true);
   };
 
   // Are we ready?
