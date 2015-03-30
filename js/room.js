@@ -56,6 +56,9 @@ function RoomViewModel (socket, setupDoneCB) {
   self.newPollMax = ko.observable(10);
   self.newPollStep = ko.observable(1);
 
+  self.polls = ko.observableArray([]);
+  var morePollsAvailable = true;
+
 
   function myEmit (action, extraData) {
     extraData = extraData || {};
@@ -64,6 +67,22 @@ function RoomViewModel (socket, setupDoneCB) {
       person_id: self.me.id,
       name     : self.me.name()
     }));
+  }
+
+  // Infinite scrolling aka we don't show necessarily show all polls in room by default.
+  // See: https://jqmtricks.wordpress.com/2014/07/15/infinite-scrolling/
+  function checkScroll () {
+    var
+      screenHeight = $.mobile.getScreenHeight(),
+      contentHeight = $('.ui-content').outerHeight(),
+      scrolled = $(window).scrollTop(),
+      header = $('.ui-header').outerHeight() - 1,
+      scrollEnd = contentHeight - screenHeight + header;
+    if (scrollEnd > 0 && scrolled >= scrollEnd) {
+      $(document).off('scrollstop');
+      var underlyingPolls = self.polls();
+      myEmit('older polls', {oldest_poll_id: underlyingPolls[underlyingPolls.length - 1].poll_id});
+    }
   }
 
   function setupDone () {
@@ -81,6 +100,9 @@ function RoomViewModel (socket, setupDoneCB) {
       myEmit('enter room');
       self.roomInput(newRoomName);
     });
+
+    $(document).on('scrollstop', checkScroll);
+
     setupDoneCB();
   }
 
@@ -152,8 +174,6 @@ function RoomViewModel (socket, setupDoneCB) {
     localStorage.setItem('name', newName);
   };
 
-  self.polls = ko.observableArray([]);
-
   function getPoll (id) {
     return ko.utils.arrayFirst(self.polls(), function (p) {
       return p.poll_id === id;
@@ -168,8 +188,8 @@ function RoomViewModel (socket, setupDoneCB) {
     $(element).parent().enhanceWithin();
   };
 
-  self.addPoll = function (poll) {
-    var poll = new Poll.Poll(poll.poll_name, poll.owner_id, poll.type, poll.details, poll.poll_id, self.me.id);
+  self.addPoll = function (data) {
+    var poll = new Poll.Poll(data.poll_name, data.owner_id, data.type, data.details, data.poll_id, self.me.id);
     self.polls.unshift(poll);
     if (poll.ownPoll) { // I just created this poll...
       $('.new-poll-area').collapsible('collapse');
@@ -186,11 +206,13 @@ function RoomViewModel (socket, setupDoneCB) {
     }
   }
 
-  self.addPolls = function (polls) {
+  self.addPolls = function (data, olderPolls) {
     var i, p, newPolls = [], poll, votes;
 
-    for (i = 0; i < polls.length; i += 1) {
-      p = polls[i];
+    morePollsAvailable = data.more_available;
+
+    for (i = 0; i < data.polls.length; i += 1) {
+      p = data.polls[i];
       votes = [];
 
       Object.keys(p.votes).forEach(function (person_id) {
@@ -199,12 +221,20 @@ function RoomViewModel (socket, setupDoneCB) {
       });
 
       poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, self.me.id, votes);
-      newPolls.unshift(poll);
+      newPolls.push(poll); // reverses the order, were sorted DESC
     }
 
     if (newPolls.length) {
-      self.polls.unshift.apply(self.polls, newPolls);
-      revealFirstPoll();
+      if (olderPolls) {
+        self.polls.push.apply(self.polls, newPolls);
+        if (morePollsAvailable) {
+          $(document).on('scrollstop', checkScroll);
+        }
+      }
+      else {
+        self.polls.unshift.apply(self.polls, newPolls);
+        revealFirstPoll();
+      }
     }
   };
 

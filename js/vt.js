@@ -141,9 +141,13 @@
       });
     });
 
-    socket.on('polls sync', function (polls) {
-      roomModel.addPolls(polls);
+    socket.on('polls sync', function (data) {
+      roomModel.addPolls(data);
       $('#vt-header').addClass('vt-synced');
+    });
+
+    socket.on('older polls', function (data) {
+      roomModel.addPolls(data, true);
     });
 
     socket.on('name change', function (data) {

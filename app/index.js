@@ -2,6 +2,8 @@
 
 var io = require('socket.io').listen(3883);
 
+var pollsPerQuery = 20;
+
 var query = require('pg-query');
 query.connectionParameters = 'postgres://vt@localhost/vt';
 
@@ -34,13 +36,38 @@ io.on('connection', function (socket) {
         rows.forEach(function (r) {
           io.to(r.r_socket_id).emit('enter room', inRoom);
         });
-        query("SELECT poll_id, name AS poll_name, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1) ORDER BY poll_id", [data.room], function (err, rows) {
+        query("SELECT poll_id, name AS poll_name, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1) ORDER BY poll_id DESC LIMIT $2", [data.room, pollsPerQuery + 1], function (err, rows) {
           if (err) {
             console.error(err);
             io.to(socket.id).emit('vt_error', err.hint);
           } else {
-            io.to(socket.id).emit('polls sync', rows);
+            var moreAvailable = rows.length > pollsPerQuery;
+            if (moreAvailable) {
+              rows.pop();
+            }
+            io.to(socket.id).emit('polls sync', {
+              polls: rows,
+              more_available: moreAvailable
+            });
           }
+        });
+      }
+    });
+  });
+
+  socket.on('older polls', function (data) {
+    console.log(data);
+    query("SELECT poll_id, name AS poll_name, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1) AND poll_id < $2 ORDER BY poll_id DESC LIMIT $3", [data.room, data.oldest_poll_id, pollsPerQuery + 1], function (err, rows) {
+      if (err) {
+        io.to(socket.id).emit('vt_error', err.hint);
+      } else {
+        var moreAvailable = rows.length > pollsPerQuery;
+        if (moreAvailable) {
+          rows.pop();
+        }
+        io.to(socket.id).emit('older polls', {
+          polls: rows,
+          more_available: moreAvailable
         });
       }
     });
