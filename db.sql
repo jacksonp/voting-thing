@@ -25,6 +25,7 @@ CREATE TABLE polls (
   room_id  TEXT                     NOT NULL REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
   created  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   name     TEXT                     NOT NULL,
+  status   TEXT                     NOT NULL DEFAULT 'open',
   owner_id UUID                     NOT NULL,
   type     TEXT                     NOT NULL,
   details  JSON                     NOT NULL,

@@ -57,8 +57,6 @@ function RoomViewModel (socket, setupDoneCB) {
   self.newPollStep = ko.observable(1);
 
   self.polls = ko.observableArray([]);
-  var morePollsAvailable = true;
-
 
   function myEmit (action, extraData) {
     extraData = extraData || {};
@@ -189,7 +187,7 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.addPoll = function (data) {
-    var poll = new Poll.Poll(data.poll_name, data.owner_id, data.type, data.details, data.poll_id, self.me.id);
+    var poll = new Poll.Poll(data.poll_name, data.owner_id, data.type, data.details, data.poll_id, data.status, self.me.id);
     self.polls.unshift(poll);
     if (poll.ownPoll) { // I just created this poll...
       $('.new-poll-area').collapsible('collapse');
@@ -209,8 +207,6 @@ function RoomViewModel (socket, setupDoneCB) {
   self.addPolls = function (data, olderPolls) {
     var i, p, newPolls = [], poll, votes;
 
-    morePollsAvailable = data.more_available;
-
     for (i = 0; i < data.polls.length; i += 1) {
       p = data.polls[i];
       votes = [];
@@ -220,14 +216,14 @@ function RoomViewModel (socket, setupDoneCB) {
         votes.push(p.votes[person_id]);
       });
 
-      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, self.me.id, votes);
+      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, p.status, self.me.id, votes);
       newPolls.push(poll); // reverses the order, were sorted DESC
     }
 
     if (newPolls.length) {
       if (olderPolls) {
         self.polls.push.apply(self.polls, newPolls);
-        if (morePollsAvailable) {
+        if (data.more_available) {
           $(document).on('scrollstop', checkScroll);
         }
       }
@@ -299,6 +295,14 @@ function RoomViewModel (socket, setupDoneCB) {
     // WEB_EXCLUDE_END
   };
 
+  self.closePollConfirm = function (poll) {
+    if (confirm('Are you sure you want to close this poll?')) {
+      myEmit('close poll', {poll_id: poll.poll_id});
+    }
+  };
+  self.closePoll = function (poll_id) {
+    getPoll(poll_id).status('closed');
+  };
   self.deletePollConfirm = function (poll) {
     if (confirm('Are you sure you want to delete this poll?')) {
       myEmit('delete poll', {poll_id: poll.poll_id});

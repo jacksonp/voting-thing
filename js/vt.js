@@ -68,8 +68,8 @@
     }
 
     var
-      socket = io('http://votingthing.com:3883/'),
-      //socket = io('http://192.168.1.69:3883/'),
+      //socket = io('http://votingthing.com:3883/'),
+      socket = io('http://192.168.1.69:3883/'),
       appRunning = true;
 
     // WEB_EXCLUDE_START
@@ -133,6 +133,10 @@
 
     socket.on('delete poll', function (poll_id) {
       roomModel.deletePoll(poll_id);
+    });
+
+    socket.on('close poll', function (poll_id) {
+      roomModel.closePoll(poll_id);
     });
 
     socket.on('enter room', function (people) {

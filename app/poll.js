@@ -1,7 +1,7 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, ownerId, type, details, pollId, myId, votes) {
+  exports.Poll = function (name, ownerId, type, details, pollId, status, myId, votes) {
 
     var self = this;
 
@@ -53,6 +53,8 @@
     if (typeof ko !== 'undefined') { // knockout - client-side only
 
       self.votes = ko.observableArray(votes || []);
+
+      self.status = ko.observable(status);
 
       self.haveIVoted = ko.computed(function () {
         return ko.utils.arrayFirst(self.votes(), function (vote) {
