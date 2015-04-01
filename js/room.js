@@ -3,6 +3,7 @@ function RoomViewModel (socket, setupDoneCB) {
 
   var self = this;
 
+  //<editor-fold desc="Setup self.prevRooms">
   (function () {
     var prevRooms = localStorage.getItem('prev_rooms');
     if (prevRooms) {
@@ -12,7 +13,7 @@ function RoomViewModel (socket, setupDoneCB) {
     }
     self.prevRooms = ko.observableArray(prevRooms);
   }());
-
+  //</editor-fold>
 
   function addRoomToHistory (room, oldRoom) {
     if (!room) {
@@ -320,18 +321,21 @@ function RoomViewModel (socket, setupDoneCB) {
       myEmit('close poll', {poll_id: poll.poll_id});
     }
   };
-  self.closePoll = function (poll_id) {
-    getPoll(poll_id).status('closed');
+  self.closePoll = function (poll_id, callback) {
+    var poll = getPoll(poll_id);
+    poll.status('closed');
+    callback('Poll closed: ' + poll.poll_name);
   };
   self.deletePollConfirm = function (poll) {
     if (confirm('Are you sure you want to delete this poll?')) {
       myEmit('delete poll', {poll_id: poll.poll_id});
     }
   };
-  self.deletePoll = function (poll_id) {
-    self.polls.remove(function (poll) {
+  self.deletePoll = function (poll_id, callback) {
+    var removed = self.polls.remove(function (poll) {
       return poll.poll_id === poll_id;
     });
+    callback('Poll deleted: ' + removed.pop().poll_name);
     // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
     //pollInstanceArea.slideUp(300, function () {
     //  $(this).remove();
@@ -354,9 +358,10 @@ function RoomViewModel (socket, setupDoneCB) {
     $('#new-poll-name').focus();
   };
 
-  self.addVote = function (pollId, vote) {
+  self.addVote = function (pollId, vote, callback) {
     var poll = getPoll(pollId);
     poll.addVote(vote);
+    callback(poll.poll_name + ': ' + vote.name + ' voted.');
   };
 
   self.vote = function (poll, event) {

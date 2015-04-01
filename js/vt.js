@@ -82,9 +82,17 @@
     }
 
     var
-      //socket = io('http://votingthing.com:3883/'),
-      socket = io('http://192.168.1.69:3883/'),
-      appRunning = true;
+    //socket = io('http://votingthing.com:3883/'),
+    socket = io('http://192.168.1.69:3883/'),
+    appRunning = true;
+
+    function toast (message) {
+      // WEB_EXCLUDE_START
+      if (appRunning) {
+        window.plugins.toast.showShortBottom(message);
+      }
+      // WEB_EXCLUDE_END
+    }
 
     // WEB_EXCLUDE_START
     document.addEventListener('pause', function () {
@@ -102,21 +110,13 @@
       socket.on('reconnecting', function (num) {
         $('#vt-header').removeClass('vt-synced');
         // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
-        // WEB_EXCLUDE_START
-        if (appRunning) {
-          if (num > 1) {
-            window.plugins.toast.showShortBottom('Reconnection attempt ' + (num - 1)); // lie
-          }
+        if (num > 1) {
+          toast('Reconnection attempt ' + (num - 1)); // lie
         }
-        // WEB_EXCLUDE_END
       });
       socket.on('reconnect', function (num) {
         //$('#vt-header').removeClass('vt-synced'); // let this happen after call to roomModel.sync()
-        // WEB_EXCLUDE_START
-        if (appRunning) {
-          window.plugins.toast.showShortBottom('Connected');
-        }
-        // WEB_EXCLUDE_END
+        toast('Connected');
         roomModel.sync();
       });
       $('#vt-panel').on('panelbeforeopen', function (event, ui) {
@@ -142,15 +142,15 @@
     // WEB_EXCLUDE_END
 
     socket.on('vote', function (data) {
-      roomModel.addVote(data.poll_id, data.vote);
+      roomModel.addVote(data.poll_id, data.vote, toast);
     });
 
     socket.on('delete poll', function (poll_id) {
-      roomModel.deletePoll(poll_id);
+      roomModel.deletePoll(poll_id, toast);
     });
 
     socket.on('close poll', function (poll_id) {
-      roomModel.closePoll(poll_id);
+      roomModel.closePoll(poll_id, toast);
     });
 
     socket.on('enter room', function (people) {
@@ -189,6 +189,7 @@
 
     socket.on('create poll', function (poll) {
       roomModel.addPoll(poll);
+      toast('New poll: ' + poll.poll_name);
     });
 
     socket.on('vt_error', function (message) {
