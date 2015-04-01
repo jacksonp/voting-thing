@@ -3,9 +3,18 @@ function RoomViewModel (socket, setupDoneCB) {
 
   var self = this;
 
-  var prevRooms = [];
+  (function () {
+    var prevRooms = localStorage.getItem('prev_rooms');
+    if (prevRooms) {
+      prevRooms = JSON.parse(prevRooms);
+    } else {
+      prevRooms = [];
+    }
+    self.prevRooms = ko.observableArray(prevRooms);
+  }());
 
-  function addRoomToHistory (room) {
+
+  function addRoomToHistory (room, oldRoom) {
     if (!room) {
       return;
     }
@@ -15,13 +24,21 @@ function RoomViewModel (socket, setupDoneCB) {
     if (location.hash.replace('#', '') !== room) { // hash change could be root of this event...
       history.pushState(null, null, '#' + encodeURIComponent(room));
     }
-    prevRooms.push(room);
+    if (oldRoom) {
+      self.prevRooms.remove(room);
+      self.prevRooms.remove(oldRoom);
+      self.prevRooms.unshift(oldRoom);
+      if (self.prevRooms().length > 5) {
+        self.prevRooms.pop();
+      }
+      localStorage.setItem('prev_rooms', JSON.stringify(self.prevRooms()));
+    }
   }
 
   // WEB_EXCLUDE_START
   document.addEventListener('backbutton', function () {
-    var lastRoom = prevRooms.pop(); // current room
-    lastRoom = prevRooms.pop(); // prev room
+    var lastRoom = self.prevRooms.pop(); // current room
+    lastRoom = self.prevRooms.pop(); // prev room
     if (lastRoom) {
       self.room(lastRoom);
     } else {
@@ -87,14 +104,14 @@ function RoomViewModel (socket, setupDoneCB) {
     $('#vt-header').removeClass('vt-synced');
     self.isSetup(true);
     self.room(self.roomInput());
-    addRoomToHistory(self.roomInput());
+    addRoomToHistory(self.roomInput(), '');
     myEmit('enter room');
-    self.room.subscribe(function (newRoomName) {
+    self.room.subscribeChanged(function (newRoomName, oldRoomName) {
       $('#vt-header').removeClass('vt-synced');
       self.polls.removeAll();
       self.people.removeAll();
       $('.new-poll-area').collapsible('collapse');
-      addRoomToHistory(newRoomName);
+      addRoomToHistory(newRoomName, oldRoomName);
       myEmit('enter room');
       self.roomInput(newRoomName);
     });
@@ -103,6 +120,15 @@ function RoomViewModel (socket, setupDoneCB) {
 
     setupDoneCB();
   }
+
+  self.goToRoom = function (newRoomName) {
+    $('#vt-panel').panel('close');
+    if (self.room() === newRoomName) {
+      return; // Already in the room.
+    }
+    myEmit('leave room');
+    self.room(newRoomName);
+  };
 
   self.sync = function () {
     self.polls.removeAll();
@@ -118,14 +144,8 @@ function RoomViewModel (socket, setupDoneCB) {
     setupDone();
   };
 
-  self.enterRoom = function () {
-    var newRoomName = self.roomInput();
-    $('#vt-panel').panel('close');
-    if (self.room() === newRoomName) {
-      return; // Already in the room.
-    }
-    myEmit('leave room');
-    self.room(newRoomName);
+  self.roomFormSubmit = function () {
+    self.goToRoom(self.roomInput());
   };
 
   self.people = ko.observableArray([]);
