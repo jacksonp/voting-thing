@@ -189,25 +189,10 @@ function RoomViewModel (socket, setupDoneCB) {
       myEmit('close poll', {poll_id: poll.poll_id});
     }
   };
-  self.closePoll = function (poll_id, callback) {
-    var poll = self.getPoll(poll_id);
-    poll.status('closed');
-    callback('Poll closed: ' + poll.poll_name);
-  };
   self.deletePollConfirm = function (poll) {
     if (confirm('Are you sure you want to delete this poll?')) {
       myEmit('delete poll', {poll_id: poll.poll_id});
     }
-  };
-  self.deletePoll = function (poll_id, callback) {
-    var removed = self.polls.remove(function (poll) {
-      return poll.poll_id === poll_id;
-    });
-    callback('Poll deleted: ' + removed.pop().poll_name);
-    // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
-    //pollInstanceArea.slideUp(300, function () {
-    //  $(this).remove();
-    //});
   };
 
   self.vote = function (poll, event) {

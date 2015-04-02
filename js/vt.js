@@ -149,11 +149,20 @@
     });
 
     socket.on('delete poll', function (poll_id) {
-      roomModel.deletePoll(poll_id, toast);
+      var removed = roomModel.polls.remove(function (poll) {
+        return poll.poll_id === poll_id;
+      });
+      toast('Poll deleted: ' + removed.pop().poll_name);
+      // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
+      //pollInstanceArea.slideUp(300, function () {
+      //  $(this).remove();
+      //});
     });
 
     socket.on('close poll', function (poll_id) {
-      roomModel.closePoll(poll_id, toast);
+      var poll = roomModel.getPoll(poll_id);
+      poll.status('closed');
+      toast('Poll closed: ' + poll.poll_name);
     });
 
     socket.on('enter room', function (people) {
