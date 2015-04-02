@@ -143,7 +143,9 @@
     socket.on('vote', function (data) {
       var poll = roomModel.getPoll(data.poll_id);
       poll.addVote(data.vote);
-      toast(poll.poll_name + ': ' + data.vote.name + ' voted.');
+      if (data.vote.person_id !== roomModel.people.me.id) {
+        toast(poll.poll_name + ': ' + data.vote.name + ' voted.');
+      }
     });
 
     socket.on('delete poll', function (poll_id) {
@@ -188,7 +190,9 @@
 
     socket.on('create poll', function (poll) {
       roomModel.addPoll(poll);
-      toast('New poll: ' + poll.poll_name);
+      if (poll.owner_id !== roomModel.people.me.id) {
+        toast('New poll: ' + poll.poll_name);
+      }
     });
 
     socket.on('vt_error', function (message) {
