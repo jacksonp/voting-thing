@@ -202,16 +202,16 @@
 
   </div>
 
-  <div data-role="controlgroup" data-type="horizontal">
-    <button data-theme="b" data-bind="click: $parent.sharePoll">Share</button>
-    <button data-theme="b" data-bind="click: $parent.rerunPoll">New Similar</button>
+  <form>
+  <fieldset data-role="controlgroup" data-type="horizontal">
+    <button data-theme="b" data-icon="mail" data-iconpos="notext" data-bind="click: $parent.sharePoll">Share</button>
+    <button data-theme="b" data-icon="edit" data-iconpos="notext" data-bind="click: $parent.rerunPoll">New Similar</button>
     <!-- ko if: ownPoll -->
-    <button data-theme="b" data-bind="click: $parent.closePollConfirm, visible: status() === 'open' && votes().length > 0">
-      Close
-    </button>
-    <button data-theme="b" data-bind="click: $parent.deletePollConfirm">Delete</button>
+    <button data-theme="b" data-icon="lock" data-iconpos="notext" data-bind="click: $parent.closePollConfirm, visible: status() === 'open' && votes().length > 0">Close</button>
+    <button data-theme="b" data-icon="delete" data-iconpos="notext" data-bind="click: $parent.deletePollConfirm">Delete</button>
     <!-- /ko -->
-  </div>
+  </fieldset>
+  </form>
 
 </div>
 </script>
