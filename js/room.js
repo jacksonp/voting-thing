@@ -110,11 +110,11 @@ function RoomViewModel (socket, setupDoneCB) {
     self.goToRoom(self.roomInput());
   };
 
-  function getPoll (id) {
+  self.getPoll = function (id) {
     return ko.utils.arrayFirst(self.polls(), function (p) {
       return p.poll_id === id;
     });
-  }
+  };
 
   self.jqmRefreshSetup = function (element) {
     $(element).enhanceWithin();
@@ -190,7 +190,7 @@ function RoomViewModel (socket, setupDoneCB) {
     }
   };
   self.closePoll = function (poll_id, callback) {
-    var poll = getPoll(poll_id);
+    var poll = self.getPoll(poll_id);
     poll.status('closed');
     callback('Poll closed: ' + poll.poll_name);
   };
@@ -208,12 +208,6 @@ function RoomViewModel (socket, setupDoneCB) {
     //pollInstanceArea.slideUp(300, function () {
     //  $(this).remove();
     //});
-  };
-
-  self.addVote = function (pollId, vote, callback) {
-    var poll = getPoll(pollId);
-    poll.addVote(vote);
-    callback(poll.poll_name + ': ' + vote.name + ' voted.');
   };
 
   self.vote = function (poll, event) {

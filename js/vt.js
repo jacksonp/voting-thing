@@ -141,7 +141,9 @@
     // WEB_EXCLUDE_END
 
     socket.on('vote', function (data) {
-      roomModel.addVote(data.poll_id, data.vote, toast);
+      var poll = roomModel.getPoll(data.poll_id);
+      poll.addVote(data.vote);
+      toast(poll.poll_name + ': ' + data.vote.name + ' voted.');
     });
 
     socket.on('delete poll', function (poll_id) {
