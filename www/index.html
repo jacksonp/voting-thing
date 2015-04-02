@@ -203,14 +203,19 @@
   </div>
 
   <form>
-  <fieldset data-role="controlgroup" data-type="horizontal">
-    <button data-theme="b" data-icon="mail" data-iconpos="notext" data-bind="click: $parent.sharePoll">Share</button>
-    <button data-theme="b" data-icon="edit" data-iconpos="notext" data-bind="click: $root.createPoll.rerunPoll">New Similar</button>
-    <!-- ko if: ownPoll -->
-    <button data-theme="b" data-icon="lock" data-iconpos="notext" data-bind="click: closePollConfirm, visible: status() === 'open' && votes().length > 0">Close</button>
-    <button data-theme="b" data-icon="delete" data-iconpos="notext" data-bind="click: deletePollConfirm">Delete</button>
-    <!-- /ko -->
-  </fieldset>
+    <fieldset data-role="controlgroup" data-type="horizontal">
+      <button data-theme="b" data-icon="mail" data-iconpos="notext" data-bind="click: $parent.sharePoll">Share</button>
+      <button data-theme="b" data-icon="edit" data-iconpos="notext" data-bind="click: $root.createPoll.rerunPoll">New
+        Similar
+      </button>
+      <!-- ko if: ownPoll -->
+      <button data-theme="b" data-icon="lock" data-iconpos="notext" data-bind="click: closePollConfirm, visible: status() === 'open' && votes().length > 0">
+        Close
+      </button>
+      <button data-theme="b" data-icon="delete" data-iconpos="notext" data-bind="click: deletePollConfirm">Delete
+      </button>
+      <!-- /ko -->
+    </fieldset>
   </form>
 
 </div>
