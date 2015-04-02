@@ -30,8 +30,8 @@
         <button data-theme="b">Enter Room</button>
       </form>
       <br>
-      <ul data-role="listview" data-bind="foreach: prevRooms, jqmRefreshList: prevRooms">
-        <li><a href="#" data-bind="text: $data, click: $parent.goToRoom"></a></li>
+      <ul data-role="listview" data-bind="foreach: roomHistory.prevRooms, jqmRefreshList: roomHistory.prevRooms">
+        <li><a href="#" data-bind="text: $data, click: $root.goToRoom"></a></li>
       </ul>
     </div>
     <div data-role="collapsible" data-collapsed="false">

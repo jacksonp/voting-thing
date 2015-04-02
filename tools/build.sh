@@ -11,6 +11,7 @@ cat \
   app/node_modules/socket.io/node_modules/socket.io-client/socket.io.js \
   app/poll.js \
   js/person.js \
+  js/room_history.js \
   js/room.js \
   js/vt.js \
 > www/js/all.min.js

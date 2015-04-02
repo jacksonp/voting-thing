@@ -127,7 +127,6 @@
     }
 
     var roomModel = new RoomViewModel(socket, setupDone);
-
     ko.applyBindings(roomModel);
 
     // WEB_EXCLUDE_START
