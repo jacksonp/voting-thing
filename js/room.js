@@ -125,7 +125,7 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.addPoll = function (data) {
-    var poll = new Poll.Poll(data.poll_name, data.owner_id, data.type, data.details, data.poll_id, data.status, self.people.me.id);
+    var poll = new Poll.Poll(data.poll_name, data.owner_id, data.type, data.details, data.poll_id, data.status, self.people.me.id, myEmit);
     self.polls.unshift(poll);
     if (poll.ownPoll) { // I just created this poll...
       $('.new-poll-area').collapsible('collapse');
@@ -154,7 +154,7 @@ function RoomViewModel (socket, setupDoneCB) {
         votes.push(p.votes[person_id]);
       });
 
-      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, votes);
+      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, myEmit, votes);
       newPolls.push(poll); // reverses the order, were sorted DESC
     }
 
@@ -182,46 +182,6 @@ function RoomViewModel (socket, setupDoneCB) {
     // WEB_EXCLUDE_START
     window.plugins.socialsharing.share('Vote here:', self.room() + ': ' + poll.poll_name, null, 'http://www.votingthing.com/#' + self.room());
     // WEB_EXCLUDE_END
-  };
-
-  self.closePollConfirm = function (poll) {
-    if (confirm('Are you sure you want to close this poll?')) {
-      myEmit('close poll', {poll_id: poll.poll_id});
-    }
-  };
-  self.deletePollConfirm = function (poll) {
-    if (confirm('Are you sure you want to delete this poll?')) {
-      myEmit('delete poll', {poll_id: poll.poll_id});
-    }
-  };
-
-  self.vote = function (poll, event) {
-
-    var
-      vote,
-      pollInstanceArea = $(event.currentTarget).closest('.poll');
-
-    if (poll.type === 'range') {
-      vote = pollInstanceArea.find('input[name=vote-input]').val();
-      if (!$.isNumeric(vote)) {
-        if (vote != '') {
-          alert('Enter a number.');
-        }
-        return;
-      }
-      vote = parseFloat(vote);
-    } else if (poll.type === 'item-choice') {
-      vote = pollInstanceArea.find('input[name=vote-input]:checked');
-      if (!vote.length) {
-        alert('Select an item.');
-        return;
-      }
-      vote = vote.val();
-    } else {
-      alert('Could not figure out poll type.');
-      return;
-    }
-    myEmit('vote', {poll_id: poll.poll_id, vote: vote});
   };
 
   // Are we ready?

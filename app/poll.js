@@ -1,7 +1,7 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, ownerId, type, details, pollId, status, myId, votes) {
+  exports.Poll = function (name, ownerId, type, details, pollId, status, myId, myEmit, votes) {
 
     var self = this;
 
@@ -99,6 +99,48 @@
           })();
         };
       }
+
+      self.vote = function (poll, event) {
+
+        var
+          vote,
+          pollInstanceArea = $(event.currentTarget).closest('.poll');
+
+        if (poll.type === 'range') {
+          vote = pollInstanceArea.find('input[name=vote-input]').val();
+          if (!$.isNumeric(vote)) {
+            if (vote != '') {
+              alert('Enter a number.');
+            }
+            return;
+          }
+          vote = parseFloat(vote);
+        } else if (poll.type === 'item-choice') {
+          vote = pollInstanceArea.find('input[name=vote-input]:checked');
+          if (!vote.length) {
+            alert('Select an item.');
+            return;
+          }
+          vote = vote.val();
+        } else {
+          alert('Could not figure out poll type.');
+          return;
+        }
+        myEmit('vote', {poll_id: poll.poll_id, vote: vote});
+      };
+
+      self.closePollConfirm = function () {
+        if (confirm('Are you sure you want to close this poll?')) {
+          myEmit('close poll', {poll_id: self.poll_id});
+        }
+      };
+
+      self.deletePollConfirm = function () {
+        if (confirm('Are you sure you want to delete this poll?')) {
+          myEmit('delete poll', {poll_id: self.poll_id});
+        }
+      };
+
     }
 
   };

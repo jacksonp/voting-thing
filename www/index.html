@@ -153,7 +153,7 @@
       </div>
     </fieldset>
     <!-- /ko -->
-    <button data-theme="b" data-bind="click: $parent.vote">Vote!</button>
+    <button data-theme="b" data-bind="click: vote">Vote!</button>
   </div>
 
   <div data-bind="attr: {class: haveIVoted() ? 'voted' : 'not-voted'}">
@@ -207,8 +207,8 @@
     <button data-theme="b" data-icon="mail" data-iconpos="notext" data-bind="click: $parent.sharePoll">Share</button>
     <button data-theme="b" data-icon="edit" data-iconpos="notext" data-bind="click: $root.createPoll.rerunPoll">New Similar</button>
     <!-- ko if: ownPoll -->
-    <button data-theme="b" data-icon="lock" data-iconpos="notext" data-bind="click: $parent.closePollConfirm, visible: status() === 'open' && votes().length > 0">Close</button>
-    <button data-theme="b" data-icon="delete" data-iconpos="notext" data-bind="click: $parent.deletePollConfirm">Delete</button>
+    <button data-theme="b" data-icon="lock" data-iconpos="notext" data-bind="click: closePollConfirm, visible: status() === 'open' && votes().length > 0">Close</button>
+    <button data-theme="b" data-icon="delete" data-iconpos="notext" data-bind="click: deletePollConfirm">Delete</button>
     <!-- /ko -->
   </fieldset>
   </form>
