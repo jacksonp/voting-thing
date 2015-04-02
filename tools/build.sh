@@ -12,6 +12,7 @@ cat \
   app/poll.js \
   js/person.js \
   js/room_history.js \
+  js/people.js \
   js/room.js \
   js/vt.js \
 > www/js/all.min.js

@@ -1,4 +1,4 @@
-function RoomHistoryViewModel (socket, setupDoneCB) {
+function RoomHistoryViewModel () {
   'use strict';
 
   var self = this;

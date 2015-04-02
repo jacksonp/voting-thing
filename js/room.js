@@ -5,6 +5,8 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.roomHistory = new RoomHistoryViewModel();
 
+  self.people = new PeopleViewModel(myEmit);
+
   // WEB_EXCLUDE_START
   document.addEventListener('backbutton', function () {
     var lastRoom = self.roomHistory.popLastRoom();
@@ -31,8 +33,6 @@ function RoomViewModel (socket, setupDoneCB) {
   // See if room is set in URL hash, and if not if set in localStorage.
   self.roomInput = ko.observable(location.hash.replace('#', '') || localStorage.getItem('room_name') || '').trimmed();
 
-  self.me = new Person(localStorage.getItem('name'));
-
   self.newPollName = ko.observable('').trimmed();
 
   self.newItemInput = ko.observable('').trimmed();
@@ -48,8 +48,8 @@ function RoomViewModel (socket, setupDoneCB) {
     extraData = extraData || {};
     socket.emit(action, $.extend(extraData, {
       room     : self.room(),
-      person_id: self.me.id,
-      name     : self.me.name()
+      person_id: self.people.me.id,
+      name     : self.people.me.name()
     }));
   }
 
@@ -109,56 +109,12 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.setup = function () {
-    localStorage.setItem('name', self.me.name());
+    localStorage.setItem('name', self.people.me.name());
     setupDone();
   };
 
   self.roomFormSubmit = function () {
     self.goToRoom(self.roomInput());
-  };
-
-  self.people = ko.observableArray([]);
-
-  function getPerson (id) {
-    return ko.utils.arrayFirst(self.people(), function (p) {
-      return p.id === id;
-    });
-  }
-
-  self.addPerson = function (id, name) {
-    var person = getPerson(id);
-    if (!person) {
-      self.people.push(new Person(name, id, id === self.me.id));
-    }
-  };
-
-  self.removePerson = function (id) {
-    self.people.remove(function (item) {
-      return item.id === id;
-    });
-  };
-
-  self.renamePerson = function (id, name) {
-    var person = getPerson(id);
-    if (person) {
-      person.name(name);
-    } else {
-      self.addPerson(id, name);
-    }
-  };
-
-  self.editName = function () {
-    var newName = window.prompt('What is your name?', self.me.name());
-    if (!newName) {
-      return;
-    }
-    newName = newName.trim().substring(0, 20);
-    if (!newName) {
-      return;
-    }
-    myEmit('name change', {new_name: newName});
-    self.me.name(newName);
-    localStorage.setItem('name', newName);
   };
 
   function getPoll (id) {
@@ -176,7 +132,7 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   self.addPoll = function (data) {
-    var poll = new Poll.Poll(data.poll_name, data.owner_id, data.type, data.details, data.poll_id, data.status, self.me.id);
+    var poll = new Poll.Poll(data.poll_name, data.owner_id, data.type, data.details, data.poll_id, data.status, self.people.me.id);
     self.polls.unshift(poll);
     if (poll.ownPoll) { // I just created this poll...
       $('.new-poll-area').collapsible('collapse');
@@ -205,7 +161,7 @@ function RoomViewModel (socket, setupDoneCB) {
         votes.push(p.votes[person_id]);
       });
 
-      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, p.status, self.me.id, votes);
+      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, votes);
       newPolls.push(poll); // reverses the order, were sorted DESC
     }
 
@@ -264,7 +220,7 @@ function RoomViewModel (socket, setupDoneCB) {
       return;
     }
     try {
-      poll = new Poll.Poll(self.newPollName(), self.me.id, pollType, details);
+      poll = new Poll.Poll(self.newPollName(), self.people.me.id, pollType, details);
     } catch (e) {
       alert(e);
       return;
@@ -362,7 +318,7 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   // Are we ready?
-  if (self.roomInput() && self.me.name()) {
+  if (self.roomInput() && self.people.me.name()) {
     setupDone();
   }
 

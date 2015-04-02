@@ -153,9 +153,7 @@
     });
 
     socket.on('enter room', function (people) {
-      $.each(people, function (k, u) {
-        roomModel.addPerson(u.person_id, u.name);
-      });
+      roomModel.people.addPeople(people);
     });
 
     socket.on('polls sync', function (data) {
@@ -168,11 +166,11 @@
     });
 
     socket.on('name change', function (data) {
-      roomModel.renamePerson(data.person_id, data.new_name);
+      roomModel.people.renamePerson(data.person_id, data.new_name);
     });
 
     socket.on('person left', function (personId) {
-      roomModel.removePerson(personId);
+      roomModel.people.removePerson(personId);
     });
 
     $('.new-poll-area').collapsible({
