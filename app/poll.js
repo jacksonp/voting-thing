@@ -129,15 +129,54 @@
         myEmit('vote', {poll_id: poll.poll_id, vote: vote});
       };
 
-      self.closePollConfirm = function () {
-        if (confirm('Are you sure you want to close this poll?')) {
+      self.pollText = ko.observable('');
+
+      self.setPollText = function () {
+        var text = '';
+        if (self.status() === 'closed') {
+          text = 'This poll is closed to new votes.';
+        }
+        self.pollText(text);
+      };
+
+      self.setPollText();
+
+      var lastConfirmTimeout;
+
+      self.resetConfirmButtons = function (event) {
+        clearTimeout(lastConfirmTimeout);
+        $(event.currentTarget).parent().find('button').buttonMarkup({theme: 'a'});
+      };
+
+      self.closePollConfirm = function (poll, event) {
+        var myMessage = 'Tap again to close poll.';
+        if (self.pollText() === myMessage) {
+          self.setPollText();
           myEmit('close poll', {poll_id: self.poll_id});
+        } else {
+          self.resetConfirmButtons(event);
+          self.pollText(myMessage);
+          $(event.currentTarget).buttonMarkup({theme: 'b'});
+          lastConfirmTimeout = setTimeout(function () {
+            self.setPollText();
+            $(event.currentTarget).buttonMarkup({theme: 'a'});
+          }, 3000);
         }
       };
 
-      self.deletePollConfirm = function () {
-        if (confirm('Are you sure you want to delete this poll?')) {
+      self.deletePollConfirm = function (poll, event) {
+        var myMessage = 'Tap again to delete poll.';
+        if (self.pollText() === myMessage) {
+          self.setPollText();
           myEmit('delete poll', {poll_id: self.poll_id});
+        } else {
+          self.resetConfirmButtons(event);
+          self.pollText(myMessage);
+          $(event.currentTarget).buttonMarkup({theme: 'b'});
+          lastConfirmTimeout = setTimeout(function () {
+            self.setPollText();
+            $(event.currentTarget).buttonMarkup({theme: 'a'});
+          }, 3000);
         }
       };
 
