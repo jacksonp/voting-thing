@@ -61,4 +61,20 @@ function CreatePollViewModel (myEmit, me) {
     myEmit('create poll', poll);
   };
 
+  self.rerunPoll = function (poll) {
+    self.newPollName(poll.poll_name);
+    if (poll.type === 'range') {
+      self.newPollMin(poll.details.min);
+      self.newPollMax(poll.details.max);
+      self.newPollStep(poll.details.step);
+      $('.poll-type-select [data-poll-type="range"]').trigger('click');
+    } else {
+      self.items(poll.details.items);
+      $('.poll-type-select [data-poll-type="item-choice"]').trigger('click');
+    }
+
+    $('.new-poll-area').collapsible('expand');
+    $('#new-poll-name').focus();
+  };
+
 }
