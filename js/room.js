@@ -7,6 +7,8 @@ function RoomViewModel (socket, setupDoneCB) {
 
   self.people = new PeopleViewModel(myEmit);
 
+  self.createPoll = new CreatePollViewModel(myEmit, self.people.me);
+
   // WEB_EXCLUDE_START
   document.addEventListener('backbutton', function () {
     var lastRoom = self.roomHistory.popLastRoom();
@@ -32,15 +34,6 @@ function RoomViewModel (socket, setupDoneCB) {
 
   // See if room is set in URL hash, and if not if set in localStorage.
   self.roomInput = ko.observable(location.hash.replace('#', '') || localStorage.getItem('room_name') || '').trimmed();
-
-  self.newPollName = ko.observable('').trimmed();
-
-  self.newItemInput = ko.observable('').trimmed();
-  self.items = ko.observableArray([]);
-
-  self.newPollMin = ko.observable(1);
-  self.newPollMax = ko.observable(10);
-  self.newPollStep = ko.observable(1);
 
   self.polls = ko.observableArray([]);
 
@@ -136,7 +129,7 @@ function RoomViewModel (socket, setupDoneCB) {
     self.polls.unshift(poll);
     if (poll.ownPoll) { // I just created this poll...
       $('.new-poll-area').collapsible('collapse');
-      self.items.removeAll();
+      self.createPoll.items.removeAll();
     }
     revealFirstPoll(true);
   };
@@ -177,55 +170,6 @@ function RoomViewModel (socket, setupDoneCB) {
         revealFirstPoll();
       }
     }
-  };
-
-  self.addItem = function () {
-    var itemText = self.newItemInput();
-    if (!itemText) {
-      return;
-    }
-    var exists = ko.utils.arrayFirst(self.items(), function (i) {
-      return itemText === i;
-    });
-    if (exists) {
-      alert('Duplicate!');
-      return;
-    }
-    self.newItemInput('');
-    $('#new-item-choice').focus();
-    self.items.push(itemText);
-  };
-
-  self.removeItem = function (item) {
-    self.items.remove(item);
-  };
-
-  self.createPoll = function () {
-    var
-      pollType = $('.poll-type-select .ui-state-active a').attr('data-poll-type'),
-      poll, details;
-
-    if (pollType === 'range') {
-      details = {
-        min : self.newPollMin(),
-        max : self.newPollMax(),
-        step: self.newPollStep()
-      };
-    } else if (pollType === 'item-choice') {
-      details = {
-        items: self.items()
-      };
-    } else {
-      alert('Could not figure out poll type.');
-      return;
-    }
-    try {
-      poll = new Poll.Poll(self.newPollName(), self.people.me.id, pollType, details);
-    } catch (e) {
-      alert(e);
-      return;
-    }
-    myEmit('create poll', poll);
   };
 
   self.sharePoll = function (poll) {

@@ -84,9 +84,9 @@
 <div class="new-poll-area" data-role="collapsible">
   <h2>New Poll</h2>
 
-  <form data-bind="submit: createPoll">
+  <form data-bind="submit: createPoll.createPoll">
     <label for="new-poll-name">Name</label>
-    <input id="new-poll-name" type="text" maxlength="20" data-clear-btn="true" placeholder="Poll Name" required data-bind="value: newPollName">
+    <input id="new-poll-name" type="text" maxlength="20" data-clear-btn="true" placeholder="Poll Name" required data-bind="value: createPoll.newPollName">
 
     <div data-role="tabs" id="tabs">
       <div data-role="navbar" class="poll-type-select">
@@ -99,12 +99,12 @@
       </div>
       <div id="poll-type-item-choice">
         <label for="new-item-choice" class="ui-hidden-accessible">New Item</label>
-        <input id="new-item-choice" type="text" maxlength="20" data-clear-btn="true" placeholder="New Item" data-bind="value: newItemInput">
-        <button type="button" data-bind="click: addItem">Add Item</button>
-        <ol data-role="listview" data-split-icon="delete" data-inset="true" data-bind="foreach: items, jqmRefreshList: items">
+        <input id="new-item-choice" type="text" maxlength="20" data-clear-btn="true" placeholder="New Item" data-bind="value: createPoll.newItemInput">
+        <button type="button" data-bind="click: createPoll.addItem">Add Item</button>
+        <ol data-role="listview" data-split-icon="delete" data-inset="true" data-bind="foreach: createPoll.items, jqmRefreshList: createPoll.items">
           <li>
             <a href="#" data-bind="text: $data"></a>
-            <a href="#" data-bind="click: $root.removeItem">Delete Item</a>
+            <a href="#" data-bind="click: createPoll.removeItem">Delete Item</a>
           </li>
         </ol>
       </div>
@@ -113,19 +113,19 @@
           <div class="ui-block-a">
             <div class="ui-field-contain">
               <label for="new-poll-min">Min</label>
-              <input id="new-poll-min" type="number" step="any" data-bind="value: newPollMin">
+              <input id="new-poll-min" type="number" step="any" data-bind="value: createPoll.newPollMin">
             </div>
           </div>
           <div class="ui-block-b">
             <div class="ui-field-contain">
               <label for="new-poll-max">Max</label>
-              <input id="new-poll-max" type="number" step="any" data-bind="value: newPollMax">
+              <input id="new-poll-max" type="number" step="any" data-bind="value: createPoll.newPollMax">
             </div>
           </div>
           <div class="ui-block-c">
             <div class="ui-field-contain">
               <label for="new-poll-step">Step</label>
-              <input id="new-poll-step" type="number" step="any" data-bind="value: newPollStep">
+              <input id="new-poll-step" type="number" step="any" data-bind="value: createPoll.newPollStep">
             </div>
           </div>
         </div>
