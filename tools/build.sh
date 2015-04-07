@@ -9,6 +9,7 @@ cat \
   js/jquery.mobile-1.4.5.min.js <(echo) \
   bower_components/knockout/dist/knockout.js \
   app/node_modules/socket.io/node_modules/socket.io-client/socket.io.js \
+  js/push_notifications.js \
   app/poll.js \
   js/person.js \
   js/room_history.js \
@@ -19,8 +20,8 @@ cat \
 > www/js/all.min.js
 
 
-
-cp www/index.html vt/www/
+cp html/index.html www/
+cp html/index.html vt/www/
 rsync www/js/* vt/www/js/
 rsync -r www/css/* vt/www/css/
 
@@ -28,3 +29,4 @@ sed -i "/APP_EXCLUDE_START/,/APP_EXCLUDE_END/d" vt/www/js/all.min.js
 sed -i "/WEB_EXCLUDE_START/,/WEB_EXCLUDE_END/d" www/js/all.min.js
 
 sed -i "/APP_EXCLUDE_START/,/APP_EXCLUDE_END/d" vt/www/index.html
+sed -i "/WEB_EXCLUDE_START/,/WEB_EXCLUDE_END/d" www/index.html

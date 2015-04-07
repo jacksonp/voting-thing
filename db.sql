@@ -10,7 +10,7 @@ CREATE TABLE rooms (
   name    TEXT                     NOT NULL
 );
 
--- Actually: "people currently in a room".
+-- Actually: "devices currently in a room".
 CREATE TABLE people (
   room_id   TEXT REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
   person_id UUID                     NOT NULL,
@@ -18,6 +18,13 @@ CREATE TABLE people (
   name      TEXT                     NOT NULL,
   socket_id TEXT                     NOT NULL,
   PRIMARY KEY (room_id, person_id)
+);
+
+CREATE TABLE stars (
+  room_id        TEXT NOT NULL REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
+  device_id      UUID NOT NULL, --same as people.person_id
+  device_details JSON NOT NULL,
+  PRIMARY KEY (room_id, device_id)
 );
 
 CREATE TABLE polls (
@@ -63,7 +70,8 @@ BEGIN
 
   IF norm_name IS NULL OR norm_name = ''
   THEN
-    RAISE 'Room name must contain some letters or numbers.' USING HINT = 'Room name must contain some letters or numbers.';
+    RAISE 'Room name must contain some letters or numbers.'
+    USING HINT = 'Room name must contain some letters or numbers.';
   END IF;
 
   SELECT room_id
@@ -98,8 +106,14 @@ BEGIN
     RETURNING 1
   )
   INSERT
-    INTO people (room_id, person_id, name, socket_id)
-    SELECT p_room_id, p_person_id, p_name, p_socket_id WHERE NOT EXISTS (SELECT 1 FROM upsert);
+  INTO people (room_id, person_id, name, socket_id)
+    SELECT
+      p_room_id,
+      p_person_id,
+      p_name,
+      p_socket_id
+    WHERE NOT EXISTS(SELECT 1
+                     FROM upsert);
 
   RETURN QUERY
   SELECT
@@ -169,7 +183,8 @@ BEGIN
 
   IF NOT found
   THEN
-    RAISE 'Voter not found.' USING HINT = 'Voter not found.';
+    RAISE 'Voter not found.'
+    USING HINT = 'Voter not found.';
   END IF;
 
   UPDATE polls
@@ -178,7 +193,8 @@ BEGIN
 
   IF NOT found
   THEN
-    RAISE 'Poll not found.' USING HINT = 'Poll not found.';
+    RAISE 'Poll not found.'
+    USING HINT = 'Poll not found.';
   END IF;
 
   RETURN ret_name;

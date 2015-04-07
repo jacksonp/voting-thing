@@ -28,6 +28,11 @@ function RoomViewModel (socket, setupDoneCB) {
     //$('h1').text(location.hash.slice(1));
   });
 
+  self.starred = ko.observable(false);
+  self.starStatus = ko.pureComputed(function() {
+    return self.starred() ? 'b' : 'a';
+  });
+
   self.isSetup = ko.observable(false);
 
   self.room = ko.observable('').trimmed();
@@ -101,6 +106,16 @@ function RoomViewModel (socket, setupDoneCB) {
     window.location.reload();
   };
 
+  // WEB_EXCLUDE_START
+  var pushNotifications = new PushNotifications();
+  pushNotifications.register();
+
+  self.star = function (element) {
+    var action = self.starred() ? 'unstar' : 'star';
+    myEmit(action, pushNotifications.data)
+  };
+  // WEB_EXCLUDE_END
+
   self.setup = function () {
     localStorage.setItem('name', self.people.me.name());
     setupDone();
@@ -164,8 +179,7 @@ function RoomViewModel (socket, setupDoneCB) {
         if (data.more_available) {
           $(document).on('scrollstop', checkScroll);
         }
-      }
-      else {
+      } else {
         self.polls.unshift.apply(self.polls, newPolls);
         revealFirstPoll();
       }

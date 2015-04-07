@@ -13,6 +13,12 @@
     <feature name="WebIntent">
         <param name="android-package" value="com.borismus.webintent.WebIntent" />
     </feature>
+    <feature name="PushPlugin">
+        <param name="android-package" value="com.plugin.gcm.PushPlugin" />
+    </feature>
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
     <name>Voting Thing</name>
     <description>
         Create polls and vote amongst friends.

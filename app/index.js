@@ -2,6 +2,8 @@
 
 var io = require('socket.io').listen(3883);
 
+var gcm = require('node-gcm');
+
 var pollsPerQuery = 20;
 
 var query = require('pg-query');
@@ -64,6 +66,15 @@ io.on('connection', function (socket) {
           io.to(r.r_socket_id).emit('enter room', inRoom);
         });
         returnPolls(socket.id, data.room, 'polls sync');
+        query('SELECT 1 FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2', [data.room, data.person_id], function (err, rows) {
+          if (err) {
+            console.log(err);
+            io.to(socket.id).emit('vt_error', err.hint);
+          } else {
+            var action = rows.length ? 'star' : 'unstar';
+            io.to(socket.id).emit(action, {message: ''}); // no message if pre-starred
+          }
+        });
       }
     });
   });
@@ -102,6 +113,34 @@ io.on('connection', function (socket) {
         poll.poll_id = rows[0].poll_id;
         poll.status = 'open';
         emitToRoom(data.room, 'create poll', poll);
+
+        query('SELECT device_details FROM stars WHERE room_id = vt_normalize($1) AND device_id != $2', [data.room, data.person_id], function (err, rows) {
+          if (err) {
+            console.log(err);
+          } else {
+            var regIds = [];
+            rows.forEach(function (r) {
+              regIds.push(r.device_details.android_registration_id);
+            });
+
+            if (regIds.length) {
+              var message = new gcm.Message({
+                data: {
+                  room      : data.room,
+                  poll_id   : poll.poll_id,
+                  poll_name : poll.poll_name,
+                  created_by: data.name
+                }
+              });
+              var sender = new gcm.Sender('***REMOVED***');
+              sender.send(message, regIds, function (err, result) {
+                if (err) {
+                  console.error(err);
+                }
+              });
+            }
+          }
+        });
       }
     });
   });
@@ -143,12 +182,40 @@ io.on('connection', function (socket) {
   });
 
   socket.on('leave room', function (data) {
-    query('DELETE FROM people WHERE person_id = $1 AND room_id = $2', [data.person_id, data.room], function (err, rows) {
+    query('DELETE FROM people WHERE person_id = $1 AND room_id = vt_normalize($2)', [data.person_id, data.room], function (err, rows) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('vt_error', err.hint);
       } else {
         emitToRoom(data.room, 'person left', data.person_id);
+      }
+    });
+  });
+
+  socket.on('star', function (data) {
+    query('INSERT INTO stars (room_id, device_id, device_details) SELECT $1, $2, $3 WHERE NOT EXISTS (SELECT 1 FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2)', [data.room, data.person_id, {
+      model                  : data.device_model,
+      manufacturer           : data.device_manufacturer,
+      version                : data.device_version,
+      platform               : data.device_platform,
+      android_registration_id: data.android_registration_id
+    }], function (err, rows) {
+      if (err) {
+        console.log(err);
+        io.to(socket.id).emit('vt_error', err.hint);
+      } else {
+        io.to(socket.id).emit('star', {message: data.room + ': poll and vote notifications on.'});
+      }
+    });
+  });
+
+  socket.on('unstar', function (data) {
+    query('DELETE FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2', [data.room, data.person_id], function (err, rows) {
+      if (err) {
+        console.log(err);
+        io.to(socket.id).emit('vt_error', err.hint);
+      } else {
+        io.to(socket.id).emit('unstar', {message: data.room + ': notifications off.'});
       }
     });
   });
@@ -166,4 +233,5 @@ io.on('connection', function (socket) {
     });
   });
 
-});
+})
+;

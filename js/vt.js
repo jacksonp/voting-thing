@@ -55,6 +55,7 @@
   // APP_EXCLUDE_END
   // WEB_EXCLUDE_START
   document.addEventListener('deviceready', function () {
+
     deviceReady = true;
 
     window.webintent.getUri(function (uri) {
@@ -88,7 +89,7 @@
 
     function toast (message) {
       // WEB_EXCLUDE_START
-      if (appRunning) {
+      if (appRunning && message) {
         window.plugins.toast.showShortBottom(message);
       }
       // WEB_EXCLUDE_END
@@ -202,6 +203,20 @@
       if (poll.owner_id !== roomModel.people.me.id) {
         toast('New poll: ' + poll.poll_name);
       }
+    });
+
+    socket.on('star', function (data) {
+      roomModel.starred(true);
+      // Tho the theme may be set by ko, this is still required:
+      $('.ui-icon-star').buttonMarkup({theme: 'b'});
+      toast(data.message);
+    });
+
+    socket.on('unstar', function (data) {
+      roomModel.starred(false);
+      // Tho the theme may be set by ko, this is still required:
+      $('.ui-icon-star').buttonMarkup({theme: 'a'});
+      toast(data.message);
     });
 
     socket.on('vt_error', function (message) {
