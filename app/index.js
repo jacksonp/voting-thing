@@ -4,6 +4,18 @@ var io = require('socket.io').listen(3883);
 
 var gcm = require('node-gcm');
 
+function pushNotifications (recipients, messageData) {
+  var message = new gcm.Message({
+    data: messageData
+  });
+  var sender = new gcm.Sender('***REMOVED***');
+  sender.send(message, recipients, function (err, result) {
+    if (err) {
+      console.error(err);
+    }
+  });
+}
+
 var pollsPerQuery = 20;
 
 var query = require('pg-query');
@@ -122,21 +134,12 @@ io.on('connection', function (socket) {
             rows.forEach(function (r) {
               regIds.push(r.device_details.android_registration_id);
             });
-
             if (regIds.length) {
-              var message = new gcm.Message({
-                data: {
-                  room      : data.room,
-                  poll_id   : poll.poll_id,
-                  poll_name : poll.poll_name,
-                  created_by: data.name
-                }
-              });
-              var sender = new gcm.Sender('***REMOVED***');
-              sender.send(message, regIds, function (err, result) {
-                if (err) {
-                  console.error(err);
-                }
+              pushNotifications(regIds, {
+                room      : data.room,
+                poll_id   : poll.poll_id,
+                poll_name : poll.poll_name,
+                created_by: data.name
               });
             }
           }

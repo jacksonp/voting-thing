@@ -28,5 +28,5 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
-    <preference name="AndroidLaunchMode" value="singleTask" />
+    <preference name="AndroidLaunchMode" value="singleTop" />
 </widget>

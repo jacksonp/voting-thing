@@ -1,4 +1,5 @@
-function PushNotifications () {
+/*global device */
+function PushNotifications (handleNotification) {
   'use strict';
 
   var self = this;
@@ -39,12 +40,8 @@ function PushNotifications () {
     }
   };
 
-  self.handleNotification = function (notification) {
-    alert(notification.created_by + ' created poll "' + notification.poll_name + '" in "' + notification.room + '".');
-  };
-
-  // Android and Amazon Fire OS
-  self.onNotification = function (e) {
+  // Android and Amazon Fire OS (Looks like we need this to be a global function for the plugin).
+  window.onNotification = function (e) {
 
     switch (e.event) {
       case 'registered':
@@ -62,16 +59,16 @@ function PushNotifications () {
          // you might want to play a sound to get the user's attention, throw up a dialog, etc.
          if (e.foreground) {
 
-         } else {  // otherwise we were launched because the user touched a notification in the notification tray.
-         if (e.coldstart) {
+           } else {  // otherwise we were launched because the user touched a notification in the notification tray.
+           if (e.coldstart) {
 
-         } else {
+           } else {
 
-         }
+           }
          }
          */
 
-        self.handleNotification(e.payload);
+        handleNotification(e.payload);
 
         break;
 
@@ -86,10 +83,10 @@ function PushNotifications () {
 
   };
 
-  // iOS
-  self.onNotificationAPN = function (e) {
+  // iOS (Looks like we need this to be a global function for the plugin).
+  window.onNotificationAPN = function (e) {
 
-    self.handleNotification({
+    handleNotification({
       title  : e.title || 'Notification',
       message: e.full_message || e.alert,
       user_id: e.user_id
@@ -104,14 +101,6 @@ function PushNotifications () {
       window.plugins.pushNotification.setApplicationIconBadgeNumber(badgeSuccess, badgeFailure, e.badge);
     }
 
-  };
-
-  // Looks like we need this to be a global function for the plugin:
-  window.onNotification = function (e) {
-    self.onNotification(e);
-  };
-  window.onNotificationAPN = function (e) {
-    self.onNotificationAPN(e);
   };
 
 }

@@ -107,10 +107,12 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   // WEB_EXCLUDE_START
-  var pushNotifications = new PushNotifications();
+  var pushNotifications = new PushNotifications(function (notification) {
+    alert(notification.created_by + ' created poll "' + notification.poll_name + '" in "' + notification.room + '".');
+  });
   pushNotifications.register();
 
-  self.star = function (element) {
+  self.star = function () {
     var action = self.starred() ? 'unstar' : 'star';
     myEmit(action, pushNotifications.data)
   };

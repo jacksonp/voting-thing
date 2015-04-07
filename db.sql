@@ -13,7 +13,7 @@ CREATE TABLE rooms (
 -- Actually: "devices currently in a room".
 CREATE TABLE people (
   room_id   TEXT REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
-  person_id UUID                     NOT NULL,
+  person_id TEXT                     NOT NULL,
   created   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   name      TEXT                     NOT NULL,
   socket_id TEXT                     NOT NULL,
@@ -21,9 +21,10 @@ CREATE TABLE people (
 );
 
 CREATE TABLE stars (
-  room_id        TEXT NOT NULL REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
-  device_id      UUID NOT NULL, --same as people.person_id
-  device_details JSON NOT NULL,
+  room_id        TEXT                     NOT NULL REFERENCES rooms ON UPDATE CASCADE ON DELETE CASCADE,
+  device_id      TEXT                     NOT NULL, --same as people.person_id
+  entered        TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  device_details JSON                     NOT NULL,
   PRIMARY KEY (room_id, device_id)
 );
 
@@ -33,7 +34,7 @@ CREATE TABLE polls (
   created  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   name     TEXT                     NOT NULL,
   status   TEXT                     NOT NULL DEFAULT 'open',
-  owner_id UUID                     NOT NULL,
+  owner_id TEXT                     NOT NULL,
   type     TEXT                     NOT NULL,
   details  JSON                     NOT NULL,
   votes    JSON                     NOT NULL DEFAULT '{}'
@@ -94,7 +95,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION add_person_to_room(p_room_name rooms.name%TYPE, p_name people.name%TYPE,
                                               p_person_id people.person_id%TYPE, p_socket_id people.socket_id%TYPE)
-  RETURNS TABLE(r_person_id UUID, r_name TEXT, r_socket_id TEXT) AS $$
+  RETURNS TABLE(r_person_id TEXT, r_name TEXT, r_socket_id TEXT) AS $$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
 BEGIN
