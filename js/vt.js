@@ -112,7 +112,7 @@
         $('#vt-header').removeClass('vt-synced');
         // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
         if (num > 1) {
-          toast('Reconnection attempt ' + (num - 1)); // lie
+          toast('Reconnecting'); // Don't show num, it gets scary high.
         }
       });
       socket.on('reconnect', function (num) {
