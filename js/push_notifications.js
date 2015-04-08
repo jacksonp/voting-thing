@@ -68,7 +68,7 @@ function PushNotifications (handleNotification) {
          }
          */
 
-        handleNotification(e.payload);
+        handleNotification(e.payload, e.foreground, e.coldstart);
 
         break;
 

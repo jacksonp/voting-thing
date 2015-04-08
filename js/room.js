@@ -1,4 +1,4 @@
-function RoomViewModel (socket, setupDoneCB) {
+function RoomViewModel (socket, setupDoneCB, toast) {
   'use strict';
 
   var self = this;
@@ -29,7 +29,7 @@ function RoomViewModel (socket, setupDoneCB) {
   });
 
   self.starred = ko.observable(false);
-  self.starStatus = ko.pureComputed(function() {
+  self.starStatus = ko.pureComputed(function () {
     return self.starred() ? 'b' : 'a';
   });
 
@@ -107,8 +107,17 @@ function RoomViewModel (socket, setupDoneCB) {
   };
 
   // WEB_EXCLUDE_START
-  var pushNotifications = new PushNotifications(function (notification) {
-    alert(notification.created_by + ' created poll "' + notification.poll_name + '" in "' + notification.room + '".');
+  var pushNotifications = new PushNotifications(function (data, foreground, coldstart) {
+    if (foreground) {
+      if (data.room !== self.room()) {
+        toast(data.room + ': New Poll. ' + data.poll_name + ' - ' + data.by);
+      }
+    } else {
+      // coldstart? (or also possibly app in bg.)
+      self.goToRoom(data.room);
+      // data.poll_id is available. Could use that to focus() new poll.
+    }
+
   });
   pushNotifications.register();
 

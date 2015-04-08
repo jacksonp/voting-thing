@@ -140,10 +140,10 @@ io.on('connection', function (socket) {
             });
             if (regIds.length) {
               pushNotifications(regIds, data.room + ': New Poll', poll.poll_name + ' - ' + data.name, {
-                room      : data.room,
-                poll_id   : poll.poll_id,
-                poll_name : poll.poll_name,
-                created_by: data.name
+                room     : data.room,
+                poll_id  : poll.poll_id,
+                poll_name: poll.poll_name,
+                by       : data.name
               });
             }
           }

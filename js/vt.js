@@ -127,7 +127,7 @@
       });
     }
 
-    var roomModel = new RoomViewModel(socket, setupDone);
+    var roomModel = new RoomViewModel(socket, setupDone, toast);
     ko.applyBindings(roomModel);
 
     // WEB_EXCLUDE_START
