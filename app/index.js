@@ -85,6 +85,11 @@ io.on('connection', function (socket) {
   }
 
   socket.on('enter room', function (data) {
+    if (!data.v) {
+      io.to(socket.id).emit('vt_error', 'Please update this app to version 0.3.0 or greater.');
+      return;
+    }
+
     query('SELECT * FROM add_person_to_room($1, $2, $3, $4)', [data.room, data.name, data.person_id, socket.id], function (err, rows) {
       if (err) {
         console.log(err);

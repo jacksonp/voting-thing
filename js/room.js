@@ -45,6 +45,7 @@ function RoomViewModel (socket, setupDoneCB, toast) {
   function myEmit (action, extraData) {
     extraData = extraData || {};
     socket.emit(action, $.extend(extraData, {
+      v        : '0.3.0',
       room     : self.room(),
       person_id: self.people.me.id,
       name     : self.people.me.name()
