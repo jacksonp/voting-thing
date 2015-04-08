@@ -128,9 +128,13 @@ END;
 $func$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION create_poll(p_room_name rooms.name%TYPE, p_name polls.name%TYPE,
-                                       p_type      polls.type%TYPE, p_details polls.details%TYPE,
-                                       p_owner_id  people.person_id%TYPE)
+CREATE OR REPLACE FUNCTION create_poll(
+  p_room_name rooms.name%TYPE,
+  p_name      polls.name%TYPE,
+  p_desc      polls.description%TYPE,
+  p_type      polls.type%TYPE,
+  p_details   polls.details%TYPE,
+  p_owner_id  people.person_id%TYPE)
   RETURNS polls.poll_id%TYPE AS $func$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
@@ -138,8 +142,8 @@ DECLARE
   ret_id    polls.poll_id%TYPE;
 BEGIN
 
-  INSERT INTO polls (room_id, name, owner_id, type, details)
-  VALUES (p_room_id, p_name, p_owner_id, p_type, p_details)
+  INSERT INTO polls (room_id, name, description, owner_id, type, details)
+  VALUES (p_room_id, p_name, p_desc, p_owner_id, p_type, p_details)
   RETURNING poll_id
     INTO ret_id;
 

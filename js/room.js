@@ -157,7 +157,7 @@ function RoomViewModel (socket, setupDoneCB, toast) {
   };
 
   self.addPoll = function (data) {
-    var poll = new Poll.Poll(data.poll_name, data.owner_id, data.type, data.details, data.poll_id, data.status, self.people.me.id, myEmit);
+    var poll = new Poll.Poll(data.poll_name, data.description, data.owner_id, data.type, data.details, data.poll_id, data.status, self.people.me.id, myEmit);
     self.polls.unshift(poll);
     if (poll.ownPoll) { // I just created this poll...
       $('.new-poll-area').collapsible('collapse');
@@ -191,7 +191,7 @@ function RoomViewModel (socket, setupDoneCB, toast) {
         votes.push(p.votes[person_id]);
       });
 
-      poll = new Poll.Poll(p.poll_name, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, myEmit, votes);
+      poll = new Poll.Poll(p.poll_name, p.description, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, myEmit, votes);
       newPolls.push(poll); // reverses the order, were sorted DESC
     }
 

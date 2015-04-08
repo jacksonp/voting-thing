@@ -4,6 +4,7 @@ function CreatePollViewModel (myEmit, me) {
   var self = this;
 
   self.newPollName = ko.observable('').trimmed();
+  self.newPollDesc = ko.observable('').trimmed();
 
   self.newItemInput = ko.observable('').trimmed();
   self.items = ko.observableArray([]);
@@ -53,7 +54,7 @@ function CreatePollViewModel (myEmit, me) {
       return;
     }
     try {
-      poll = new Poll.Poll(self.newPollName(), me.id, pollType, details);
+      poll = new Poll.Poll(self.newPollName(), self.newPollDesc(), me.id, pollType, details);
     } catch (e) {
       alert(e);
       return;

@@ -1,7 +1,7 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, ownerId, type, details, pollId, status, myId, myEmit, votes) {
+  exports.Poll = function (name, description, ownerId, type, details, pollId, status, myId, myEmit, votes) {
 
     var self = this;
 
@@ -43,6 +43,7 @@
     }
 
     self.poll_name = name;
+    self.description = description;
     self.owner_id = ownerId;
     self.type = type;
     self.details = details;

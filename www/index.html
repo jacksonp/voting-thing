@@ -89,6 +89,8 @@
   <form data-bind="submit: createPoll.createPoll">
     <label for="new-poll-name">Name</label>
     <input id="new-poll-name" type="text" maxlength="20" data-clear-btn="true" placeholder="Poll Name" required data-bind="value: createPoll.newPollName">
+    <label for="new-poll-desc" class="ui-hidden-accessible">Description</label>
+    <textarea id="new-poll-desc" type="text" maxlength="256" data-clear-btn="true" placeholder="Optional Description" required data-bind="value: createPoll.newPollDesc"></textarea>
 
     <div data-role="tabs" id="tabs">
       <div data-role="navbar" class="poll-type-select">
@@ -142,6 +144,7 @@
 <script type="text/html" id="poll-template">
 <div data-role="collapsible" class="poll">
   <h2 data-bind="text: poll_name"></h2>
+  <p data-bind="text: description"></p>
 
   <div data-bind="if: !haveIVoted() && status() === 'open' ">
     <!-- ko if: type === 'range' -->

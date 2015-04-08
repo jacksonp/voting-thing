@@ -59,7 +59,7 @@ io.on('connection', function (socket) {
 
   function returnPolls (socketId, room, requestType, oldestPollId) {
     var
-      sql = "SELECT poll_id, name AS poll_name, status, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1)",
+      sql = "SELECT poll_id, name AS poll_name, description, status, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1)",
       sqlParams = [room, pollsPerQuery + 1];
     if (requestType === 'older polls') {
       sqlParams.push(oldestPollId);
@@ -136,13 +136,13 @@ io.on('connection', function (socket) {
   socket.on('create poll', function (data) {
     var poll;
     try {
-      poll = new Poll(data.poll_name, data.person_id, data.type, data.details);
+      poll = new Poll(data.poll_name, data.description, data.person_id, data.type, data.details);
     } catch (e) {
       console.log(e);
       io.to(socket.id).emit('vt_error', e);
       return;
     }
-    query('SELECT create_poll($1, $2, $3, $4, $5) AS poll_id', [data.room, poll.poll_name, poll.type, poll.details, data.person_id], function (err, rows) {
+    query('SELECT create_poll($1, $2, $3, $4, $5, $6) AS poll_id', [data.room, poll.poll_name, poll.description, poll.type, poll.details, data.person_id], function (err, rows) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('vt_error', err.hint);
