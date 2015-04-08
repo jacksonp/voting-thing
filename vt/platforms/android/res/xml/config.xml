@@ -13,11 +13,11 @@
     <feature name="WebIntent">
         <param name="android-package" value="com.borismus.webintent.WebIntent" />
     </feature>
-    <feature name="PushPlugin">
-        <param name="android-package" value="com.plugin.gcm.PushPlugin" />
-    </feature>
     <feature name="Device">
         <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
+    <feature name="PushPlugin">
+        <param name="android-package" value="com.plugin.gcm.PushPlugin" />
     </feature>
     <name>Voting Thing</name>
     <description>
@@ -28,5 +28,5 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
-    <preference name="AndroidLaunchMode" value="singleTop" />
+    <preference name="AndroidLaunchMode" value="singleTask" />
 </widget>

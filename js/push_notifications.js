@@ -85,22 +85,7 @@ function PushNotifications (handleNotification) {
 
   // iOS (Looks like we need this to be a global function for the plugin).
   window.onNotificationAPN = function (e) {
-
-    handleNotification({
-      title  : e.title || 'Notification',
-      message: e.full_message || e.alert,
-      user_id: e.user_id
-    });
-
-    var badgeSuccess = function () {
-    };
-    var badgeFailure = function () {
-    };
-
-    if (e.badge) {
-      window.plugins.pushNotification.setApplicationIconBadgeNumber(badgeSuccess, badgeFailure, e.badge);
-    }
-
+    handleNotification(e);
   };
 
 }

@@ -25,11 +25,11 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"PushPlugin\"><param name=\"android-package\" value=\"com.plugin.gcm.PushPlugin\" /></feature>",
+                            "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
+                            "xml": "<feature name=\"PushPlugin\"><param name=\"android-package\" value=\"com.plugin.gcm.PushPlugin\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -104,10 +104,10 @@
         "com.borismus.webintent": {
             "PACKAGE_NAME": "com.votingthing.app"
         },
-        "com.phonegap.plugins.PushPlugin": {
+        "org.apache.cordova.device": {
             "PACKAGE_NAME": "com.votingthing.app"
         },
-        "org.apache.cordova.device": {
+        "com.phonegap.plugins.PushPlugin": {
             "PACKAGE_NAME": "com.votingthing.app"
         }
     },

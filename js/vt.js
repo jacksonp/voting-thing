@@ -115,7 +115,7 @@
           toast('Reconnecting'); // Don't show num, it gets scary high.
         }
       });
-      socket.on('reconnect', function (num) {
+      socket.on('reconnect', function () {
         //$('#vt-header').removeClass('vt-synced'); // let this happen after call to roomModel.sync()
         toast('Connected');
         roomModel.sync();

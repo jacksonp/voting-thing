@@ -4,7 +4,11 @@ var io = require('socket.io').listen(3883);
 
 var gcm = require('node-gcm');
 
-function pushNotifications (recipients, messageData) {
+function pushNotifications (recipients, title, message, messageData) {
+  messageData = messageData || {};
+  messageData.title = title;
+  messageData.message = message;
+  //  messageData.msgcnt = 1;
   var message = new gcm.Message({
     data: messageData
   });
@@ -135,7 +139,7 @@ io.on('connection', function (socket) {
               regIds.push(r.device_details.android_registration_id);
             });
             if (regIds.length) {
-              pushNotifications(regIds, {
+              pushNotifications(regIds, data.room + ': New Poll', poll.poll_name + ' - ' + data.name, {
                 room      : data.room,
                 poll_id   : poll.poll_id,
                 poll_name : poll.poll_name,
