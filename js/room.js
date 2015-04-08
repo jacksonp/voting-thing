@@ -11,12 +11,14 @@ function RoomViewModel (socket, setupDoneCB, toast) {
 
   // WEB_EXCLUDE_START
   document.addEventListener('backbutton', function () {
-    var lastRoom = self.roomHistory.popLastRoom();
-    if (lastRoom) {
-      self.room(lastRoom);
-    } else {
-      navigator.app.exitApp();
-    }
+    navigator.app.exitApp();
+    // Previous functionality was to step through previous rooms, then quit when none left:
+    //var lastRoom = self.roomHistory.popLastRoom();
+    //if (lastRoom) {
+    //  self.room(lastRoom);
+    //} else {
+    //  navigator.app.exitApp();
+    //}
   }, false);
   // WEB_EXCLUDE_END
 
@@ -45,7 +47,7 @@ function RoomViewModel (socket, setupDoneCB, toast) {
   function myEmit (action, extraData) {
     extraData = extraData || {};
     socket.emit(action, $.extend(extraData, {
-      v        : '0.3.0',
+      v        : '0.3.1',
       room     : self.room(),
       person_id: self.people.me.id,
       name     : self.people.me.name()
