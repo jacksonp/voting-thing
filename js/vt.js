@@ -83,8 +83,8 @@
     }
 
     var
-    //socket = io('http://votingthing.com:3883/'),
-    socket = io('http://192.168.1.69:3883/'),
+    socket = io('http://votingthing.com:3883/'),
+    //socket = io('http://192.168.1.69:3883/'),
     appRunning = true;
 
     function toast (message) {

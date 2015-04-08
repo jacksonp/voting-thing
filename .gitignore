@@ -1,5 +1,6 @@
 .idea
 node_modules
+www/index.html
 www/js/*.min.js
 www/css/*.min.css
 vt/www

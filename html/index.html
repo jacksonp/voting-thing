@@ -112,7 +112,7 @@
         <ol data-role="listview" data-split-icon="delete" data-inset="true" data-bind="foreach: createPoll.items, jqmRefreshList: createPoll.items">
           <li>
             <a href="#" data-bind="text: $data"></a>
-            <a href="#" data-bind="click: createPoll.removeItem">Delete Item</a>
+            <a href="#" data-bind="click: $parent.createPoll.removeItem">Delete Item</a>
           </li>
         </ol>
       </div>
