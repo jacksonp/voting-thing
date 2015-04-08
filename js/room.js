@@ -101,7 +101,6 @@ function RoomViewModel (socket, setupDoneCB, toast) {
   };
 
   self.sync = function () {
-    self.polls.removeAll();
     myEmit('enter room');
   };
 
@@ -177,6 +176,11 @@ function RoomViewModel (socket, setupDoneCB, toast) {
 
   self.addPolls = function (data, olderPolls) {
     var i, p, newPolls = [], poll, votes;
+
+    if (!olderPolls) {
+      // sync
+      self.polls.removeAll();
+    }
 
     for (i = 0; i < data.polls.length; i += 1) {
       p = data.polls[i];
