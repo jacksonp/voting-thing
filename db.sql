@@ -134,6 +134,7 @@ CREATE OR REPLACE FUNCTION create_poll(p_room_name rooms.name%TYPE, p_name polls
   RETURNS polls.poll_id%TYPE AS $func$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
+-- Adds room if not present
   ret_id    polls.poll_id%TYPE;
 BEGIN
 
@@ -179,7 +180,8 @@ CREATE OR REPLACE FUNCTION vote(
 ) AS
   $func$
   DECLARE
-    p_room_id TEXT := get_room(p_room_name); -- may be redundant, may be useful error-checking.
+-- may be redundant, may be useful error-checking.
+    p_room_id TEXT := get_room(p_room_name);
   BEGIN
 
     SELECT name
@@ -207,3 +209,25 @@ CREATE OR REPLACE FUNCTION vote(
 
   END
   $func$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION star(p_room_name      stars.room_id%TYPE,
+                                p_device_id      stars.device_id%TYPE,
+                                p_device_details stars.device_details%TYPE
+)
+  RETURNS VOID AS $func$
+DECLARE
+-- Adds room if not present
+  p_room_id TEXT := get_room(p_room_name);
+BEGIN
+
+  INSERT INTO stars (room_id, device_id, device_details)
+    SELECT
+      p_room_id,
+      p_device_id,
+      p_device_details
+    WHERE NOT EXISTS(SELECT 1
+                     FROM stars
+                     WHERE room_id = p_room_id AND device_id = p_device_id);
+
+END;
+$func$ LANGUAGE plpgsql;

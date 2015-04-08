@@ -223,7 +223,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('star', function (data) {
-    query('INSERT INTO stars (room_id, device_id, device_details) SELECT $1, $2, $3 WHERE NOT EXISTS (SELECT 1 FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2)', [data.room, data.person_id, {
+    query('SELECT star($1, $2, $3)', [data.room, data.person_id, {
       model                  : data.device_model,
       manufacturer           : data.device_manufacturer,
       version                : data.device_version,
