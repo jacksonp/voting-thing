@@ -86,7 +86,7 @@ io.on('connection', function (socket) {
 
   socket.on('enter room', function (data) {
     if (!data.v) {
-      io.to(socket.id).emit('vt_error', 'Please update this app to version 0.3.1 or greater.');
+      io.to(socket.id).emit('vt_error', 'Please update this app to version 0.3.2 or greater.');
       return;
     }
 
