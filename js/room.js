@@ -110,7 +110,11 @@ function RoomViewModel (socket, setupDoneCB, toast) {
   var pushNotifications = new PushNotifications(function (data, foreground, coldstart) {
     if (foreground) {
       if (data.room !== self.room()) {
-        toast(data.room + ': New Poll. ' + data.poll_name + ' - ' + data.by);
+        if (data.voter) {
+          toast(data.room + ' - ' + data.poll_name + ': ' + data.voter + ' voted');
+        } else {
+          toast(data.room + ': New Poll. ' + data.poll_name + ' - ' + data.by);
+        }
       }
     } else {
       // coldstart? (or also possibly app in bg.)

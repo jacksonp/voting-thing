@@ -20,6 +20,22 @@ function pushNotifications (recipients, title, message, messageData) {
   });
 }
 
+function getRegIdsStarred (room, excludeId, callback) {
+  query('SELECT device_details FROM stars WHERE room_id = vt_normalize($1) AND device_id != $2', [room, excludeId], function (err, rows) {
+    if (err) {
+      console.log(err);
+    } else {
+      var regIds = [];
+      rows.forEach(function (r) {
+        regIds.push(r.device_details.android_registration_id);
+      });
+      if (regIds.length) {
+        callback(regIds);
+      }
+    }
+  });
+}
+
 var pollsPerQuery = 20;
 
 var query = require('pg-query');
@@ -130,24 +146,15 @@ io.on('connection', function (socket) {
         poll.status = 'open';
         emitToRoom(data.room, 'create poll', poll);
 
-        query('SELECT device_details FROM stars WHERE room_id = vt_normalize($1) AND device_id != $2', [data.room, data.person_id], function (err, rows) {
-          if (err) {
-            console.log(err);
-          } else {
-            var regIds = [];
-            rows.forEach(function (r) {
-              regIds.push(r.device_details.android_registration_id);
-            });
-            if (regIds.length) {
-              pushNotifications(regIds, data.room + ': New Poll', poll.poll_name + ' - ' + data.name, {
-                room     : data.room,
-                poll_id  : poll.poll_id,
-                poll_name: poll.poll_name,
-                by       : data.name
-              });
-            }
-          }
+        getRegIdsStarred(data.room, data.person_id, function (regIds) {
+          pushNotifications(regIds, data.room + ': New Poll', poll.poll_name + ' - ' + data.name, {
+            room     : data.room,
+            poll_id  : poll.poll_id,
+            poll_name: poll.poll_name,
+            by       : data.name
+          });
         });
+
       }
     });
   });
@@ -175,15 +182,26 @@ io.on('connection', function (socket) {
   });
 
   socket.on('vote', function (data) {
-    query('SELECT vote($1, $2, $3, $4) AS name', [data.room, data.poll_id, data.person_id, {vote: data.vote}], function (err, rows) {
+    query('SELECT * FROM vote($1, $2, $3, $4)', [data.room, data.poll_id, data.person_id, {vote: data.vote}], function (err, rows) {
       if (err) {
         console.log(err);
         io.to(socket.id).emit('vt_error', err.hint);
       } else {
+        var pollName = rows[0].poll_name;
         emitToRoom(data.room, 'vote', {
           poll_id: data.poll_id,
-          vote   : {vote: data.vote, name: rows[0].name, person_id: data.person_id}
+          vote   : {vote: data.vote, name: rows[0].person_name, person_id: data.person_id}
         });
+
+        getRegIdsStarred(data.room, data.person_id, function (regIds) {
+          pushNotifications(regIds, data.room + ' - ' + pollName, data.name + ' voted', {
+            room     : data.room,
+            poll_id  : data.poll_id,
+            poll_name: pollName,
+            voter    : data.name
+          });
+        });
+
       }
     });
   });
@@ -240,5 +258,4 @@ io.on('connection', function (socket) {
     });
   });
 
-})
-;
+});

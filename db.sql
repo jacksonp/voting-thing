@@ -43,7 +43,7 @@ CREATE TABLE polls (
 
 CREATE OR REPLACE FUNCTION vt_normalize(TEXT)
   RETURNS TEXT AS
-  $$
+  $func$
   SELECT REGEXP_REPLACE(
       REGEXP_REPLACE(
           REPLACE(
@@ -55,14 +55,14 @@ CREATE OR REPLACE FUNCTION vt_normalize(TEXT)
           ), '[^0-9a-z-]', '', 'g'
       ), E'-+', '-', 'g'
   );
-  $$
+  $func$
 LANGUAGE SQL
 IMMUTABLE
 RETURNS NULL ON NULL INPUT;
 
 
 CREATE OR REPLACE FUNCTION get_room(p_param1 rooms.name%TYPE)
-  RETURNS rooms.room_id%TYPE AS $$
+  RETURNS rooms.room_id%TYPE AS $func$
 DECLARE
   norm_name TEXT := vt_normalize(p_param1);
   v_id      rooms.room_id%TYPE;
@@ -90,12 +90,12 @@ BEGIN
   RETURN v_id;
 
 END;
-$$ LANGUAGE plpgsql;
+$func$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION add_person_to_room(p_room_name rooms.name%TYPE, p_name people.name%TYPE,
                                               p_person_id people.person_id%TYPE, p_socket_id people.socket_id%TYPE)
-  RETURNS TABLE(r_person_id TEXT, r_name TEXT, r_socket_id TEXT) AS $$
+  RETURNS TABLE(r_person_id TEXT, r_name TEXT, r_socket_id TEXT) AS $func$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
 BEGIN
@@ -125,13 +125,13 @@ BEGIN
   WHERE p.room_id = p_room_id;
 
 END;
-$$ LANGUAGE plpgsql;
+$func$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION create_poll(p_room_name rooms.name%TYPE, p_name polls.name%TYPE,
                                        p_type      polls.type%TYPE, p_details polls.details%TYPE,
                                        p_owner_id  people.person_id%TYPE)
-  RETURNS polls.poll_id%TYPE AS $$
+  RETURNS polls.poll_id%TYPE AS $func$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
   ret_id    polls.poll_id%TYPE;
@@ -145,7 +145,7 @@ BEGIN
   RETURN ret_id;
 
 END;
-$$ LANGUAGE plpgsql;
+$func$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION "json_object_set_key"(
@@ -157,7 +157,7 @@ CREATE OR REPLACE FUNCTION "json_object_set_key"(
 LANGUAGE SQL
 IMMUTABLE
 STRICT
-AS $function$
+AS $func$
 SELECT concat('{', string_agg(to_json("key") || ':' || "value", ','), '}') :: JSON
 FROM (SELECT *
       FROM json_each("json")
@@ -166,39 +166,44 @@ FROM (SELECT *
       SELECT
         "key_to_set",
         to_json("value_to_set")) AS "fields"
-$function$;
+$func$;
 
 
-CREATE OR REPLACE FUNCTION vote(p_room_name rooms.name%TYPE, p_poll_id polls.poll_id%TYPE,
-                                p_person_id people.person_id%TYPE, p_vote JSON)
-  RETURNS polls.name%TYPE AS $$
-DECLARE
-  p_room_id TEXT := get_room(p_room_name);
-  ret_name  people.name%TYPE;
-BEGIN
+CREATE OR REPLACE FUNCTION vote(
+      p_room_name rooms.name%TYPE,
+      p_poll_id   polls.poll_id%TYPE,
+      p_person_id people.person_id%TYPE,
+      p_vote      JSON,
+  OUT person_name people.name%TYPE,
+  OUT poll_name   polls.name%TYPE
+) AS
+  $func$
+  DECLARE
+    p_room_id TEXT := get_room(p_room_name); -- may be redundant, may be useful error-checking.
+  BEGIN
 
-  SELECT name
-  INTO ret_name
-  FROM people
-  WHERE person_id = p_person_id;
+    SELECT name
+    INTO person_name
+    FROM people
+    WHERE person_id = p_person_id;
 
-  IF NOT found
-  THEN
-    RAISE 'Voter not found.'
-    USING HINT = 'Voter not found.';
-  END IF;
+    IF NOT found
+    THEN
+      RAISE 'Voter not found.'
+      USING HINT = 'Voter not found.';
+    END IF;
 
-  UPDATE polls
-  SET votes = json_object_set_key(votes, p_person_id :: TEXT, json_object_set_key(p_vote, 'name', ret_name))
-  WHERE poll_id = p_poll_id;
+    UPDATE polls
+    SET votes = json_object_set_key(votes, p_person_id :: TEXT, json_object_set_key(p_vote, 'name', person_name))
+    WHERE poll_id = p_poll_id
+    RETURNING name
+      INTO poll_name;
 
-  IF NOT found
-  THEN
-    RAISE 'Poll not found.'
-    USING HINT = 'Poll not found.';
-  END IF;
+    IF NOT found
+    THEN
+      RAISE 'Poll not found.'
+      USING HINT = 'Poll not found.';
+    END IF;
 
-  RETURN ret_name;
-
-END;
-$$ LANGUAGE plpgsql;
+  END
+  $func$ LANGUAGE plpgsql;
