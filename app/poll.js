@@ -85,7 +85,7 @@
           return tot.toFixed(self.details.decimals);
         });
         self.voteAvg = ko.pureComputed(function () {
-          return (self.voteSum() / self.votes().length).toFixed(self.details.decimals);
+          return (self.voteSum() / self.votes().length).toFixed(Math.max(1, self.details.decimals));
         });
       } else if (type === 'item-choice') {
         self.itemTot = function (item) {
