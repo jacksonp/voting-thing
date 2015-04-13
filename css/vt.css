@@ -8,6 +8,27 @@ body {
   -webkit-user-select      : none; /* prevent copy paste, to allow, change 'none' to 'text' */
 }
 
+.ui-focus,
+.ui-btn:focus {
+  /* See http://stackoverflow.com/questions/16972701/how-to-remove-the-blue-halo-glow-from-jquery-mobile-input-elements-that-receive */
+  -moz-box-shadow    : none !important;
+  -webkit-box-shadow : none !important;
+  box-shadow         : none !important;
+}
+
+.ui-icon-star.starred:after {
+  background-color : #006837 !important;
+}
+
+body * {
+  font-family : "Roboto", sans-serif !important;
+  font-weight : normal !important;
+}
+
+.ui-btn-up-a, .ui-btn-hover-a, .ui-btn-down-a, .ui-bar-a, .ui-body-a, .ui-btn-up-a, .ui-btn-hover-a, .ui-btn-down-a, .ui-body-a input, .ui-body-a select, .ui-body-a textarea {
+  font-family : "Roboto", sans-serif;
+}
+
 .hidden,
 .not-voted .poll-results-table tfoot,
 .not-voted .poll-results-summary-table,

@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-cat css/jquery.mobile-1.4.5.min.css css/vt.css > www/css/all.min.css
+cat \
+  css/jqm-themeroller-vt.css \
+  css/jquery.mobile.icons.min.css \
+  css/jquery.mobile.structure-1.4.5.min.css \
+  css/vt.css \
+> www/css/all.min.css
 
 
 # The <(echo) is to add a needed newline after jquery mobile.

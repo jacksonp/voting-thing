@@ -31,9 +31,6 @@ function RoomViewModel (socket, setupDoneCB, toast) {
   });
 
   self.starred = ko.observable(false);
-  self.starStatus = ko.pureComputed(function () {
-    return self.starred() ? 'b' : 'a';
-  });
 
   self.isSetup = ko.observable(false);
 

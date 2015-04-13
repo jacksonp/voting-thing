@@ -207,15 +207,11 @@
 
     socket.on('star', function (data) {
       roomModel.starred(true);
-      // Tho the theme may be set by ko, this is still required:
-      $('.ui-icon-star').buttonMarkup({theme: 'b'});
       toast(data.message);
     });
 
     socket.on('unstar', function (data) {
       roomModel.starred(false);
-      // Tho the theme may be set by ko, this is still required:
-      $('.ui-icon-star').buttonMarkup({theme: 'a'});
       toast(data.message);
     });
 
