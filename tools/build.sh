@@ -3,6 +3,7 @@
 cat \
   css/jqm-themeroller-vt.css \
   css/jquery.mobile.icons.css \
+  css/material-design-icons.css \
   css/jquery.mobile.structure-1.4.5.min.css \
   css/vt.css \
 > www/css/all.min.css
