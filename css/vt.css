@@ -8,12 +8,20 @@ body {
   -webkit-user-select      : none; /* prevent copy paste, to allow, change 'none' to 'text' */
 }
 
+.ui-content {
+  padding-top: 0;
+}
+
 .ui-focus,
 .ui-btn:focus {
   /* See http://stackoverflow.com/questions/16972701/how-to-remove-the-blue-halo-glow-from-jquery-mobile-input-elements-that-receive */
   -moz-box-shadow    : none !important;
   -webkit-box-shadow : none !important;
   box-shadow         : none !important;
+}
+
+.poll {
+  border-bottom: solid thin #009245;
 }
 
 body * {

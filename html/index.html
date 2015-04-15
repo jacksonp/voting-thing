@@ -92,7 +92,7 @@
 
 <script type="text/html" id="poll-area-template">
 <div class="new-poll-area ui-alt-icon ui-nodisc-icon" data-role="collapsible">
-  <h2>New Poll</h2>
+  <h2>Create New Poll</h2>
 
   <form data-bind="submit: createPoll.createPoll">
     <label for="new-poll-name" class="ui-hidden-accessible">Name</label>
@@ -150,7 +150,7 @@
 </script>
 
 <script type="text/html" id="poll-template">
-<div data-role="collapsible" class="poll">
+<div data-role="collapsible" data-inset="false" class="poll">
   <h2 class="ui-alt-icon ui-nodisc-icon" data-bind="text: poll_name"></h2>
 
   <p data-bind="text: description"></p>
