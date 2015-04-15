@@ -20,6 +20,13 @@ body {
   box-shadow         : none !important;
 }
 
+/* Fix issue with certain polls getting highlighted on touch scrolling on mobile devices. */
+.ui-page-theme-a .poll .ui-btn.ui-btn-active {
+  background-color: #e1f0cd;
+  border-color: #e1f0cd;
+  color: #000000;
+}
+
 .poll {
   border-bottom: solid thin #009245;
 }
