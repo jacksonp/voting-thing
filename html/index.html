@@ -54,7 +54,7 @@
     <!-- WEB_EXCLUDE_START -->
     <div data-role="controlgroup" data-type="horizontal" class="ui-mini ui-btn-left">
       <a href="#" class="ui-btn ui-btn-icon-notext ui-icon-refresh" data-bind="click: refresh">Add</a>
-      <a href="#" class="ui-btn ui-btn-icon-notext ui-icon-star" data-bind="click: star, css: {starred: starred()}">Up</a>
+      <a href="#" class="ui-btn ui-btn-icon-notext" data-bind="click: star, css: {'ui-icon-notifon': starred(), 'ui-icon-notifoff': !starred()}">Up</a>
     </div>
     <!-- WEB_EXCLUDE_END -->
     <!-- APP_EXCLUDE_START -->
@@ -64,7 +64,7 @@
 
     <h1 data-bind="text: room() || 'Voting Thing'"></h1>
     <!-- ko if: isSetup -->
-    <a href="#vt-panel" class="hamburger ui-btn ui-btn-icon-notext ui-btn-right ui-icon-bars">_</a>
+    <a href="#vt-panel" class="hamburger ui-btn ui-btn-icon-notext ui-btn-right ui-icon-menu">_</a>
     <!-- /ko -->
   </div>
 

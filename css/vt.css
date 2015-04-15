@@ -16,10 +16,6 @@ body {
   box-shadow         : none !important;
 }
 
-.ui-icon-star.starred:after {
-  background-color : #006837 !important;
-}
-
 body * {
   font-family : "Roboto", sans-serif !important;
   font-weight : normal !important;
