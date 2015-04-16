@@ -12,6 +12,7 @@ vt/platforms/ios/cordova/console.log
 *.xcuserdatad
 
 # android
+.gradle/
 vt/platforms/android/assets/www
 vt/platforms/android/bin
 vt/platforms/android/gen
