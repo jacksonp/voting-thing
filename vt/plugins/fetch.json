@@ -31,5 +31,13 @@
             "type": "registry",
             "id": "org.apache.cordova.device"
         }
+    },
+    "cordova-plugin-whitelist": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/apache/cordova-plugin-whitelist.git",
+            "subdir": ".",
+            "ref": "r1.0.0"
+        }
     }
 }

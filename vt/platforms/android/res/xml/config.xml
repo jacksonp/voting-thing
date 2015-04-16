@@ -19,6 +19,10 @@
     <feature name="PushPlugin">
         <param name="android-package" value="com.plugin.gcm.PushPlugin" />
     </feature>
+    <feature name="Whitelist">
+        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
+        <param name="onload" value="true" />
+    </feature>
     <name>Voting Thing</name>
     <description>
         Create polls and vote amongst friends.
