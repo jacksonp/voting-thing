@@ -10,4 +10,6 @@
     <content src="index.html" />
     <access origin="*" />
     <preference name="AndroidLaunchMode" value="singleTask" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#007035" />
 </widget>

@@ -35,6 +35,10 @@
                         {
                             "xml": "<feature name=\"Toast\"><param name=\"android-package\" value=\"nl.xservices.plugins.Toast\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"StatusBar\"><param name=\"android-package\" value=\"org.apache.cordova.statusbar.StatusBar\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -119,6 +123,9 @@
             "PACKAGE_NAME": "com.votingthing.app"
         },
         "nl.x-services.plugins.toast": {
+            "PACKAGE_NAME": "com.votingthing.app"
+        },
+        "cordova-plugin-statusbar": {
             "PACKAGE_NAME": "com.votingthing.app"
         }
     },
