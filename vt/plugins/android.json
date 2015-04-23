@@ -9,10 +9,6 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<feature name=\"Toast\"><param name=\"android-package\" value=\"nl.xservices.plugins.Toast\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"WebIntent\"><param name=\"android-package\" value=\"com.borismus.webintent.WebIntent\" /></feature>",
                             "count": 1
                         },
@@ -25,15 +21,19 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"WebSocket\"><param name=\"android-package\" value=\"com.knowledgecode.cordova.websocket.WebSocket\" /></feature>",
                             "count": 1
                         },
                         {
                             "xml": "<feature name=\"SocialSharing\"><param name=\"android-package\" value=\"nl.xservices.plugins.SocialSharing\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Toast\"><param name=\"android-package\" value=\"nl.xservices.plugins.Toast\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -100,9 +100,6 @@
         }
     },
     "installed_plugins": {
-        "nl.x-services.plugins.toast": {
-            "PACKAGE_NAME": "com.votingthing.app"
-        },
         "com.borismus.webintent": {
             "PACKAGE_NAME": "com.votingthing.app"
         },
@@ -112,13 +109,16 @@
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "com.votingthing.app"
         },
-        "org.apache.cordova.device": {
-            "PACKAGE_NAME": "com.votingthing.app"
-        },
         "com.knowledgecode.cordova.websocket": {
             "PACKAGE_NAME": "com.votingthing.app"
         },
         "nl.x-services.plugins.socialsharing": {
+            "PACKAGE_NAME": "com.votingthing.app"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "com.votingthing.app"
+        },
+        "nl.x-services.plugins.toast": {
             "PACKAGE_NAME": "com.votingthing.app"
         }
     },

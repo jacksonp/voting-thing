@@ -1,11 +1,4 @@
 {
-    "nl.x-services.plugins.toast": {
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Telerik-Verified-Plugins/Toast",
-            "subdir": "."
-        }
-    },
     "nl.x-services.plugins.socialsharing": {
         "source": {
             "type": "registry",
@@ -26,12 +19,6 @@
             "subdir": "."
         }
     },
-    "org.apache.cordova.device": {
-        "source": {
-            "type": "registry",
-            "id": "org.apache.cordova.device"
-        }
-    },
     "cordova-plugin-whitelist": {
         "source": {
             "type": "git",
@@ -42,15 +29,24 @@
     },
     "cordova-plugin-device": {
         "source": {
-            "type": "git",
-            "url": "https://github.com/apache/cordova-plugin-device",
-            "subdir": "."
-        }
+            "type": "registry",
+            "id": "cordova-plugin-device"
+        },
+        "is_top_level": true,
+        "variables": {}
     },
     "com.knowledgecode.cordova.websocket": {
         "source": {
             "type": "registry",
             "id": "com.knowledgecode.cordova.websocket"
         }
+    },
+    "nl.x-services.plugins.toast": {
+        "source": {
+            "type": "registry",
+            "id": "nl.x-services.plugins.toast"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }
