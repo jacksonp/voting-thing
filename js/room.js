@@ -113,7 +113,7 @@ function RoomViewModel (setupDoneCB, toast) {
 
   }
 
-  var connection = connect();
+  var connection;
 
   self.onAppPause = function () {
     connection.close();
@@ -195,7 +195,7 @@ function RoomViewModel (setupDoneCB, toast) {
     self.isSetup(true);
     self.room(self.roomInput());
     self.roomHistory.addRoomToHistory(self.roomInput(), '');
-    myEmit('enter room');
+    connection = connect();
     self.room.subscribeChanged(function (newRoomName, oldRoomName) {
       $('#vt-header').removeClass('vt-synced');
       self.polls.removeAll();

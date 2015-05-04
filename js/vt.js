@@ -100,18 +100,12 @@
       console.log('online');
     }, false);
     document.addEventListener('pause', function () {
-      //socket.close();
       roomModel.onAppPause();
       appRunning = false;
     }, false);
     document.addEventListener('resume', function () {
       appRunning = true;
       roomModel.onAppResume();
-      //socket = connect();
-      //socket = connect(function () {
-      //  console.log('roomModel.sync()');
-      //  roomModel.sync();
-      //});
     }, false);
     // WEB_EXCLUDE_END
 
