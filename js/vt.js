@@ -111,15 +111,7 @@
     }, false);
     // WEB_EXCLUDE_END
 
-    function setupDone () {
-      $('#vt-panel').on('panelbeforeopen', function (event, ui) {
-        setTimeout(function () {
-          $('#room-input').select().focus();
-        }, 300);
-      });
-    }
-
-    roomModel = new RoomViewModel(setupDone, toast);
+    roomModel = new RoomViewModel(toast);
     ko.applyBindings(roomModel);
 
     // WEB_EXCLUDE_START
@@ -133,7 +125,6 @@
     });
     // WEB_EXCLUDE_END
 
-
     $('.new-poll-area').collapsible({
       // Slide up and down to prevent ghost clicks:
       collapse: function () {
@@ -144,7 +135,6 @@
         $(this).children().next().slideDown(300);
       }
     });
-
 
   }
 

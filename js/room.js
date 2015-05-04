@@ -1,4 +1,4 @@
-function RoomViewModel (setupDoneCB, toast) {
+function RoomViewModel (toast) {
   'use strict';
 
   var
@@ -213,7 +213,12 @@ function RoomViewModel (setupDoneCB, toast) {
 
     $(document).on('scrollstop', checkScroll);
 
-    setupDoneCB();
+
+    $('#vt-panel').on('panelbeforeopen', function (event, ui) {
+      setTimeout(function () {
+        $('#room-input').select().focus();
+      }, 300);
+    });
   }
 
   self.goToRoom = function (newRoomName) {
