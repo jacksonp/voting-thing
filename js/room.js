@@ -42,6 +42,7 @@ function RoomViewModel (socket, setupDoneCB, toast) {
   self.polls = ko.observableArray([]);
 
   function myEmit (action, extraData) {
+    console.log(socket);
     extraData = extraData || {};
     var data = $.extend(extraData, {
       v        : '0.4.2',

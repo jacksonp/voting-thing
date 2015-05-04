@@ -103,6 +103,8 @@
 
       self.vote = function (poll, event) {
 
+        console.log('vote!');
+
         var
           vote,
           pollInstanceArea = $(event.currentTarget).closest('.poll');

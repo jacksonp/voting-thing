@@ -45,18 +45,17 @@ query.connectionParameters = 'postgres://vt@localhost/vt';
 
 var Poll = require('./poll').Poll;
 
-function vtError (socketId, message) {
-  io.clients[socketId].send(JSON.stringify({
-    action : 'vt_error',
-    message: message
-  }));
+function emit (socketId, action, data) {
+  if (io.clients[socketId]) {
+    io.clients[socketId].send(JSON.stringify({
+      action: action,
+      data  : data
+    }));
+  }
 }
 
-function emit (socketId, action, data) {
-  io.clients[socketId].send(JSON.stringify({
-    action: action,
-    data  : data
-  }));
+function vtError (socketId, message) {
+  emit(socketId, 'vt_error', message);
 }
 
 function emitToRoom (room, action, data) {
@@ -191,9 +190,11 @@ function vote (socketId, room, name, pollId, personId, vote) {
 
 io.on('connection', function (socket) {
 
+  console.log('engine.io connection: ' + socket.id);
+
   socket.on('message', function (data) {
 
-    console.log('engine.io message');
+    console.log('engine.io message: ' + socket.id);
     var receivedData = JSON.parse(data);
     console.log(receivedData);
     if (!io.clients[socket.id]) {
@@ -301,7 +302,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('close', function () {
-    console.log('engine.io close');
+    console.log('engine.io close: ' + socket.id);
     query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id, person_id', [socket.id], function (err, rows) {
       if (err) {
         console.log(err);

@@ -48,7 +48,9 @@
 
   var
     deviceReady = false,
-    domReady = false;
+    domReady = false,
+    appRunning = true,
+    roomModel;
 
   // APP_EXCLUDE_START
   deviceReady = true;
@@ -76,55 +78,44 @@
     init();
   });
 
-  function connect () {
-
-
-
+  function toast (message) {
+    // WEB_EXCLUDE_START
+    if (appRunning && message) {
+      window.plugins.toast.showShortBottom(message);
+    }
+    // WEB_EXCLUDE_END
   }
 
-  function init () {
-
-    if (!deviceReady || !domReady) {
-      return;
+  function vote (pollId, vote) {
+    var poll = roomModel.getPoll(pollId);
+    poll.addVote(vote);
+    if (vote.person_id !== roomModel.people.me.id) {
+      toast(poll.poll_name + ': ' + vote.name + ' voted.');
     }
+  }
 
-    function toast (message) {
-      // WEB_EXCLUDE_START
-      if (appRunning && message) {
-        window.plugins.toast.showShortBottom(message);
-      }
-      // WEB_EXCLUDE_END
-    }
+  function deletePoll (pollId) {
+    var removed = roomModel.polls.remove(function (poll) {
+      return poll.poll_id === pollId;
+    });
+    toast('Poll deleted: ' + removed.pop().poll_name);
+    // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
+    //pollInstanceArea.slideUp(300, function () {
+    //  $(this).remove();
+    //});
+  }
+
+  function closePoll (pollId) {
+    var poll = roomModel.getPoll(pollId);
+    poll.status('closed');
+    toast('Poll closed: ' + poll.poll_name);
+  }
+
+  function connect () {
 
     var
-    //socket = eio('http://votingthing.com:3883/'),
-    socket = eio('ws://192.168.1.69:3883/'),
-    appRunning = true;
-
-    function vote (pollId, vote) {
-      var poll = roomModel.getPoll(pollId);
-      poll.addVote(vote);
-      if (vote.person_id !== roomModel.people.me.id) {
-        toast(poll.poll_name + ': ' + vote.name + ' voted.');
-      }
-    }
-
-    function deletePoll (pollId) {
-      var removed = roomModel.polls.remove(function (poll) {
-        return poll.poll_id === pollId;
-      });
-      toast('Poll deleted: ' + removed.pop().poll_name);
-      // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
-      //pollInstanceArea.slideUp(300, function () {
-      //  $(this).remove();
-      //});
-    }
-
-    function closePoll (pollId) {
-      var poll = roomModel.getPoll(pollId);
-      poll.status('closed');
-      toast('Poll closed: ' + poll.poll_name);
-    }
+    //socket = eio('ws://votingthing.com:3883/');
+    socket = eio('ws://192.168.1.69:3883/');
 
     socket.on('open', function () {
 
@@ -141,7 +132,8 @@
         }
         switch (receivedData.action) {
           case 'vt_error':
-            alert(receivedData.message);
+            console.log(receivedData);
+            alert(receivedData.data);
             break;
           case 'enter room':
             roomModel.people.addPeople(receivedData.data);
@@ -168,10 +160,10 @@
             vote(receivedData.data.poll_id, receivedData.data.vote);
             break;
           case 'delete poll':
-            deletePoll(receivedData.poll_id);
+            deletePoll(receivedData.data);
             break;
           case 'close poll':
-            closePoll(receivedData.poll_id);
+            closePoll(receivedData.data);
             break;
           case 'older polls':
             roomModel.addPolls(receivedData.data, true);
@@ -187,71 +179,100 @@
             console.log(data);
             return;
         }
+
       });
 
       socket.on('close', function () {
         console.log('engine.io close');
       });
 
-      // WEB_EXCLUDE_START
-      document.addEventListener('pause', function () {
-        appRunning = false;
-      }, false);
-      document.addEventListener('resume', function () {
-        appRunning = true;
-        if (!socket.connected) {
-          socket.io.reconnect();
-        }
-      }, false);
-      // WEB_EXCLUDE_END
-
-      function setupDone () {
-        socket.on('reconnecting', function (num) {
-          $('#vt-header').removeClass('vt-synced');
-          // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
-          if (num > 1) {
-            toast('Reconnecting'); // Don't show num, it gets scary high.
-          }
-        });
-        socket.on('reconnect', function () {
-          //$('#vt-header').removeClass('vt-synced'); // let this happen after call to roomModel.sync()
-          toast('Connected');
-          roomModel.sync();
-        });
-        $('#vt-panel').on('panelbeforeopen', function (event, ui) {
-          setTimeout(function () {
-            $('#room-input').select().focus();
-          }, 300);
-        });
-      }
-
-      var roomModel = new RoomViewModel(socket, setupDone, toast);
-      ko.applyBindings(roomModel);
-
-      // WEB_EXCLUDE_START
-      window.webintent.onNewIntent(function (uri) {
-        if (uri) {
-          var hash = uri.split('#').slice(1).join("#");
-          if (hash) {
-            roomModel.room(hash);
-          }
-        }
-      });
-      // WEB_EXCLUDE_END
-
-
-      $('.new-poll-area').collapsible({
-        // Slide up and down to prevent ghost clicks:
-        collapse: function () {
-          $(this).children().next().slideUp(300);
-        },
-        expand  : function () {
-          $(this).children().next().hide();
-          $(this).children().next().slideDown(300);
-        }
-      });
+      console.log('roomModel.sync()');
+      roomModel.sync();
 
     });
+
+    return socket;
+
+  }
+
+  function init () {
+
+    if (!deviceReady || !domReady) {
+      return;
+    }
+
+    var
+      socket = connect();
+
+    // WEB_EXCLUDE_START
+    document.addEventListener('offline', function () {
+      console.log('offline');
+    }, false);
+    document.addEventListener('online', function () {
+      console.log('online');
+    }, false);
+    document.addEventListener('pause', function () {
+      socket.close();
+      appRunning = false;
+    }, false);
+    document.addEventListener('resume', function () {
+      appRunning = true;
+      socket = connect();
+      //socket = connect(function () {
+      //  console.log('roomModel.sync()');
+      //  roomModel.sync();
+      //});
+    }, false);
+    // WEB_EXCLUDE_END
+
+    function setupDone () {
+      /*
+      socket.on('reconnecting', function (num) {
+        $('#vt-header').removeClass('vt-synced');
+        // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
+        if (num > 1) {
+          toast('Reconnecting'); // Don't show num, it gets scary high.
+        }
+      });
+      socket.on('reconnect', function () {
+        //$('#vt-header').removeClass('vt-synced'); // let this happen after call to roomModel.sync()
+        toast('Connected');
+        roomModel.sync();
+      });
+      */
+      $('#vt-panel').on('panelbeforeopen', function (event, ui) {
+        setTimeout(function () {
+          $('#room-input').select().focus();
+        }, 300);
+      });
+    }
+
+    roomModel = new RoomViewModel(socket, setupDone, toast);
+    ko.applyBindings(roomModel);
+
+    // WEB_EXCLUDE_START
+    window.webintent.onNewIntent(function (uri) {
+      if (uri) {
+        var hash = uri.split('#').slice(1).join("#");
+        if (hash) {
+          roomModel.room(hash);
+        }
+      }
+    });
+    // WEB_EXCLUDE_END
+
+
+    $('.new-poll-area').collapsible({
+      // Slide up and down to prevent ghost clicks:
+      collapse: function () {
+        $(this).children().next().slideUp(300);
+      },
+      expand  : function () {
+        $(this).children().next().hide();
+        $(this).children().next().slideDown(300);
+      }
+    });
+
 
   }
 
