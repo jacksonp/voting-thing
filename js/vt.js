@@ -94,10 +94,12 @@
 
     // WEB_EXCLUDE_START
     document.addEventListener('offline', function () {
+      $('#vt-header').removeClass('vt-synced');
       console.log('offline');
     }, false);
     document.addEventListener('online', function () {
       console.log('online');
+      roomModel.onAppResume();
     }, false);
     document.addEventListener('pause', function () {
       roomModel.onAppPause();
@@ -110,20 +112,6 @@
     // WEB_EXCLUDE_END
 
     function setupDone () {
-      /*
-      socket.on('reconnecting', function (num) {
-        $('#vt-header').removeClass('vt-synced');
-        // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
-        if (num > 1) {
-          toast('Reconnecting'); // Don't show num, it gets scary high.
-        }
-      });
-      socket.on('reconnect', function () {
-        //$('#vt-header').removeClass('vt-synced'); // let this happen after call to roomModel.sync()
-        toast('Connected');
-        roomModel.sync();
-      });
-      */
       $('#vt-panel').on('panelbeforeopen', function (event, ui) {
         setTimeout(function () {
           $('#room-input').select().focus();

@@ -1,8 +1,10 @@
 function RoomViewModel (setupDoneCB, toast) {
   'use strict';
 
-  var self = this;
-
+  var
+    self = this,
+    connection,
+    connected = false;
 
   function vote (pollId, vote) {
     var poll = self.getPoll(pollId);
@@ -36,6 +38,8 @@ function RoomViewModel (setupDoneCB, toast) {
     socket = eio('ws://192.168.1.69:3883/');
 
     socket.on('open', function () {
+
+      connected = true;
 
       console.log('engine.io open');
 
@@ -102,6 +106,7 @@ function RoomViewModel (setupDoneCB, toast) {
 
       socket.on('close', function () {
         console.log('engine.io close');
+        connected = false;
       });
 
       console.log('self.sync()');
@@ -113,14 +118,14 @@ function RoomViewModel (setupDoneCB, toast) {
 
   }
 
-  var connection;
-
   self.onAppPause = function () {
-    connection.close();
+    //connection.close();
   };
 
   self.onAppResume = function () {
-    connection = connect();
+    if (!connected) {
+      connection = connect();
+    }
   };
 
 
