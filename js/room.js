@@ -54,56 +54,55 @@ function RoomViewModel () {
 
       socket.on('message', function (data) {
         console.log('engine.io message');
-        var receivedData = JSON.parse(data);
-        console.log(receivedData);
-        if (!receivedData.action) {
+        var payload = JSON.parse(data);
+        console.log(payload);
+        if (!payload.action) {
           console.log('No action received in following data:');
           console.log(data);
           return;
         }
-        switch (receivedData.action) {
+        switch (payload.action) {
           case 'vt_error':
-            console.log(receivedData);
-            alert(receivedData.data);
+            alert(payload.data);
             break;
           case 'enter room':
-            self.people.addPeople(receivedData.data);
+            self.people.addPeople(payload.data);
             break;
           case 'polls sync':
-            self.addPolls(receivedData.data);
+            self.addPolls(payload.data);
             $('#vt-header').addClass('vt-synced');
             break;
           case 'star':
             self.starred(true);
-            toast(receivedData.data.message);
+            toast(payload.data.message);
             break;
           case 'unstar':
             self.starred(false);
-            toast(receivedData.data.message);
+            toast(payload.data.message);
             break;
           case 'create poll':
-            self.addPoll(receivedData.data);
-            if (receivedData.data.owner_id !== self.people.me.id) {
-              toast('New poll: ' + receivedData.data.poll_name);
+            self.addPoll(payload.data);
+            if (payload.data.owner_id !== self.people.me.id) {
+              toast('New poll: ' + payload.data.poll_name);
             }
             break;
           case 'vote':
-            vote(receivedData.data.poll_id, receivedData.data.vote);
+            vote(payload.data.poll_id, payload.data.vote);
             break;
           case 'delete poll':
-            deletePoll(receivedData.data);
+            deletePoll(payload.data);
             break;
           case 'close poll':
-            closePoll(receivedData.data);
+            closePoll(payload.data);
             break;
           case 'older polls':
-            self.addPolls(receivedData.data, true);
+            self.addPolls(payload.data, true);
             break;
           case 'name change':
-            self.people.renamePerson(receivedData.data.person_id, receivedData.data.new_name);
+            self.people.renamePerson(payload.data.person_id, payload.data.new_name);
             break;
           case 'person left':
-            self.people.removePerson(receivedData.data);
+            self.people.removePerson(payload.data);
             break;
           default:
             console.log('Unrecognised action received in following data:');
