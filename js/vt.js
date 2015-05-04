@@ -37,12 +37,9 @@
       oldValue = _oldValue;
     }, this, 'beforeChange');
 
-    var subscription = this.subscribe(function (newValue) {
+    return this.subscribe(function (newValue) {
       callback(newValue, oldValue);
     });
-
-    // always return subscription
-    return subscription;
   };
   //</editor-fold>
 

@@ -103,7 +103,7 @@ function RoomViewModel () {
             self.people.renamePerson(receivedData.data.person_id, receivedData.data.new_name);
             break;
           case 'person left':
-            self.people.removePerson(receivedData.personId);
+            self.people.removePerson(receivedData.data);
             break;
           default:
             console.log('Unrecognised action received in following data:');
