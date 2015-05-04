@@ -86,123 +86,11 @@
     // WEB_EXCLUDE_END
   }
 
-  function vote (pollId, vote) {
-    var poll = roomModel.getPoll(pollId);
-    poll.addVote(vote);
-    if (vote.person_id !== roomModel.people.me.id) {
-      toast(poll.poll_name + ': ' + vote.name + ' voted.');
-    }
-  }
-
-  function deletePoll (pollId) {
-    var removed = roomModel.polls.remove(function (poll) {
-      return poll.poll_id === pollId;
-    });
-    toast('Poll deleted: ' + removed.pop().poll_name);
-    // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
-    //pollInstanceArea.slideUp(300, function () {
-    //  $(this).remove();
-    //});
-  }
-
-  function closePoll (pollId) {
-    var poll = roomModel.getPoll(pollId);
-    poll.status('closed');
-    toast('Poll closed: ' + poll.poll_name);
-  }
-
-  function connect () {
-
-    var
-    //socket = eio('ws://votingthing.com:3883/');
-    socket = eio('ws://192.168.1.69:3883/');
-
-    socket.on('open', function () {
-
-      console.log('engine.io open');
-
-      socket.on('message', function (data) {
-        console.log('engine.io message');
-        var receivedData = JSON.parse(data);
-        console.log(receivedData);
-        if (!receivedData.action) {
-          console.log('No action received in following data:');
-          console.log(data);
-          return;
-        }
-        switch (receivedData.action) {
-          case 'vt_error':
-            console.log(receivedData);
-            alert(receivedData.data);
-            break;
-          case 'enter room':
-            roomModel.people.addPeople(receivedData.data);
-            break;
-          case 'polls sync':
-            roomModel.addPolls(receivedData.data);
-            $('#vt-header').addClass('vt-synced');
-            break;
-          case 'star':
-            roomModel.starred(true);
-            toast(receivedData.data.message);
-            break;
-          case 'unstar':
-            roomModel.starred(false);
-            toast(receivedData.data.message);
-            break;
-          case 'create poll':
-            roomModel.addPoll(receivedData.data);
-            if (receivedData.data.owner_id !== roomModel.people.me.id) {
-              toast('New poll: ' + receivedData.data.poll_name);
-            }
-            break;
-          case 'vote':
-            vote(receivedData.data.poll_id, receivedData.data.vote);
-            break;
-          case 'delete poll':
-            deletePoll(receivedData.data);
-            break;
-          case 'close poll':
-            closePoll(receivedData.data);
-            break;
-          case 'older polls':
-            roomModel.addPolls(receivedData.data, true);
-            break;
-          case 'name change':
-            roomModel.people.renamePerson(receivedData.data.person_id, receivedData.data.new_name);
-            break;
-          case 'person left':
-            roomModel.people.removePerson(receivedData.personId);
-            break;
-          default:
-            console.log('Unrecognised action received in following data:');
-            console.log(data);
-            return;
-        }
-
-      });
-
-      socket.on('close', function () {
-        console.log('engine.io close');
-      });
-
-      console.log('roomModel.sync()');
-      roomModel.sync();
-
-    });
-
-    return socket;
-
-  }
-
   function init () {
 
     if (!deviceReady || !domReady) {
       return;
     }
-
-    var
-      socket = connect();
 
     // WEB_EXCLUDE_START
     document.addEventListener('offline', function () {
@@ -212,12 +100,14 @@
       console.log('online');
     }, false);
     document.addEventListener('pause', function () {
-      socket.close();
+      //socket.close();
+      roomModel.onAppPause();
       appRunning = false;
     }, false);
     document.addEventListener('resume', function () {
       appRunning = true;
-      socket = connect();
+      roomModel.onAppResume();
+      //socket = connect();
       //socket = connect(function () {
       //  console.log('roomModel.sync()');
       //  roomModel.sync();
@@ -247,7 +137,7 @@
       });
     }
 
-    roomModel = new RoomViewModel(socket, setupDone, toast);
+    roomModel = new RoomViewModel(setupDone, toast);
     ko.applyBindings(roomModel);
 
     // WEB_EXCLUDE_START

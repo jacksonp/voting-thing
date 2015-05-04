@@ -1,7 +1,128 @@
-function RoomViewModel (socket, setupDoneCB, toast) {
+function RoomViewModel (setupDoneCB, toast) {
   'use strict';
 
   var self = this;
+
+
+  function vote (pollId, vote) {
+    var poll = self.getPoll(pollId);
+    poll.addVote(vote);
+    if (vote.person_id !== self.people.me.id) {
+      toast(poll.poll_name + ': ' + vote.name + ' voted.');
+    }
+  }
+
+  function deletePoll (pollId) {
+    var removed = self.polls.remove(function (poll) {
+      return poll.poll_id === pollId;
+    });
+    toast('Poll deleted: ' + removed.pop().poll_name);
+    // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
+    //pollInstanceArea.slideUp(300, function () {
+    //  $(this).remove();
+    //});
+  }
+
+  function closePoll (pollId) {
+    var poll = self.getPoll(pollId);
+    poll.status('closed');
+    toast('Poll closed: ' + poll.poll_name);
+  }
+
+  function connect () {
+
+    var
+    //socket = eio('ws://votingthing.com:3883/');
+    socket = eio('ws://192.168.1.69:3883/');
+
+    socket.on('open', function () {
+
+      console.log('engine.io open');
+
+      socket.on('message', function (data) {
+        console.log('engine.io message');
+        var receivedData = JSON.parse(data);
+        console.log(receivedData);
+        if (!receivedData.action) {
+          console.log('No action received in following data:');
+          console.log(data);
+          return;
+        }
+        switch (receivedData.action) {
+          case 'vt_error':
+            console.log(receivedData);
+            alert(receivedData.data);
+            break;
+          case 'enter room':
+            self.people.addPeople(receivedData.data);
+            break;
+          case 'polls sync':
+            self.addPolls(receivedData.data);
+            $('#vt-header').addClass('vt-synced');
+            break;
+          case 'star':
+            self.starred(true);
+            toast(receivedData.data.message);
+            break;
+          case 'unstar':
+            self.starred(false);
+            toast(receivedData.data.message);
+            break;
+          case 'create poll':
+            self.addPoll(receivedData.data);
+            if (receivedData.data.owner_id !== self.people.me.id) {
+              toast('New poll: ' + receivedData.data.poll_name);
+            }
+            break;
+          case 'vote':
+            vote(receivedData.data.poll_id, receivedData.data.vote);
+            break;
+          case 'delete poll':
+            deletePoll(receivedData.data);
+            break;
+          case 'close poll':
+            closePoll(receivedData.data);
+            break;
+          case 'older polls':
+            self.addPolls(receivedData.data, true);
+            break;
+          case 'name change':
+            self.people.renamePerson(receivedData.data.person_id, receivedData.data.new_name);
+            break;
+          case 'person left':
+            self.people.removePerson(receivedData.personId);
+            break;
+          default:
+            console.log('Unrecognised action received in following data:');
+            console.log(data);
+            return;
+        }
+
+      });
+
+      socket.on('close', function () {
+        console.log('engine.io close');
+      });
+
+      console.log('self.sync()');
+      self.sync();
+
+    });
+
+    return socket;
+
+  }
+
+  var connection = connect();
+
+  self.onAppPause = function () {
+    connection.close();
+  };
+
+  self.onAppResume = function () {
+    connection = connect();
+  };
+
 
   self.roomHistory = new RoomHistoryViewModel();
 
@@ -42,7 +163,6 @@ function RoomViewModel (socket, setupDoneCB, toast) {
   self.polls = ko.observableArray([]);
 
   function myEmit (action, extraData) {
-    console.log(socket);
     extraData = extraData || {};
     var data = $.extend(extraData, {
       v        : '0.4.2',
@@ -51,7 +171,7 @@ function RoomViewModel (socket, setupDoneCB, toast) {
       person_id: self.people.me.id,
       name     : self.people.me.name()
     });
-    socket.send(JSON.stringify(data));
+    connection.send(JSON.stringify(data));
   }
 
   // Infinite scrolling aka we don't show necessarily show all polls in room by default.
