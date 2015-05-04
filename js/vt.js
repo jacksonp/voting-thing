@@ -49,7 +49,6 @@
   var
     deviceReady = false,
     domReady = false,
-    appRunning = true,
     roomModel;
 
   // APP_EXCLUDE_START
@@ -78,14 +77,6 @@
     init();
   });
 
-  function toast (message) {
-    // WEB_EXCLUDE_START
-    if (appRunning && message) {
-      window.plugins.toast.showShortBottom(message);
-    }
-    // WEB_EXCLUDE_END
-  }
-
   function init () {
 
     if (!deviceReady || !domReady) {
@@ -103,15 +94,13 @@
     }, false);
     document.addEventListener('pause', function () {
       roomModel.onAppPause();
-      appRunning = false;
     }, false);
     document.addEventListener('resume', function () {
-      appRunning = true;
       roomModel.onAppResume();
     }, false);
     // WEB_EXCLUDE_END
 
-    roomModel = new RoomViewModel(toast);
+    roomModel = new RoomViewModel();
     ko.applyBindings(roomModel);
 
     // WEB_EXCLUDE_START

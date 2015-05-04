@@ -1,10 +1,19 @@
-function RoomViewModel (toast) {
+function RoomViewModel () {
   'use strict';
 
   var
     self = this,
+    appRunning = true,
     connection,
     connected = false;
+
+  function toast (message) {
+    // WEB_EXCLUDE_START
+    if (appRunning && message) {
+      window.plugins.toast.showShortBottom(message);
+    }
+    // WEB_EXCLUDE_END
+  }
 
   function vote (pollId, vote) {
     var poll = self.getPoll(pollId);
@@ -119,10 +128,12 @@ function RoomViewModel (toast) {
   }
 
   self.onAppPause = function () {
+    appRunning = false;
     //connection.close();
   };
 
   self.onAppResume = function () {
+    appRunning = true;
     if (!connected) {
       connection = connect();
     }
