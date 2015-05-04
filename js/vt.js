@@ -76,16 +76,17 @@
     init();
   });
 
+  function connect () {
+
+
+
+  }
+
   function init () {
 
     if (!deviceReady || !domReady) {
       return;
     }
-
-    var
-    socket = io('http://votingthing.com:3883/'),
-    //socket = io('http://192.168.1.69:3883/'),
-    appRunning = true;
 
     function toast (message) {
       // WEB_EXCLUDE_START
@@ -95,128 +96,161 @@
       // WEB_EXCLUDE_END
     }
 
-    // WEB_EXCLUDE_START
-    document.addEventListener('pause', function () {
-      appRunning = false;
-    }, false);
-    document.addEventListener('resume', function () {
-      appRunning = true;
-      if (!socket.connected) {
-        socket.io.reconnect();
-      }
-    }, false);
-    // WEB_EXCLUDE_END
+    var
+    //socket = eio('http://votingthing.com:3883/'),
+    socket = eio('ws://192.168.1.69:3883/'),
+    appRunning = true;
 
-    function setupDone () {
-      socket.on('reconnecting', function (num) {
-        $('#vt-header').removeClass('vt-synced');
-        // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
-        if (num > 1) {
-          toast('Reconnecting'); // Don't show num, it gets scary high.
-        }
-      });
-      socket.on('reconnect', function () {
-        //$('#vt-header').removeClass('vt-synced'); // let this happen after call to roomModel.sync()
-        toast('Connected');
-        roomModel.sync();
-      });
-      $('#vt-panel').on('panelbeforeopen', function (event, ui) {
-        setTimeout(function () {
-          $('#room-input').select().focus();
-        }, 300);
-      });
+    function vote (pollId, vote) {
+      var poll = roomModel.getPoll(pollId);
+      poll.addVote(vote);
+      if (vote.person_id !== roomModel.people.me.id) {
+        toast(poll.poll_name + ': ' + vote.name + ' voted.');
+      }
     }
 
-    var roomModel = new RoomViewModel(socket, setupDone, toast);
-    ko.applyBindings(roomModel);
-
-    // WEB_EXCLUDE_START
-    window.webintent.onNewIntent(function (uri) {
-      if (uri) {
-        var hash = uri.split('#').slice(1).join("#");
-        if (hash) {
-          roomModel.room(hash);
-        }
-      }
-    });
-    // WEB_EXCLUDE_END
-
-    socket.on('vote', function (data) {
-      var poll = roomModel.getPoll(data.poll_id);
-      poll.addVote(data.vote);
-      if (data.vote.person_id !== roomModel.people.me.id) {
-        toast(poll.poll_name + ': ' + data.vote.name + ' voted.');
-      }
-    });
-
-    socket.on('delete poll', function (poll_id) {
+    function deletePoll (pollId) {
       var removed = roomModel.polls.remove(function (poll) {
-        return poll.poll_id === poll_id;
+        return poll.poll_id === pollId;
       });
       toast('Poll deleted: ' + removed.pop().poll_name);
       // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
       //pollInstanceArea.slideUp(300, function () {
       //  $(this).remove();
       //});
-    });
+    }
 
-    socket.on('close poll', function (poll_id) {
-      var poll = roomModel.getPoll(poll_id);
+    function closePoll (pollId) {
+      var poll = roomModel.getPoll(pollId);
       poll.status('closed');
       toast('Poll closed: ' + poll.poll_name);
-    });
+    }
 
-    socket.on('enter room', function (people) {
-      roomModel.people.addPeople(people);
-    });
+    socket.on('open', function () {
 
-    socket.on('polls sync', function (data) {
-      roomModel.addPolls(data);
-      $('#vt-header').addClass('vt-synced');
-    });
+      console.log('engine.io open');
 
-    socket.on('older polls', function (data) {
-      roomModel.addPolls(data, true);
-    });
+      socket.on('message', function (data) {
+        console.log('engine.io message');
+        var receivedData = JSON.parse(data);
+        console.log(receivedData);
+        if (!receivedData.action) {
+          console.log('No action received in following data:');
+          console.log(data);
+          return;
+        }
+        switch (receivedData.action) {
+          case 'vt_error':
+            alert(receivedData.message);
+            break;
+          case 'enter room':
+            roomModel.people.addPeople(receivedData.data);
+            break;
+          case 'polls sync':
+            roomModel.addPolls(receivedData.data);
+            $('#vt-header').addClass('vt-synced');
+            break;
+          case 'star':
+            roomModel.starred(true);
+            toast(receivedData.data.message);
+            break;
+          case 'unstar':
+            roomModel.starred(false);
+            toast(receivedData.data.message);
+            break;
+          case 'create poll':
+            roomModel.addPoll(receivedData.data);
+            if (receivedData.data.owner_id !== roomModel.people.me.id) {
+              toast('New poll: ' + receivedData.data.poll_name);
+            }
+            break;
+          case 'vote':
+            vote(receivedData.data.poll_id, receivedData.data.vote);
+            break;
+          case 'delete poll':
+            deletePoll(receivedData.poll_id);
+            break;
+          case 'close poll':
+            closePoll(receivedData.poll_id);
+            break;
+          case 'older polls':
+            roomModel.addPolls(receivedData.data, true);
+            break;
+          case 'name change':
+            roomModel.people.renamePerson(receivedData.data.person_id, receivedData.data.new_name);
+            break;
+          case 'person left':
+            roomModel.people.removePerson(receivedData.personId);
+            break;
+          default:
+            console.log('Unrecognised action received in following data:');
+            console.log(data);
+            return;
+        }
+      });
 
-    socket.on('name change', function (data) {
-      roomModel.people.renamePerson(data.person_id, data.new_name);
-    });
+      socket.on('close', function () {
+        console.log('engine.io close');
+      });
 
-    socket.on('person left', function (personId) {
-      roomModel.people.removePerson(personId);
-    });
+      // WEB_EXCLUDE_START
+      document.addEventListener('pause', function () {
+        appRunning = false;
+      }, false);
+      document.addEventListener('resume', function () {
+        appRunning = true;
+        if (!socket.connected) {
+          socket.io.reconnect();
+        }
+      }, false);
+      // WEB_EXCLUDE_END
 
-    $('.new-poll-area').collapsible({
-      // Slide up and down to prevent ghost clicks:
-      collapse: function () {
-        $(this).children().next().slideUp(300);
-      },
-      expand  : function () {
-        $(this).children().next().hide();
-        $(this).children().next().slideDown(300);
+      function setupDone () {
+        socket.on('reconnecting', function (num) {
+          $('#vt-header').removeClass('vt-synced');
+          // Possible that the reconnect event doesn't fire reliably enough to show spinner then remove.
+          if (num > 1) {
+            toast('Reconnecting'); // Don't show num, it gets scary high.
+          }
+        });
+        socket.on('reconnect', function () {
+          //$('#vt-header').removeClass('vt-synced'); // let this happen after call to roomModel.sync()
+          toast('Connected');
+          roomModel.sync();
+        });
+        $('#vt-panel').on('panelbeforeopen', function (event, ui) {
+          setTimeout(function () {
+            $('#room-input').select().focus();
+          }, 300);
+        });
       }
-    });
 
-    socket.on('create poll', function (poll) {
-      roomModel.addPoll(poll);
-      if (poll.owner_id !== roomModel.people.me.id) {
-        toast('New poll: ' + poll.poll_name);
-      }
-    });
+      var roomModel = new RoomViewModel(socket, setupDone, toast);
+      ko.applyBindings(roomModel);
 
-    socket.on('star', function (data) {
-      roomModel.starred(true);
-      toast(data.message);
-    });
+      // WEB_EXCLUDE_START
+      window.webintent.onNewIntent(function (uri) {
+        if (uri) {
+          var hash = uri.split('#').slice(1).join("#");
+          if (hash) {
+            roomModel.room(hash);
+          }
+        }
+      });
+      // WEB_EXCLUDE_END
 
-    socket.on('unstar', function (data) {
-      roomModel.starred(false);
-      toast(data.message);
-    });
 
-    socket.on('vt_error', function (message) {
-      alert(message);
+      $('.new-poll-area').collapsible({
+        // Slide up and down to prevent ghost clicks:
+        collapse: function () {
+          $(this).children().next().slideUp(300);
+        },
+        expand  : function () {
+          $(this).children().next().hide();
+          $(this).children().next().slideDown(300);
+        }
+      });
+
     });
 
   }

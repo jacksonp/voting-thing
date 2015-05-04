@@ -17,6 +17,9 @@ function PeopleViewModel (myEmit) {
     self.people.removeAll();
   };
 
+  // TODO: now that we prune lost sockets when anyone enters room and return a full list of people, maybe just replace
+  // array of people instead of adding if not present?
+
   self.addPeople = function (people) {
     $.each(people, function (k, u) {
       self.addPerson(u.person_id, u.name);

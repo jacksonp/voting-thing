@@ -43,12 +43,14 @@ function RoomViewModel (socket, setupDoneCB, toast) {
 
   function myEmit (action, extraData) {
     extraData = extraData || {};
-    socket.emit(action, $.extend(extraData, {
-      v        : '0.4.1',
+    var data = $.extend(extraData, {
+      v        : '0.4.2',
+      action   : action,
       room     : self.room(),
       person_id: self.people.me.id,
       name     : self.people.me.name()
-    }));
+    });
+    socket.send(JSON.stringify(data));
   }
 
   // Infinite scrolling aka we don't show necessarily show all polls in room by default.
