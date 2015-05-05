@@ -9,7 +9,7 @@
     return d.getDate() + ' ' + monthNames[d.getMonth()];
   }
 
-  exports.Poll = function (name, description, ownerId, type, details, pollId, status, myId, myEmit, votes, pollDate) {
+  exports.Poll = function (name, description, ownerId, type, details, pollId, status, myId, utilFns, votes, pollDate) {
 
     var self = this;
 
@@ -138,20 +138,16 @@
           alert('Could not figure out poll type.');
           return;
         }
-        myEmit('vote', {poll_id: poll.poll_id, vote: vote});
+        utilFns.emit('vote', {poll_id: poll.poll_id, vote: vote});
       };
 
-      self.pollText = ko.observable('');
-
-      self.setPollText = function () {
-        var text = '';
+      self.pollText = ko.pureComputed(function () {
         if (self.status() === 'closed') {
-          text = 'This poll is closed to new votes.';
+          return 'This poll is closed to new votes.';
+        } else {
+          return '';
         }
-        self.pollText(text);
-      };
-
-      self.setPollText();
+      });
 
       var lastConfirmTimeout;
 
@@ -160,33 +156,26 @@
         $(event.currentTarget).parent().find('button').buttonMarkup({theme: 'a'});
       };
 
-      self.closePollConfirm = function (poll, event) {
-        var myMessage = 'Tap again to close poll.';
-        if (self.pollText() === myMessage) {
-          self.setPollText();
-          myEmit('close poll', {poll_id: self.poll_id});
-        } else {
-          self.resetConfirmButtons(event);
-          self.pollText(myMessage);
-          $(event.currentTarget).buttonMarkup({theme: 'b'});
-          lastConfirmTimeout = setTimeout(function () {
-            self.setPollText();
-            $(event.currentTarget).buttonMarkup({theme: 'a'});
-          }, 3000);
-        }
+      self.reopenPoll = function (poll) {
+        utilFns.emit('reopen poll', {poll_id: self.poll_id});
       };
 
+      self.closePoll = function (poll) {
+        utilFns.emit('close poll', {poll_id: self.poll_id});
+      };
+
+      self.pendingDeletion = false;
+
       self.deletePollConfirm = function (poll, event) {
-        var myMessage = 'Tap again to delete poll.';
-        if (self.pollText() === myMessage) {
-          self.setPollText();
-          myEmit('delete poll', {poll_id: self.poll_id});
+        if (self.pendingDeletion) {
+          utilFns.emit('delete poll', {poll_id: self.poll_id});
         } else {
+          self.pendingDeletion = true;
+          utilFns.toast('Tap again to delete poll.');
           self.resetConfirmButtons(event);
-          self.pollText(myMessage);
           $(event.currentTarget).buttonMarkup({theme: 'b'});
           lastConfirmTimeout = setTimeout(function () {
-            self.setPollText();
+            self.pendingDeletion = false;
             $(event.currentTarget).buttonMarkup({theme: 'a'});
           }, 3000);
         }

@@ -262,6 +262,16 @@ io.on('connection', function (socket) {
           }
         });
         break;
+      case 'reopen poll':
+        query('UPDATE polls SET status = $2 WHERE poll_id = $1', [receivedData.poll_id, 'open'], function (err, rows) {
+          if (err) {
+            console.log(err);
+            emitError(socket.id, err.hint);
+          } else {
+            emitToRoom(receivedData.room, 'reopen poll', receivedData.poll_id);
+          }
+        });
+        break;
       case 'delete poll':
         query('DELETE FROM polls WHERE poll_id = $1', [receivedData.poll_id], function (err, rows) {
           if (err) {

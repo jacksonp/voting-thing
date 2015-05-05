@@ -43,6 +43,12 @@ function RoomViewModel () {
     toast('Poll closed: ' + poll.poll_name);
   }
 
+  function reopenPoll (pollId) {
+    var poll = self.getPoll(pollId);
+    poll.status('open');
+    toast('Poll re-opened: ' + poll.poll_name);
+  }
+
   function connect () {
 
     var
@@ -97,6 +103,9 @@ function RoomViewModel () {
             break;
           case 'close poll':
             closePoll(payload.data);
+            break;
+          case 'reopen poll':
+            reopenPoll(payload.data);
             break;
           case 'older polls':
             self.addPolls(payload.data, true);
@@ -210,6 +219,11 @@ function RoomViewModel () {
     connection.send(JSON.stringify(data));
   }
 
+  var utilFns = {
+    emit: myEmit,
+    toast: toast
+  };
+
   // Infinite scrolling aka we don't show necessarily show all polls in room by default.
   // See: https://jqmtricks.wordpress.com/2014/07/15/infinite-scrolling/
   function checkScroll () {
@@ -318,7 +332,7 @@ function RoomViewModel () {
   };
 
   self.addPoll = function (data) {
-    var poll = new Poll.Poll(data.poll_name, data.description, data.owner_id, data.type, data.details, data.poll_id, data.status, self.people.me.id, myEmit);
+    var poll = new Poll.Poll(data.poll_name, data.description, data.owner_id, data.type, data.details, data.poll_id, data.status, self.people.me.id, utilFns);
     self.polls.unshift(poll);
     if (poll.ownPoll) { // I just created this poll...
       $('.new-poll-area').collapsible('collapse');
@@ -352,7 +366,7 @@ function RoomViewModel () {
         votes.push(p.votes[person_id]);
       });
 
-      poll = new Poll.Poll(p.poll_name, p.description, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, myEmit, votes, p.poll_date);
+      poll = new Poll.Poll(p.poll_name, p.description, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, utilFns, votes, p.poll_date);
       newPolls.push(poll); // reverses the order, were sorted DESC
     }
 
