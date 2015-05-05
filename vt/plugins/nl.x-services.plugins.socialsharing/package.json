@@ -1,5 +1,5 @@
 {
-    "version": "4.3.17",
+    "version": "4.3.18",
     "name": "nl.x-services.plugins.socialsharing",
     "cordova_name": "SocialSharing",
     "description": "\n    This plugin allows you to share text, images (and other files), or a link via the native sharing widget of your device.\n    Android is fully supported, as well as iOS 6 and up. WP8 has somewhat limited support.\n  ",
@@ -8,15 +8,15 @@
     "issue": "https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin/issues",
     "keywords": [
         "Social",
-        "Share",
-        "Twitter",
-        "Facebook",
-        "Email",
-        "SMS",
-        "WhatsApp",
-        "Tumblr",
-        "Pocket",
-        "LinkedIN"
+        " Share",
+        " Twitter",
+        " Facebook",
+        " Email",
+        " SMS",
+        " WhatsApp",
+        " Tumblr",
+        " Pocket",
+        " LinkedIN"
     ],
     "platforms": [
         "ios",

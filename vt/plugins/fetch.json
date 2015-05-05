@@ -1,10 +1,4 @@
 {
-    "nl.x-services.plugins.socialsharing": {
-        "source": {
-            "type": "registry",
-            "id": "nl.x-services.plugins.socialsharing"
-        }
-    },
     "com.borismus.webintent": {
         "source": {
             "type": "git",
@@ -35,20 +29,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "com.knowledgecode.cordova.websocket": {
-        "source": {
-            "type": "registry",
-            "id": "com.knowledgecode.cordova.websocket"
-        }
-    },
-    "nl.x-services.plugins.toast": {
-        "source": {
-            "type": "registry",
-            "id": "nl.x-services.plugins.toast"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-statusbar": {
         "source": {
             "type": "registry",
@@ -61,6 +41,30 @@
         "source": {
             "type": "registry",
             "id": "cordova-plugin-network-information"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-websocket": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-websocket"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "nl.x-services.plugins.socialsharing": {
+        "source": {
+            "type": "registry",
+            "id": "nl.x-services.plugins.socialsharing"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "nl.x-services.plugins.toast": {
+        "source": {
+            "type": "registry",
+            "id": "nl.x-services.plugins.toast"
         },
         "is_top_level": true,
         "variables": {}
