@@ -180,6 +180,24 @@ function RoomViewModel () {
 
   self.polls = ko.observableArray([]);
 
+  self.groupedPolls = ko.computed(function () {
+    var lastDate = '', thisDate, rows = [], current = [];
+    rows.push(current);
+    for (var i = 0; i < self.polls().length; i += 1) {
+      thisDate = self.polls()[i].poll_date;
+      if (i === 0) {
+        lastDate = thisDate;
+      } else if (lastDate != thisDate) {
+        lastDate = thisDate;
+        current = [];
+        rows.push(current);
+      }
+      current.push(self.polls()[i]);
+    }
+    return rows;
+  });
+
+
   function myEmit (action, extraData) {
     extraData = extraData || {};
     var data = $.extend(extraData, {
@@ -334,7 +352,7 @@ function RoomViewModel () {
         votes.push(p.votes[person_id]);
       });
 
-      poll = new Poll.Poll(p.poll_name, p.description, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, myEmit, votes);
+      poll = new Poll.Poll(p.poll_name, p.description, p.owner_id, p.type, p.details, p.poll_id, p.status, self.people.me.id, myEmit, votes, p.poll_date);
       newPolls.push(poll); // reverses the order, were sorted DESC
     }
 

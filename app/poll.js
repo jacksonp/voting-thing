@@ -1,7 +1,15 @@
 (function (exports) {
   'use strict';
 
-  exports.Poll = function (name, description, ownerId, type, details, pollId, status, myId, myEmit, votes) {
+  function getDate () {
+    var
+      monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      d = new Date(),
+      dd = d.getDate().toString();
+    return d.getDate() + ' ' + monthNames[d.getMonth()];
+  }
+
+  exports.Poll = function (name, description, ownerId, type, details, pollId, status, myId, myEmit, votes, pollDate) {
 
     var self = this;
 
@@ -50,6 +58,7 @@
     self.poll_id = pollId;
     self.myId = myId;
     self.ownPoll = ownerId === myId;
+    self.poll_date = pollDate || getDate();
 
     if (typeof ko !== 'undefined') { // knockout - client-side only
 

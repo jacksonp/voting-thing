@@ -29,7 +29,7 @@ function pushNotifications (recipients, title, message, messageData) {
 }
 
 function getRegIdsStarred (room, excludeIds, callback) {
-  
+
   var
     qStr = 'SELECT device_details FROM stars WHERE room_id = vt_normalize($1)',
     qData = [room];
@@ -87,7 +87,7 @@ function emitToRoom (room, action, data, callback) {
 
 function returnPolls (socketId, room, requestType, oldestPollId) {
   var
-    sql = "SELECT poll_id, name AS poll_name, description, status, owner_id, type, details, votes FROM polls WHERE room_id = vt_normalize($1)",
+    sql = "SELECT poll_id, name AS poll_name, description, status, owner_id, type, details, votes, TO_CHAR(created, 'FMDD Mon') AS poll_date FROM polls WHERE room_id = vt_normalize($1)",
     sqlParams = [room, pollsPerQuery + 1];
   if (requestType === 'older polls') {
     sqlParams.push(oldestPollId);

@@ -156,7 +156,10 @@
     <button data-theme="b">Create Poll</button>
   </form>
 </div>
-<div data-bind="template: {name: 'poll-template', foreach: polls}, jqmEnhancePollList: polls"></div>
+<div data-bind="foreach: groupedPolls">
+  <h3 data-bind="text: $data[0] && $data[0].poll_date"></h3>
+  <div data-bind="template: {name: 'poll-template', foreach: $data}, jqmEnhancePollList: $data"></div>
+</div>
 </script>
 
 <script type="text/html" id="poll-template">
