@@ -59,15 +59,10 @@ function RoomViewModel () {
 
       connected = true;
 
-      console.log('engine.io open');
-
       socket.on('message', function (data) {
-        console.log('engine.io message');
         var payload = JSON.parse(data);
-        console.log(payload);
         if (!payload.action) {
-          console.log('No action received in following data:');
-          console.log(data);
+          // Silent fail.
           return;
         }
         switch (payload.action) {
@@ -117,19 +112,16 @@ function RoomViewModel () {
             self.people.removePerson(payload.data);
             break;
           default:
-            console.log('Unrecognised action received in following data:');
-            console.log(data);
+            // Silent fail
             return;
         }
 
       });
 
       socket.on('close', function () {
-        console.log('engine.io close');
         connected = false;
       });
 
-      console.log('self.sync()');
       self.sync();
 
     });

@@ -83,10 +83,8 @@
     // WEB_EXCLUDE_START
     document.addEventListener('offline', function () {
       $('#vt-header').removeClass('vt-synced');
-      console.log('offline');
     }, false);
     document.addEventListener('online', function () {
-      console.log('online');
       roomModel.onAppResume();
     }, false);
     document.addEventListener('pause', function () {
