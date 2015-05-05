@@ -40,7 +40,7 @@ function getRegIdsStarred (room, excludeIds, callback) {
 
   query(qStr, qData, function (err, rows) {
     if (err) {
-      console.log(err);
+      console.error(err);
     } else {
       var regIds = [];
       rows.forEach(function (r) {
@@ -116,7 +116,7 @@ function enterRoom (room, name, personId, socketId) {
 
   query('SELECT * FROM add_person_to_room($1, $2, $3, $4)', [room, name, personId, socketId], function (err, rows) {
     if (err) {
-      console.log(err);
+      console.error(err);
       emitError(socketId, err.hint);
     } else {
       var i, inRoom = [];
@@ -135,7 +135,7 @@ function enterRoom (room, name, personId, socketId) {
       returnPolls(socketId, room, 'polls sync');
       query('SELECT 1 FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2', [room, personId], function (err, rows) {
         if (err) {
-          console.log(err);
+          console.error(err);
           emitError(socketId, err.hint);
         } else {
           var action = rows.length ? 'star' : 'unstar';
@@ -152,13 +152,13 @@ function createPoll (socketId, room, name, pollName, description, personId, type
   try {
     poll = new Poll(pollName, description, personId, type, details);
   } catch (e) {
-    console.log(e);
+    console.error(e);
     emitError(socketId, e);
     return;
   }
   query('SELECT create_poll($1, $2, $3, $4, $5, $6) AS poll_id', [room, pollName, description, type, details, personId], function (err, rows) {
     if (err) {
-      console.log(err);
+      console.error(err);
       emitError(socketId, err.hint);
     } else {
       poll.poll_id = rows[0].poll_id;
@@ -181,7 +181,7 @@ function createPoll (socketId, room, name, pollName, description, personId, type
 function vote (socketId, room, name, pollId, personId, vote) {
   query('SELECT * FROM vote($1, $2, $3, $4)', [room, pollId, personId, {vote: vote}], function (err, rows) {
     if (err) {
-      console.log(err);
+      console.error(err);
       emitError(socketId, err.hint);
     } else {
       var pollName = rows[0].poll_name;
@@ -205,11 +205,8 @@ function vote (socketId, room, name, pollId, personId, vote) {
 
 io.on('connection', function (socket) {
 
-  console.log('engine.io connection: ' + socket.id);
-
   socket.on('message', function (data) {
 
-    console.log('engine.io message: ' + socket.id);
     var receivedData = JSON.parse(data);
     console.log(receivedData);
     if (!io.clients[socket.id]) {
@@ -255,7 +252,7 @@ io.on('connection', function (socket) {
       case 'close poll':
         query('UPDATE polls SET status = $2 WHERE poll_id = $1', [receivedData.poll_id, 'closed'], function (err, rows) {
           if (err) {
-            console.log(err);
+            console.error(err);
             emitError(socket.id, err.hint);
           } else {
             emitToRoom(receivedData.room, 'close poll', receivedData.poll_id);
@@ -265,7 +262,7 @@ io.on('connection', function (socket) {
       case 'reopen poll':
         query('UPDATE polls SET status = $2 WHERE poll_id = $1', [receivedData.poll_id, 'open'], function (err, rows) {
           if (err) {
-            console.log(err);
+            console.error(err);
             emitError(socket.id, err.hint);
           } else {
             emitToRoom(receivedData.room, 'reopen poll', receivedData.poll_id);
@@ -275,7 +272,7 @@ io.on('connection', function (socket) {
       case 'delete poll':
         query('DELETE FROM polls WHERE poll_id = $1', [receivedData.poll_id], function (err, rows) {
           if (err) {
-            console.log(err);
+            console.error(err);
             emitError(socket.id, err.hint);
           } else {
             emitToRoom(receivedData.room, 'delete poll', receivedData.poll_id);
@@ -285,7 +282,7 @@ io.on('connection', function (socket) {
       case 'leave room':
         query('DELETE FROM people WHERE person_id = $1 AND room_id = vt_normalize($2)', [receivedData.person_id, receivedData.room], function (err, rows) {
           if (err) {
-            console.log(err);
+            console.error(err);
             emitError(socket.id, err.hint);
           } else {
             emitToRoom(receivedData.room, 'person left', receivedData.person_id);
@@ -301,7 +298,7 @@ io.on('connection', function (socket) {
           android_registration_id: receivedData.android_registration_id
         }], function (err, rows) {
           if (err) {
-            console.log(err);
+            console.error(err);
             emitError(socket.id, err.hint);
           } else {
             emit(socket.id, 'star', {message: receivedData.room + ': poll and vote notifications on.'});
@@ -311,7 +308,7 @@ io.on('connection', function (socket) {
       case 'unstar':
         query('DELETE FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2', [receivedData.room, receivedData.person_id], function (err, rows) {
           if (err) {
-            console.log(err);
+            console.error(err);
             emitError(socket.id, err.hint);
           } else {
             emit(socket.id, 'unstar', {message: data.room + ': notifications off.'});
@@ -327,10 +324,9 @@ io.on('connection', function (socket) {
   });
 
   socket.on('close', function () {
-    console.log('engine.io close: ' + socket.id);
     query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id, person_id', [socket.id], function (err, rows) {
       if (err) {
-        console.log(err);
+        console.error(err);
         emitError(socket.id, err.hint);
       } else {
         rows.forEach(function (r) {
