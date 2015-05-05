@@ -52,8 +52,8 @@ function RoomViewModel () {
   function connect () {
 
     var
-    //socket = eio('ws://votingthing.com:3883/');
-    socket = eio('ws://192.168.1.69:3883/');
+    socket = eio('ws://votingthing.com:3883/');
+    //socket = eio('ws://192.168.1.69:3883/');
 
     socket.on('open', function () {
 
