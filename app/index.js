@@ -215,7 +215,7 @@ io.on('connection', function (socket) {
       console.error(data);
       return;
     }
-    if (!receivedData.v || semver.lt(receivedData.v, '0.4.2')) {
+    if (!receivedData.v || semver.lt(receivedData.v, '0.5.0')) {
       emitError(socket.id, 'Please update this app.');
       return;
     }
