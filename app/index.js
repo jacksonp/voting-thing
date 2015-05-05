@@ -6,6 +6,12 @@ var semver = require('semver');
 
 var gcm = require('node-gcm');
 
+var pollsPerQuery = 20;
+
+var query = require('pg-query');
+query.connectionParameters = 'postgres://vt@localhost/vt';
+
+
 function pushNotifications (recipients, title, message, messageData) {
   messageData = messageData || {};
   messageData.title = title;
@@ -22,8 +28,17 @@ function pushNotifications (recipients, title, message, messageData) {
   });
 }
 
-function getRegIdsStarred (room, excludeId, callback) {
-  query('SELECT device_details FROM stars WHERE room_id = vt_normalize($1) AND device_id != $2', [room, excludeId], function (err, rows) {
+function getRegIdsStarred (room, excludeIds, callback) {
+  
+  var
+    qStr = 'SELECT device_details FROM stars WHERE room_id = vt_normalize($1)',
+    qData = [room];
+  if (excludeIds.length) {
+    qStr += ' AND device_id NOT IN ($2)';
+    qData.push(excludeIds.join(','));
+  }
+
+  query(qStr, qData, function (err, rows) {
     if (err) {
       console.log(err);
     } else {
@@ -37,11 +52,6 @@ function getRegIdsStarred (room, excludeId, callback) {
     }
   });
 }
-
-var pollsPerQuery = 20;
-
-var query = require('pg-query');
-query.connectionParameters = 'postgres://vt@localhost/vt';
 
 var Poll = require('./poll').Poll;
 
@@ -58,14 +68,19 @@ function emitError (socketId, message) {
   emit(socketId, 'vt_error', message);
 }
 
-function emitToRoom (room, action, data) {
-  query('SELECT socket_id FROM people WHERE room_id = vt_normalize($1)', [room], function (err, rows) {
+function emitToRoom (room, action, data, callback) {
+  query('SELECT socket_id, person_id FROM people WHERE room_id = vt_normalize($1)', [room], function (err, rows) {
     if (err) {
       console.error(err);
     } else {
+      var peopleIds = [];
       rows.forEach(function (r) {
         emit(r.socket_id, action, data);
+        peopleIds.push(r.person_id);
       });
+      if (callback) {
+        callback(peopleIds);
+      }
     }
   });
 }
@@ -148,17 +163,17 @@ function createPoll (socketId, room, name, pollName, description, personId, type
     } else {
       poll.poll_id = rows[0].poll_id;
       poll.status = 'open';
-      emitToRoom(room, 'create poll', poll);
-
-      getRegIdsStarred(room, personId, function (regIds) {
-        pushNotifications(regIds, room + ': New Poll', pollName + ' - ' + name, {
-          room     : room,
-          poll_id  : poll.poll_id,
-          poll_name: pollName,
-          by       : name
+      emitToRoom(room, 'create poll', poll, function (peopleIdsEmittedTo) {
+        // peopleIdsEmittedTo: don't do a push notification if user is in the room.
+        getRegIdsStarred(room, peopleIdsEmittedTo, function (regIds) {
+          pushNotifications(regIds, room + ': New Poll', pollName + ' - ' + name, {
+            room     : room,
+            poll_id  : poll.poll_id,
+            poll_name: pollName,
+            by       : name
+          });
         });
       });
-
     }
   });
 }
@@ -173,17 +188,17 @@ function vote (socketId, room, name, pollId, personId, vote) {
       emitToRoom(room, 'vote', {
         poll_id: pollId,
         vote   : {vote: vote, name: rows[0].person_name, person_id: personId}
-      });
-
-      getRegIdsStarred(room, personId, function (regIds) {
-        pushNotifications(regIds, room + ' - ' + pollName, name + ' voted', {
-          room     : room,
-          poll_id  : pollId,
-          poll_name: pollName,
-          voter    : name
+      }, function (peopleIdsEmittedTo) {
+        // peopleIdsEmittedTo: don't do a push notification if user is in the room.
+        getRegIdsStarred(room, peopleIdsEmittedTo, function (regIds) {
+          pushNotifications(regIds, room + ' - ' + pollName, name + ' voted', {
+            room     : room,
+            poll_id  : pollId,
+            poll_name: pollName,
+            voter    : name
+          });
         });
       });
-
     }
   });
 }

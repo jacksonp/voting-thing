@@ -8,11 +8,14 @@ function RoomViewModel () {
     connected = false;
 
   function toast (message) {
-    // WEB_EXCLUDE_START
-    if (appRunning && message) {
-      window.plugins.toast.showShortBottom(message);
+    if (!message) {
+      return;
     }
-    // WEB_EXCLUDE_END
+    if (appRunning || self.starred()) {
+      // WEB_EXCLUDE_START
+      window.plugins.toast.showShortBottom(message);
+      // WEB_EXCLUDE_END
+    }
   }
 
   function vote (pollId, vote) {
