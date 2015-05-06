@@ -231,7 +231,7 @@
 
   <form>
     <fieldset class="ui-alt-icon ui-nodisc-icon" data-role="controlgroup" data-type="horizontal">
-      <button data-icon="share" data-iconpos="notext" data-bind="click: $parent.sharePoll">Share</button>
+      <button data-icon="share" data-iconpos="notext" data-bind="click: $root.sharePoll">Share</button>
       <button data-icon="copy" data-iconpos="notext" data-bind="click: $root.createPoll.rerunPoll">New Similar</button>
       <!-- ko if: ownPoll -->
       <button data-icon="lock" data-iconpos="notext" data-bind="click: closePoll, visible: status() === 'open' && votes().length > 0">
