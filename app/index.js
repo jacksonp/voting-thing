@@ -207,111 +207,111 @@ io.on('connection', function (socket) {
 
   socket.on('message', function (data) {
 
-    var receivedData = JSON.parse(data);
-    console.log(receivedData);
+    var payload = JSON.parse(data);
+
     if (!io.clients[socket.id]) {
       console.error('Do not know who we got the message from:');
       console.error(socket.id);
       console.error(data);
       return;
     }
-    if (!receivedData.v || semver.lt(receivedData.v, '0.5.0')) {
+    if (!payload.v || semver.lt(payload.v, '0.5.0')) {
       emitError(socket.id, 'Please update this app.');
       return;
     }
-    if (!receivedData.action) {
+    if (!payload.action) {
       console.error('No action received in following data:');
       console.error(data);
       return;
     }
-    switch (receivedData.action) {
+    switch (payload.action) {
       case 'enter room':
-        enterRoom(receivedData.room, receivedData.name, receivedData.person_id, socket.id);
+        enterRoom(payload.room, payload.name, payload.person_id, socket.id);
         break;
       case 'create poll':
-        createPoll(socket.id, receivedData.room, receivedData.name, receivedData.poll_name, receivedData.description, receivedData.person_id, receivedData.type, receivedData.details);
+        createPoll(socket.id, payload.room, payload.name, payload.poll_name, payload.description, payload.person_id, payload.type, payload.details);
         break;
       case 'vote':
-        vote(socket.id, receivedData.room, receivedData.name, receivedData.poll_id, receivedData.person_id, receivedData.vote);
+        vote(socket.id, payload.room, payload.name, payload.poll_id, payload.person_id, payload.vote);
         break;
       case 'older polls':
-        returnPolls(socket.id, receivedData.room, 'older polls', receivedData.oldest_poll_id);
+        returnPolls(socket.id, payload.room, 'older polls', payload.oldest_poll_id);
         break;
       case 'name change':
-        query("UPDATE people SET name = $2 WHERE person_id = $1 RETURNING room_id", [receivedData.person_id, receivedData.new_name], function (err, rows) {
+        query("UPDATE people SET name = $2 WHERE person_id = $1 RETURNING room_id", [payload.person_id, payload.new_name], function (err, rows) {
           if (err) {
             console.error(err);
             emitError(socket.id, err.hint);
           } else {
             rows.forEach(function (r) {
-              emitToRoom(r.room_id, 'name change', receivedData);
+              emitToRoom(r.room_id, 'name change', payload);
             });
           }
         });
         break;
       case 'close poll':
-        query('UPDATE polls SET status = $2 WHERE poll_id = $1', [receivedData.poll_id, 'closed'], function (err, rows) {
+        query('UPDATE polls SET status = $2 WHERE poll_id = $1', [payload.poll_id, 'closed'], function (err, rows) {
           if (err) {
             console.error(err);
             emitError(socket.id, err.hint);
           } else {
-            emitToRoom(receivedData.room, 'close poll', receivedData.poll_id);
+            emitToRoom(payload.room, 'close poll', payload.poll_id);
           }
         });
         break;
       case 'reopen poll':
-        query('UPDATE polls SET status = $2 WHERE poll_id = $1', [receivedData.poll_id, 'open'], function (err, rows) {
+        query('UPDATE polls SET status = $2 WHERE poll_id = $1', [payload.poll_id, 'open'], function (err, rows) {
           if (err) {
             console.error(err);
             emitError(socket.id, err.hint);
           } else {
-            emitToRoom(receivedData.room, 'reopen poll', receivedData.poll_id);
+            emitToRoom(payload.room, 'reopen poll', payload.poll_id);
           }
         });
         break;
       case 'delete poll':
-        query('DELETE FROM polls WHERE poll_id = $1', [receivedData.poll_id], function (err, rows) {
+        query('DELETE FROM polls WHERE poll_id = $1', [payload.poll_id], function (err, rows) {
           if (err) {
             console.error(err);
             emitError(socket.id, err.hint);
           } else {
-            emitToRoom(receivedData.room, 'delete poll', receivedData.poll_id);
+            emitToRoom(payload.room, 'delete poll', payload.poll_id);
           }
         });
         break;
       case 'leave room':
-        query('DELETE FROM people WHERE person_id = $1 AND room_id = vt_normalize($2)', [receivedData.person_id, receivedData.room], function (err, rows) {
+        query('DELETE FROM people WHERE person_id = $1 AND room_id = vt_normalize($2)', [payload.person_id, payload.room], function (err, rows) {
           if (err) {
             console.error(err);
             emitError(socket.id, err.hint);
           } else {
-            emitToRoom(receivedData.room, 'person left', receivedData.person_id);
+            emitToRoom(payload.room, 'person left', payload.person_id);
           }
         });
         break;
       case 'star':
-        query('SELECT star($1, $2, $3)', [receivedData.room, receivedData.person_id, {
-          model                  : receivedData.device_model,
-          manufacturer           : receivedData.device_manufacturer,
-          version                : receivedData.device_version,
-          platform               : receivedData.device_platform,
-          android_registration_id: receivedData.android_registration_id
+        query('SELECT star($1, $2, $3)', [payload.room, payload.person_id, {
+          model                  : payload.device_model,
+          manufacturer           : payload.device_manufacturer,
+          version                : payload.device_version,
+          platform               : payload.device_platform,
+          android_registration_id: payload.android_registration_id
         }], function (err, rows) {
           if (err) {
             console.error(err);
             emitError(socket.id, err.hint);
           } else {
-            emit(socket.id, 'star', {message: receivedData.room + ': poll and vote notifications on.'});
+            emit(socket.id, 'star', {message: payload.room + ': poll and vote notifications on.'});
           }
         });
         break;
       case 'unstar':
-        query('DELETE FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2', [receivedData.room, receivedData.person_id], function (err, rows) {
+        query('DELETE FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2', [payload.room, payload.person_id], function (err, rows) {
           if (err) {
             console.error(err);
             emitError(socket.id, err.hint);
           } else {
-            emit(socket.id, 'unstar', {message: data.room + ': notifications off.'});
+            emit(socket.id, 'unstar', {message: payload.room + ': notifications off.'});
           }
         });
         break;
