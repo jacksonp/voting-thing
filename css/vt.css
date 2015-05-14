@@ -23,6 +23,13 @@ body {
   color: #000000;
 }
 
+/* Fix issue with white bar in buttons: */
+.ui-btn-corner-all,
+.ui-corner-all {
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+}
+
 /* Remove for when in room: */
 .ui-content {
   padding-top: 0;
