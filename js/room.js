@@ -233,18 +233,16 @@ function RoomViewModel () {
   }
 
   function setupDone () {
-    $('#vt-header').removeClass('vt-synced');
     self.isSetup(true);
     self.room(self.roomInput());
     self.roomHistory.addRoomToHistory(self.roomInput(), '');
     connection = connect();
     self.room.subscribeChanged(function (newRoomName, oldRoomName) {
-      $('#vt-header').removeClass('vt-synced');
       self.polls.removeAll();
       self.people.removeAll();
       $('.new-poll-area').collapsible('collapse');
       self.roomHistory.addRoomToHistory(newRoomName, oldRoomName);
-      myEmit('enter room');
+      self.sync();
       self.roomInput(newRoomName);
     });
 
@@ -268,6 +266,7 @@ function RoomViewModel () {
   };
 
   self.sync = function () {
+    $('#vt-header').removeClass('vt-synced');
     myEmit('enter room');
   };
 
