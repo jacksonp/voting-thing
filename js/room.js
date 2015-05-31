@@ -107,6 +107,7 @@ function RoomViewModel () {
             break;
           case 'older polls':
             self.addPolls(payload.data, true);
+            $('#vt-header').addClass('vt-synced');
             break;
           case 'name change':
             self.people.renamePerson(payload.data.person_id, payload.data.new_name);
@@ -232,6 +233,7 @@ function RoomViewModel () {
       $(document).off('scrollstop');
       var underlyingPolls = self.polls();
       myEmit('older polls', {oldest_poll_id: underlyingPolls[underlyingPolls.length - 1].poll_id});
+      $('#vt-header').removeClass('vt-synced');
     }
   }
 
