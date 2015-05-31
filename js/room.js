@@ -31,6 +31,8 @@ function RoomViewModel () {
       return poll.poll_id === pollId;
     });
     toast('Poll deleted: ' + removed.pop().poll_name);
+
+    $('#poll-group-container').enhanceWithin();
     // See: http://knockoutjs.com/examples/animatedTransitions.html to enable this again:
     //pollInstanceArea.slideUp(300, function () {
     //  $(this).remove();
@@ -325,6 +327,7 @@ function RoomViewModel () {
   self.addPoll = function (data) {
     var poll = new Poll.Poll(data.poll_name, data.description, data.owner_id, data.type, data.details, data.poll_id, data.status, self.people.me.id, utilFns);
     self.polls.unshift(poll);
+    $('#poll-group-container').enhanceWithin();
     if (poll.ownPoll) { // I just created this poll...
       $('.new-poll-area').collapsible('collapse');
       self.createPoll.items.removeAll();
@@ -341,10 +344,11 @@ function RoomViewModel () {
   }
 
   self.addPolls = function (data, olderPolls) {
+
     var i, p, newPolls = [], poll, votes;
 
     if (!olderPolls) {
-      // sync
+      // We're syncing rather than appending polls to the bottom of the list.
       self.polls.removeAll();
     }
 
@@ -368,10 +372,15 @@ function RoomViewModel () {
           $(document).on('scrollstop', checkScroll);
         }
       } else {
-        self.polls.unshift.apply(self.polls, newPolls);
+        console.log('a');
+        self.polls(newPolls);
+        console.log('b');
         revealFirstPoll();
       }
     }
+
+    $('#poll-group-container').enhanceWithin();
+
   };
 
   self.sharePoll = function (poll) {
