@@ -163,7 +163,7 @@
 </script>
 
 <script type="text/html" id="poll-template">
-<div data-role="collapsible" data-inset="false" class="poll">
+<div data-role="collapsible" data-inset="false" class="poll" data-bind="attr: {id: 'poll-' + poll_id}">
   <h2 class="ui-alt-icon ui-nodisc-icon" data-bind="text: poll_name"></h2>
 
   <p data-bind="text: description"></p>

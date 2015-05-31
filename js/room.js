@@ -48,6 +48,7 @@ function RoomViewModel () {
   function reopenPoll (pollId) {
     var poll = self.getPoll(pollId);
     poll.status('open');
+    $('#poll-' + pollId).enhanceWithin();
     toast('Poll re-opened: ' + poll.poll_name);
   }
 
@@ -372,9 +373,7 @@ function RoomViewModel () {
           $(document).on('scrollstop', checkScroll);
         }
       } else {
-        console.log('a');
         self.polls(newPolls);
-        console.log('b');
         revealFirstPoll();
       }
     }
