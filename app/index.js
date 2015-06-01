@@ -65,7 +65,9 @@ function emit (socketId, action, data) {
 }
 
 function emitError (socketId, message) {
-  emit(socketId, 'vt_error', message);
+  if (message) {
+    emit(socketId, 'vt_error', message);
+  }
 }
 
 function emitToRoom (room, action, data, callback) {
