@@ -4,35 +4,14 @@
             "type": "git",
             "url": "https://github.com/Initsogar/cordova-webintent.git",
             "subdir": "."
-        }
-    },
-    "com.phonegap.plugins.PushPlugin": {
-        "source": {
-            "type": "git",
-            "url": "https://github.com/jacksonp/PushPlugin",
-            "subdir": "."
-        }
-    },
-    "cordova-plugin-whitelist": {
-        "source": {
-            "type": "git",
-            "url": "https://github.com/apache/cordova-plugin-whitelist.git",
-            "subdir": ".",
-            "ref": "r1.0.0"
-        }
+        },
+        "is_top_level": true,
+        "variables": {}
     },
     "cordova-plugin-device": {
         "source": {
             "type": "registry",
             "id": "cordova-plugin-device"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
-    "cordova-plugin-statusbar": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-statusbar"
         },
         "is_top_level": true,
         "variables": {}
@@ -45,10 +24,26 @@
         "is_top_level": true,
         "variables": {}
     },
+    "cordova-plugin-statusbar": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-statusbar"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
     "cordova-plugin-websocket": {
         "source": {
             "type": "registry",
             "id": "cordova-plugin-websocket"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-whitelist": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-whitelist"
         },
         "is_top_level": true,
         "variables": {}
@@ -65,6 +60,15 @@
         "source": {
             "type": "registry",
             "id": "nl.x-services.plugins.toast"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "com.phonegap.plugins.PushPlugin": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/jacksonp/PushPlugin",
+            "subdir": "."
         },
         "is_top_level": true,
         "variables": {}

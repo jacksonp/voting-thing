@@ -68,7 +68,7 @@
 
     <source-file src="src/wp8/SocialSharing.cs" />
   </platform>
-
+  
   <!-- windows -->
   <platform name="windows">
     <js-module src="src/windows/SocialSharingProxy.js" name="SocialSharingProxy">
