@@ -22,7 +22,7 @@ function CreatePollViewModel (myEmit, me) {
       return itemText === i;
     });
     if (exists) {
-      alert('Duplicate!');
+      appAlert('Duplicate!');
       return;
     }
     self.newItemInput('');
@@ -50,13 +50,13 @@ function CreatePollViewModel (myEmit, me) {
         items: self.items()
       };
     } else {
-      alert('Could not figure out poll type.');
+      appAlert('Could not figure out poll type.');
       return;
     }
     try {
       poll = new Poll.Poll(self.newPollName(), self.newPollDesc(), me.id, pollType, details);
     } catch (e) {
-      alert(e);
+      appAlert(e);
       return;
     }
     myEmit('create poll', poll);

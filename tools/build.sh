@@ -15,6 +15,7 @@ cat \
   js/jquery.mobile-1.4.5.min.js <(echo) \
   bower_components/knockout/dist/knockout.js \
   app/node_modules/engine.io-client/engine.io.js \
+  js/globals.js \
   js/push_notifications.js \
   app/poll.js \
   js/person.js \

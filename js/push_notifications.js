@@ -16,7 +16,7 @@ function PushNotifications (handleNotification) {
   }
 
   function registerError (error) {
-    alert('error: ' + error);
+    appAlert(error);
   }
 
   function tokenHandler (result) {
@@ -73,11 +73,11 @@ function PushNotifications (handleNotification) {
         break;
 
       case 'error':
-        alert(e.msg);
+        appAlert(e.msg);
         break;
 
       default:
-        alert(e.event + ' not supported.');
+        appAlert(e.event + ' not supported.');
         break;
     }
 

@@ -1,18 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.votingthing.app" version="0.5.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
-    <name>Voting Thing</name>
-    <description>
-        Create polls and vote amongst friends.
-    </description>
-    <author email="contact@votingthing.com" href="http://www.votingthing.com">
-        Jackson
-    </author>
-    <content src="index.html" />
-    <access origin="*" />
-    <preference name="AndroidLaunchMode" value="singleTask" />
-    <preference name="StatusBarOverlaysWebView" value="false" />
-    <preference name="StatusBarBackgroundColor" value="#007035" />
     <feature name="WebIntent">
         <param name="android-package" value="com.borismus.webintent.WebIntent" />
     </feature>
@@ -42,4 +30,15 @@
     <feature name="PushPlugin">
         <param name="android-package" value="com.plugin.gcm.PushPlugin" />
     </feature>
+    <feature name="Notification">
+        <param name="android-package" value="org.apache.cordova.dialogs.Notification" />
+    </feature>
+    <name>Voting Thing</name>
+    <description>Create polls and vote amongst friends.</description>
+    <author email="contact@votingthing.com" href="http://www.votingthing.com">Jackson</author>
+    <content src="index.html" />
+    <access origin="*" />
+    <preference name="AndroidLaunchMode" value="singleTask" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#007035" />
 </widget>

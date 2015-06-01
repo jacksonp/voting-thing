@@ -70,7 +70,7 @@ function RoomViewModel () {
         }
         switch (payload.action) {
           case 'vt_error':
-            alert(payload.data);
+            appAlert(payload.data);
             break;
           case 'enter room':
             self.people.addPeople(payload.data);
