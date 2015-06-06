@@ -342,7 +342,7 @@ function RoomViewModel () {
   function revealFirstPoll (force) {
     var polls = $('.poll');
     if (force || polls.length < 3) {
-      polls.first().collapsible('expand');
+      polls.first().collapsible().collapsible('expand');
     }
   }
 
