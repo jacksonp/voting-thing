@@ -167,9 +167,10 @@ function RoomViewModel () {
   // WEB_EXCLUDE_END
 
   $(window).on('hashchange', function () {
-    var room = location.hash.replace('#', '');
-    if (room) {
-      self.room(room);
+    var hash = location.hash.replace('#', '');
+    if (hash) {
+      hash = decodeURIComponent(hash);
+      self.room(hash);
     }
     //$('h1').text(location.hash.slice(1));
   });
@@ -181,7 +182,7 @@ function RoomViewModel () {
   self.room = ko.observable('').trimmed();
 
   // See if room is set in URL hash, and if not if set in localStorage.
-  self.roomInput = ko.observable(location.hash.replace('#', '') || localStorage.getItem('room_name') || '').trimmed();
+  self.roomInput = ko.observable(decodeURIComponent(location.hash).replace('#', '') || localStorage.getItem('room_name') || '').trimmed();
 
   self.polls = ko.observableArray([]);
 

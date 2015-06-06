@@ -94,6 +94,7 @@
       if (uri) {
         var hash = uri.split('#').slice(1).join("#");
         if (hash) {
+          hash = decodeURIComponent(hash);
           roomModel.room(hash);
         }
       }
