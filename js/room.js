@@ -207,7 +207,7 @@ function RoomViewModel () {
   function myEmit (action, extraData) {
     extraData = extraData || {};
     var data = $.extend(extraData, {
-      v        : '0.5.2',
+      v        : '0.5.3',
       action   : action,
       room     : self.room(),
       person_id: self.people.me.id,
