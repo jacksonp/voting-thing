@@ -71,6 +71,20 @@
       return;
     }
 
+    roomModel = new RoomViewModel();
+    ko.applyBindings(roomModel);
+
+    $('.new-poll-area').collapsible({
+      // Slide up and down to prevent ghost clicks:
+      collapse: function () {
+        $(this).children().next().slideUp(300);
+      },
+      expand  : function () {
+        $(this).children().next().hide();
+        $(this).children().next().slideDown(300);
+      }
+    });
+
     // WEB_EXCLUDE_START
     document.addEventListener('offline', function () {
       $('#vt-header').removeClass('vt-synced');
@@ -84,12 +98,7 @@
     document.addEventListener('resume', function () {
       roomModel.onAppResume();
     }, false);
-    // WEB_EXCLUDE_END
 
-    roomModel = new RoomViewModel();
-    ko.applyBindings(roomModel);
-
-    // WEB_EXCLUDE_START
     window.webintent.onNewIntent(function (uri) {
       if (uri) {
         var hash = uri.split('#').slice(1).join("#");
@@ -99,18 +108,9 @@
         }
       }
     });
-    // WEB_EXCLUDE_END
 
-    $('.new-poll-area').collapsible({
-      // Slide up and down to prevent ghost clicks:
-      collapse: function () {
-        $(this).children().next().slideUp(300);
-      },
-      expand  : function () {
-        $(this).children().next().hide();
-        $(this).children().next().slideDown(300);
-      }
-    });
+    navigator.splashscreen.hide();
+    // WEB_EXCLUDE_END
 
   }
 

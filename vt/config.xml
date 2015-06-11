@@ -8,6 +8,12 @@
     <preference name="AndroidLaunchMode" value="singleTask" />
     <preference name="StatusBarOverlaysWebView" value="false" />
     <preference name="StatusBarBackgroundColor" value="#007035" />
+    <preference name="SplashScreen" value="screen" />
+    <preference name="SplashScreenDelay" value="10000" />
+    <preference name="SplashMaintainAspectRatio" value="true" />
+    <preference name="AutoHideSplashScreen" value="false" />
+    <preference name="auto-hide-splash-screen" value="false" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
     <plugin name="com.borismus.webintent" spec="https://github.com/Initsogar/cordova-webintent.git" />
     <plugin name="cordova-plugin-device" spec="^1.0.0" />
     <plugin name="cordova-plugin-network-information" spec="^1.0.0" />
@@ -18,5 +24,20 @@
     <plugin name="nl.x-services.plugins.toast" spec="^2.0.4" />
     <plugin name="com.phonegap.plugins.PushPlugin" spec="https://github.com/jacksonp/PushPlugin" />
     <plugin name="cordova-plugin-dialogs" spec="^1.1.0" />
+    <plugin name="cordova-plugin-splashscreen" spec="^2.0.0" />
     <engine name="android" spec="^4.0.2" />
+    <platform name="android">
+        <icon density="ldpi" src="res/android/ldpi.png" />
+        <icon density="mdpi" src="res/android/mdpi.png" />
+        <icon density="hdpi" src="res/android/hdpi.png" />
+        <icon density="xhdpi" src="res/android/xhdpi.png" />
+        <splash density="land-hdpi" src="res/android/splash-land-hdpi.png" />
+        <splash density="land-ldpi" src="res/android/splash-land-ldpi.png" />
+        <splash density="land-mdpi" src="res/android/splash-land-mdpi.png" />
+        <splash density="land-xhdpi" src="res/android/splash-land-xhdpi.png" />
+        <splash density="port-hdpi" src="res/android/splash-port-hdpi.png" />
+        <splash density="port-ldpi" src="res/android/splash-port-ldpi.png" />
+        <splash density="port-mdpi" src="res/android/splash-port-mdpi.png" />
+        <splash density="port-xhdpi" src="res/android/splash-port-xhdpi.png" />
+    </platform>
 </widget>
