@@ -18,4 +18,5 @@
     <plugin name="nl.x-services.plugins.toast" spec="^2.0.4" />
     <plugin name="com.phonegap.plugins.PushPlugin" spec="https://github.com/jacksonp/PushPlugin" />
     <plugin name="cordova-plugin-dialogs" spec="^1.1.0" />
+    <engine name="android" spec="^4.0.2" />
 </widget>
