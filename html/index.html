@@ -39,7 +39,8 @@
       </form>
       <br>
       <ul data-role="listview" data-bind="foreach: roomHistory.prevRooms, jqmRefreshList: roomHistory.prevRooms">
-        <li><a href="#" data-bind="text: name, click: $root.goToRoom(name)"></a></li>
+        <!-- http://stackoverflow.com/questions/20869572/div-click-event-automatically-getting-fired-on-page-load -->
+        <li><a href="#" data-bind="text: name, click: function(){$root.goToRoom(name);}"></a></li>
       </ul>
     </div>
     <div data-role="collapsible" data-collapsed="false">

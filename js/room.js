@@ -73,11 +73,11 @@ function RoomViewModel () {
             appAlert(payload.data);
             break;
           case 'enter room':
-            self.people.addPeople(payload.data);
             // Hack for case when multiple versions of room name map to one actual room (I think this is the first time we get room_id back from DB):
-            if (payload.data.length) {
+            if (!self.people.empty() && payload.data.length) {
               self.roomHistory.addRoomToHistory(payload.data[0].room_id, self.room());
             }
+            self.people.addPeople(payload.data);
             break;
           case 'polls sync':
             self.addPolls(payload.data);
@@ -186,7 +186,7 @@ function RoomViewModel () {
   self.room = ko.observable('').trimmed();
 
   // See if room is set in URL hash, and if not if set in localStorage.
-  self.roomInput = ko.observable(decodeURIComponent(location.hash).replace('#', '') || localStorage.getItem('room_name') || '').trimmed();
+  self.roomInput = ko.observable(decodeURIComponent(location.hash).replace('#', '') || self.roomHistory.getLastRoom()).trimmed();
 
   self.polls = ko.observableArray([]);
 
@@ -246,7 +246,7 @@ function RoomViewModel () {
     self.isSetup(true);
     self.room(self.roomInput());
     connection = connect();
-    self.room.subscribeChanged(function (newRoomName, oldRoomName) {
+    self.room.subscribe(function (newRoomName) {
       self.polls.removeAll();
       self.people.removeAll();
       $('.new-poll-area').collapsible('collapse');

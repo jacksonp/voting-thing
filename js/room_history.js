@@ -14,7 +14,7 @@ function RoomHistoryViewModel () {
     } else {
       prevRooms = [];
     }
-
+    localStorage.setItem('prev_rooms', JSON.stringify(prevRooms));
     self.prevRooms = ko.observableArray(prevRooms);
   }());
   //</editor-fold>
@@ -23,10 +23,6 @@ function RoomHistoryViewModel () {
 
     if (!roomId || !roomName) {
       return;
-    }
-
-    if (roomName !== localStorage.getItem('room_name')) {
-      localStorage.setItem('room_name', roomName);
     }
 
     if (location.hash.replace('#', '') !== roomName) { // hash change could be root of this event...
@@ -46,6 +42,10 @@ function RoomHistoryViewModel () {
 
     localStorage.setItem('prev_rooms', JSON.stringify(self.prevRooms()));
 
+  };
+
+  self.getLastRoom = function () {
+    return self.prevRooms().length ? self.prevRooms()[0] : '';
   };
 
   //self.popLastRoom = function () {

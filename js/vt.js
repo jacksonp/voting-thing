@@ -21,17 +21,6 @@
       owner: this
     });
   };
-
-  ko.subscribable.fn.subscribeChanged = function (callback) {
-    var oldValue;
-    this.subscribe(function (_oldValue) {
-      oldValue = _oldValue;
-    }, this, 'beforeChange');
-
-    return this.subscribe(function (newValue) {
-      callback(newValue, oldValue);
-    });
-  };
   //</editor-fold>
 
   var

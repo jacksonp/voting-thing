@@ -17,6 +17,10 @@ function PeopleViewModel (myEmit) {
     self.people.removeAll();
   };
 
+  self.empty = function () {
+    return self.people().length;
+  };
+
   // TODO: now that we prune lost sockets when anyone enters room and return a full list of people, maybe just replace
   // array of people instead of adding if not present?
 
