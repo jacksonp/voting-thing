@@ -15,16 +15,16 @@
     <preference name="auto-hide-splash-screen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
     <plugin name="com.borismus.webintent" spec="https://github.com/Initsogar/cordova-webintent.git" />
-    <plugin name="cordova-plugin-device" spec="^1.0.0" />
-    <plugin name="cordova-plugin-network-information" spec="^1.0.0" />
-    <plugin name="cordova-plugin-statusbar" spec="^1.0.0" />
+    <plugin name="cordova-plugin-device" spec="^1.0.1" />
+    <plugin name="cordova-plugin-network-information" spec="^1.0.1" />
+    <plugin name="cordova-plugin-statusbar" spec="^1.0.1" />
     <plugin name="cordova-plugin-websocket" spec="^0.9.2" />
     <plugin name="cordova-plugin-whitelist" spec="^1.0.0" />
-    <plugin name="nl.x-services.plugins.socialsharing" spec="^4.3.18" />
+    <plugin name="nl.x-services.plugins.socialsharing" spec="^4.3.19" />
     <plugin name="nl.x-services.plugins.toast" spec="^2.0.4" />
     <plugin name="com.phonegap.plugins.PushPlugin" spec="https://github.com/jacksonp/PushPlugin" />
-    <plugin name="cordova-plugin-dialogs" spec="^1.1.0" />
-    <plugin name="cordova-plugin-splashscreen" spec="^2.0.0" />
+    <plugin name="cordova-plugin-dialogs" spec="^1.1.1" />
+    <plugin name="cordova-plugin-splashscreen" spec="^2.1.0" />
     <engine name="android" spec="^4.0.2" />
     <platform name="android">
         <icon density="ldpi" src="res/android/ldpi.png" />
