@@ -95,7 +95,7 @@ $func$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION add_person_to_room(p_room_name rooms.name%TYPE, p_name people.name%TYPE,
                                               p_person_id people.person_id%TYPE, p_socket_id people.socket_id%TYPE)
-  RETURNS TABLE(r_person_id TEXT, r_name TEXT, r_socket_id TEXT) AS $func$
+  RETURNS TABLE(r_room_id TEXT, r_person_id TEXT, r_name TEXT, r_socket_id TEXT) AS $func$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
 BEGIN
@@ -118,6 +118,7 @@ BEGIN
 
   RETURN QUERY
   SELECT
+    p.room_id,
     p.person_id,
     p.name,
     p.socket_id

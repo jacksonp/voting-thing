@@ -125,10 +125,10 @@ function enterRoom (room, name, personId, socketId) {
       for (i = rows.length - 1; i >= 0; i--) {
         if (!io.clients[rows[i].r_socket_id]) { // No longer in room
           // TODO: fire and forget: not great. also dupe query for when leaving room.
-          query('DELETE FROM people WHERE person_id = $1 AND room_id = vt_normalize($2)', [rows[i].r_person_id, room]);
+          query('DELETE FROM people WHERE person_id = $1 AND room_id = $2', [rows[i].r_person_id, rows[i].r_room_id]);
           rows.splice(i, 1);
         } else {
-          inRoom.push({person_id: rows[i].r_person_id, name: rows[i].r_name});
+          inRoom.push({room_id: rows[i].r_room_id, person_id: rows[i].r_person_id, name: rows[i].r_name});
         }
       }
       rows.forEach(function (r) {

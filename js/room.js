@@ -74,6 +74,10 @@ function RoomViewModel () {
             break;
           case 'enter room':
             self.people.addPeople(payload.data);
+            // Hack for case when multiple versions of room name map to one actual room (I think this is the first time we get room_id back from DB):
+            if (payload.data.length) {
+              self.roomHistory.addRoomToHistory(payload.data[0].room_id, self.room());
+            }
             break;
           case 'polls sync':
             self.addPolls(payload.data);
@@ -241,13 +245,11 @@ function RoomViewModel () {
   function setupDone () {
     self.isSetup(true);
     self.room(self.roomInput());
-    self.roomHistory.addRoomToHistory(self.roomInput(), '');
     connection = connect();
     self.room.subscribeChanged(function (newRoomName, oldRoomName) {
       self.polls.removeAll();
       self.people.removeAll();
       $('.new-poll-area').collapsible('collapse');
-      self.roomHistory.addRoomToHistory(newRoomName, oldRoomName);
       self.sync();
       self.roomInput(newRoomName);
     });

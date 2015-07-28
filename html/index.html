@@ -39,7 +39,7 @@
       </form>
       <br>
       <ul data-role="listview" data-bind="foreach: roomHistory.prevRooms, jqmRefreshList: roomHistory.prevRooms">
-        <li><a href="#" data-bind="text: $data, click: $root.goToRoom"></a></li>
+        <li><a href="#" data-bind="text: name, click: $root.goToRoom(name)"></a></li>
       </ul>
     </div>
     <div data-role="collapsible" data-collapsed="false">
