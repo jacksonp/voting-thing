@@ -45,7 +45,7 @@ function RoomHistoryViewModel () {
   };
 
   self.getLastRoom = function () {
-    return self.prevRooms().length ? self.prevRooms()[0] : '';
+    return self.prevRooms().length ? self.prevRooms()[0].name : '';
   };
 
   //self.popLastRoom = function () {
