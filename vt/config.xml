@@ -14,7 +14,6 @@
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="auto-hide-splash-screen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
-    <plugin name="com.borismus.webintent" spec="https://github.com/Initsogar/cordova-webintent.git" />
     <plugin name="cordova-plugin-device" spec="^1.0.1" />
     <plugin name="cordova-plugin-network-information" spec="^1.0.1" />
     <plugin name="cordova-plugin-statusbar" spec="^1.0.1" />
@@ -26,7 +25,9 @@
     <plugin name="cordova-plugin-dialogs" spec="^1.1.1" />
     <plugin name="cordova-plugin-splashscreen" spec="^2.1.0" />
     <engine name="android" spec="^4.1.0" />
+    <engine name="ios" spec="^3.8.0" />
     <platform name="android">
+        <plugin name="com.borismus.webintent" spec="https://github.com/Initsogar/cordova-webintent.git" />
         <icon density="ldpi" src="res/android/ldpi.png" />
         <icon density="mdpi" src="res/android/mdpi.png" />
         <icon density="hdpi" src="res/android/hdpi.png" />

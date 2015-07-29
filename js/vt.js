@@ -25,7 +25,7 @@
 
   var
     deviceReady = false,
-    domReady = false,
+    domReady    = false,
     roomModel;
 
   // APP_EXCLUDE_START
@@ -36,15 +36,19 @@
 
     deviceReady = true;
 
-    window.webintent.getUri(function (uri) {
-      if (uri) {
-        var hash = uri.split('#').slice(1).join("#");
-        if (hash) {
-          history.pushState(null, null, '#' + hash);
+    if (window.webintent) {
+      window.webintent.getUri(function (uri) {
+        if (uri) {
+          var hash = uri.split('#').slice(1).join("#");
+          if (hash) {
+            history.pushState(null, null, '#' + hash);
+          }
         }
-      }
+        init();
+      });
+    } else {
       init();
-    });
+    }
 
   }, false);
   // WEB_EXCLUDE_END
@@ -88,15 +92,17 @@
       roomModel.onAppResume();
     }, false);
 
-    window.webintent.onNewIntent(function (uri) {
-      if (uri) {
-        var hash = uri.split('#').slice(1).join("#");
-        if (hash) {
-          hash = decodeURIComponent(hash);
-          roomModel.room(hash);
+    if (window.webintent) {
+      window.webintent.onNewIntent(function (uri) {
+        if (uri) {
+          var hash = uri.split('#').slice(1).join("#");
+          if (hash) {
+            hash = decodeURIComponent(hash);
+            roomModel.room(hash);
+          }
         }
-      }
-    });
+      });
+    }
 
     navigator.splashscreen.hide();
     // WEB_EXCLUDE_END
