@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+mkdir -p www/css www/js vt/www/js vt/www/css
+
 cat \
   css/jqm-themeroller-vt.css \
   css/jquery.mobile.icons.css \
