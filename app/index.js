@@ -5,6 +5,7 @@ var io = require('engine.io').listen(3883);
 var semver = require('semver');
 
 var gcm = require('node-gcm');
+var apn = require('apn');
 
 var pollsPerQuery = 20;
 
@@ -13,25 +14,39 @@ query.connectionParameters = 'postgres://vt@localhost/vt';
 
 
 function pushNotifications (recipients, title, message, messageData) {
-  messageData = messageData || {};
-  messageData.title = title;
-  messageData.message = message;
-  //  messageData.msgcnt = 1;
-  var messageObj = new gcm.Message({
-    data: messageData
-  });
-  var sender = new gcm.Sender('***REMOVED***');
-  sender.send(messageObj, recipients, function (err, result) {
-    if (err) {
-      console.error(err);
-    }
-  });
+  if (recipients.android_registration_ids.length) {
+    var gcmData = messageData || {};
+    gcmData.title = title;
+    gcmData.message = message;
+    //  messageData.msgcnt = 1;
+    var messageObj = new gcm.Message({
+      data: gcmData
+    });
+    var sender = new gcm.Sender('***REMOVED***');
+    sender.send(messageObj, recipients.android_registration_ids, function (err) {
+      if (err) {
+        console.error(err);
+      }
+    });
+  }
+  if (recipients.ios_device_token.length) {
+    var apnConnection = new apn.Connection({passphrase: '***REMOVED***'});
+    var apnPayload = messageData || {};
+    apnPayload.message = message;
+    var note = new apn.Notification();
+    note.alert = title;
+    note.payload = apnPayload;
+    recipients.ios_device_token.forEach(function (token) {
+      var myDevice = new apn.Device(token);
+      apnConnection.pushNotification(note, myDevice);
+    });
+  }
 }
 
 function getRegIdsStarred (room, excludeIds, callback) {
 
   var
-    qStr = 'SELECT device_details FROM stars WHERE room_id = vt_normalize($1)',
+    qStr  = 'SELECT device_details FROM stars WHERE room_id = vt_normalize($1)',
     qData = [room];
   if (excludeIds.length) {
     qStr += ' AND device_id NOT IN ($2)';
@@ -41,14 +56,19 @@ function getRegIdsStarred (room, excludeIds, callback) {
   query(qStr, qData, function (err, rows) {
     if (err) {
       console.error(err);
-    } else {
-      var regIds = [];
+    } else if (rows.length) {
+      var regIds = {
+        android_registration_ids: [],
+        ios_device_token        : []
+      };
       rows.forEach(function (r) {
-        regIds.push(r.device_details.android_registration_id);
+        if (r.device_details.android_registration_id) {
+          regIds.android_registration_ids.push(r.device_details.android_registration_id);
+        } else {
+          regIds.ios_device_token.push(r.device_details.ios_device_token);
+        }
       });
-      if (regIds.length) {
-        callback(regIds);
-      }
+      callback(regIds);
     }
   });
 }
@@ -89,7 +109,7 @@ function emitToRoom (room, action, data, callback) {
 
 function returnPolls (socketId, room, requestType, oldestPollId) {
   var
-    sql = "SELECT poll_id, name AS poll_name, description, status, owner_id, type, details, votes, TO_CHAR(created, 'FMDD Mon') AS poll_date FROM polls WHERE room_id = vt_normalize($1)",
+    sql       = "SELECT poll_id, name AS poll_name, description, status, owner_id, type, details, votes, TO_CHAR(created, 'FMDD Mon') AS poll_date FROM polls WHERE room_id = vt_normalize($1)",
     sqlParams = [room, pollsPerQuery + 1];
   if (requestType === 'older polls') {
     sqlParams.push(oldestPollId);
@@ -297,7 +317,8 @@ io.on('connection', function (socket) {
           manufacturer           : payload.device_manufacturer,
           version                : payload.device_version,
           platform               : payload.device_platform,
-          android_registration_id: payload.android_registration_id
+          android_registration_id: payload.android_registration_id,
+          ios_device_token       : payload.ios_device_token
         }], function (err, rows) {
           if (err) {
             console.error(err);
