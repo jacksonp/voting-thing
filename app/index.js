@@ -1,6 +1,7 @@
 'use strict';
 
-var io = require('engine.io').listen(3883);
+var WebSocketServer = require('ws').Server
+  , wss             = new WebSocketServer({port: 3883});
 
 var semver = require('semver');
 
@@ -11,6 +12,8 @@ var pollsPerQuery = 20;
 
 var query = require('pg-query');
 query.connectionParameters = 'postgres://vt@localhost/vt';
+
+var clients = {};
 
 
 function pushNotifications (recipients, title, message, messageData) {
@@ -76,11 +79,15 @@ function getRegIdsStarred (room, excludeIds, callback) {
 var Poll = require('./poll').Poll;
 
 function emit (socketId, action, data) {
-  if (io.clients[socketId]) {
-    io.clients[socketId].send(JSON.stringify({
+  if (clients.hasOwnProperty(socketId)) {
+    clients[socketId].send(JSON.stringify({
       action: action,
       data  : data
-    }));
+    }), function (error) {
+      if (error) {
+        console.log(error);
+      }
+    });
   }
 }
 
@@ -143,7 +150,7 @@ function enterRoom (room, name, personId, socketId) {
     } else {
       var i, inRoom = [];
       for (i = rows.length - 1; i >= 0; i--) {
-        if (!io.clients[rows[i].r_socket_id]) { // No longer in room
+        if (!clients.hasOwnProperty(rows[i].r_socket_id)) { // No longer in room
           // TODO: fire and forget: not great. also dupe query for when leaving room.
           query('DELETE FROM people WHERE person_id = $1 AND room_id = $2', [rows[i].r_person_id, rows[i].r_room_id]);
           rows.splice(i, 1);
@@ -225,18 +232,14 @@ function vote (socketId, room, name, pollId, personId, vote) {
   });
 }
 
-io.on('connection', function (socket) {
+wss.on('connection', function (socket) {
 
   socket.on('message', function (data) {
 
     var payload = JSON.parse(data);
 
-    if (!io.clients[socket.id]) {
-      console.error('Do not know who we got the message from:');
-      console.error(socket.id);
-      console.error(data);
-      return;
-    }
+    socket.id = payload.person_id;
+
     if (!payload.v || semver.lt(payload.v, '0.5.0')) {
       emitError(socket.id, 'Please update this app.');
       return;
@@ -246,6 +249,20 @@ io.on('connection', function (socket) {
       console.error(data);
       return;
     }
+
+    // Special case on connection, set unique id provided by client.
+    if (payload.action === 'id') {
+      clients[socket.id] = socket;
+      return;
+    }
+
+    if (!clients.hasOwnProperty(socket.id)) {
+      console.error('Do not know who we got the message from:');
+      console.error(socket.id);
+      console.error(data);
+      return;
+    }
+
     switch (payload.action) {
       case 'enter room':
         enterRoom(payload.room, payload.name, payload.person_id, socket.id);

@@ -2,10 +2,9 @@ function RoomViewModel () {
   'use strict';
 
   var
-    self = this,
+    self       = this,
     appRunning = true,
-    connection,
-    connected = false;
+    socket;
 
   function toast (message) {
     if (!message) {
@@ -54,100 +53,99 @@ function RoomViewModel () {
 
   function connect () {
 
-    var
-    socket = eio('ws://votingthing.com:3883/');
-    //socket = eio('ws://192.168.1.69:3883/');
+    //socket = new WebSocket('ws://votingthing.com:3883/');
+    socket = new WebSocket('ws://192.168.1.69:3883/');
 
-    socket.on('open', function () {
-
-      connected = true;
-
-      socket.on('message', function (data) {
-        var payload = JSON.parse(data);
-        if (!payload.action) {
-          // Silent fail.
-          return;
-        }
-        switch (payload.action) {
-          case 'vt_error':
-            appAlert(payload.data);
-            break;
-          case 'enter room':
-            // Hack for case when multiple versions of room name map to one actual room (I think this is the first time we get room_id back from DB):
-            if (!self.people.empty() && payload.data.length) {
-              self.roomHistory.addRoomToHistory(payload.data[0].room_id, self.room());
-            }
-            self.people.addPeople(payload.data);
-            break;
-          case 'polls sync':
-            self.addPolls(payload.data);
-            $('#vt-header').addClass('vt-synced');
-            break;
-          case 'star':
-            self.starred(true);
-            toast(payload.data.message);
-            break;
-          case 'unstar':
-            self.starred(false);
-            toast(payload.data.message);
-            break;
-          case 'create poll':
-            self.addPoll(payload.data);
-            if (payload.data.owner_id !== self.people.me.id) {
-              toast('New poll: ' + payload.data.poll_name);
-            }
-            break;
-          case 'vote':
-            vote(payload.data.poll_id, payload.data.vote);
-            break;
-          case 'delete poll':
-            deletePoll(payload.data);
-            break;
-          case 'close poll':
-            closePoll(payload.data);
-            break;
-          case 'reopen poll':
-            reopenPoll(payload.data);
-            break;
-          case 'older polls':
-            self.addPolls(payload.data, true);
-            $('#vt-header').addClass('vt-synced');
-            break;
-          case 'name change':
-            self.people.renamePerson(payload.data.person_id, payload.data.new_name);
-            break;
-          case 'person left':
-            self.people.removePerson(payload.data);
-            break;
-          default:
-            // Silent fail
-            return;
-        }
-
-      });
-
-      socket.on('close', function () {
-        connected = false;
-      });
-
+    socket.onopen = function () {
+      console.log('Socket opened');
+      myEmit('id');
       self.sync();
+    };
 
-    });
+    socket.onmessage = function (message) {
+      console.log('onmessage');
+      console.log(message);
+      var payload = JSON.parse(message.data);
+      if (!payload.action) {
+        // Silent fail.
+        return;
+      }
+      switch (payload.action) {
+        case 'vt_error':
+          appAlert(payload.data);
+          break;
+        case 'enter room':
+          // Hack for case when multiple versions of room name map to one actual room (I think this is the first time we get room_id back from DB):
+          if (!self.people.empty() && payload.data.length) {
+            self.roomHistory.addRoomToHistory(payload.data[0].room_id, self.room());
+          }
+          self.people.addPeople(payload.data);
+          break;
+        case 'polls sync':
+          self.addPolls(payload.data);
+          $('#vt-header').addClass('vt-synced');
+          break;
+        case 'star':
+          self.starred(true);
+          toast(payload.data.message);
+          break;
+        case 'unstar':
+          self.starred(false);
+          toast(payload.data.message);
+          break;
+        case 'create poll':
+          self.addPoll(payload.data);
+          if (payload.data.owner_id !== self.people.me.id) {
+            toast('New poll: ' + payload.data.poll_name);
+          }
+          break;
+        case 'vote':
+          vote(payload.data.poll_id, payload.data.vote);
+          break;
+        case 'delete poll':
+          deletePoll(payload.data);
+          break;
+        case 'close poll':
+          closePoll(payload.data);
+          break;
+        case 'reopen poll':
+          reopenPoll(payload.data);
+          break;
+        case 'older polls':
+          self.addPolls(payload.data, true);
+          $('#vt-header').addClass('vt-synced');
+          break;
+        case 'name change':
+          self.people.renamePerson(payload.data.person_id, payload.data.new_name);
+          break;
+        case 'person left':
+          self.people.removePerson(payload.data);
+          break;
+        default:
+          // Silent fail
+          return;
+      }
 
-    return socket;
+    };
+
+    socket.onclose = function () {
+      // Do nothing
+      console.log('Socket closed.');
+    };
 
   }
 
   self.onAppPause = function () {
     appRunning = false;
-    //connection.close();
+    //socket.close();
   };
 
   self.onAppResume = function () {
     appRunning = true;
-    if (!connected) {
-      connection = connect();
-    }
+    // TODO test native websocket state instead:
+    //if (!connected) {
+    //socket = connect();
+    //}
   };
 
 
@@ -217,11 +215,11 @@ function RoomViewModel () {
       person_id: self.people.me.id,
       name     : self.people.me.name()
     });
-    connection.send(JSON.stringify(data));
+    socket.send(JSON.stringify(data));
   }
 
   var utilFns = {
-    emit: myEmit,
+    emit : myEmit,
     toast: toast
   };
 
@@ -229,11 +227,11 @@ function RoomViewModel () {
   // See: https://jqmtricks.wordpress.com/2014/07/15/infinite-scrolling/
   function checkScroll () {
     var
-      screenHeight = $.mobile.getScreenHeight(),
+      screenHeight  = $.mobile.getScreenHeight(),
       contentHeight = $('.ui-content').outerHeight(),
-      scrolled = $(window).scrollTop(),
-      header = $('.ui-header').outerHeight() - 1,
-      scrollEnd = contentHeight - screenHeight + header;
+      scrolled      = $(window).scrollTop(),
+      header        = $('.ui-header').outerHeight() - 1,
+      scrollEnd     = contentHeight - screenHeight + header;
     if (scrollEnd > 0 && scrolled >= scrollEnd) {
       $(document).off('scrollstop');
       var underlyingPolls = self.polls();
@@ -245,7 +243,7 @@ function RoomViewModel () {
   function setupDone () {
     self.isSetup(true);
     self.room(self.roomInput());
-    connection = connect();
+    connect();
     self.room.subscribe(function (newRoomName) {
       self.polls.removeAll();
       self.people.removeAll();
