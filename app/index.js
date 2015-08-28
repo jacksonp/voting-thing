@@ -238,7 +238,7 @@ wss.on('connection', function (socket) {
 
     var payload = JSON.parse(data);
 
-    if (!payload.v || semver.lt(payload.v, '0.5.0')) {
+    if (!payload.v || semver.lt(payload.v, '1.1.0')) {
       emitError(socket.id, 'Please update this app.');
       return;
     }

@@ -58,13 +58,10 @@ function RoomViewModel () {
     socket = new WebSocket('ws://192.168.1.69:3883/');
 
     socket.onopen = function () {
-      console.log('Socket opened');
       self.sync();
     };
 
     socket.onmessage = function (message) {
-      console.log('onmessage');
-      console.log(message);
       var payload = JSON.parse(message.data);
       if (!payload.action) {
         // Silent fail.
@@ -133,7 +130,6 @@ function RoomViewModel () {
       setTimeout(function () {
         connect();
       }, 4000);
-      console.log('Socket closed.');
     };
 
   }
@@ -149,7 +145,6 @@ function RoomViewModel () {
     // WebSocket.CONNECTING = 0
     // WebSocket.OPEN = 1
     if (socket.readyState > 1) {
-      console.log('Reconnecting from state: ' + socket.readyState);
       connect();
     }
   };
@@ -215,7 +210,7 @@ function RoomViewModel () {
   function myEmit (action, extraData) {
     extraData = extraData || {};
     var data = $.extend(extraData, {
-      v        : '1.0.1',
+      v        : '1.1.0',
       action   : action,
       room     : self.room(),
       person_id: self.people.me.id,
@@ -224,7 +219,6 @@ function RoomViewModel () {
     if (socket.readyState === 1) {
       socket.send(JSON.stringify(data));
     } else {
-      console.log('Retrying once in one second.');
       setTimeout(function () {
         if (socket.readyState === 1) {
           socket.send(JSON.stringify(data));
