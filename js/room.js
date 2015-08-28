@@ -5,7 +5,7 @@ function RoomViewModel () {
     self       = this,
     appRunning = true,
     socket,
-    socketId   = null;
+    $headerBar = $('#vt-header');
 
   function toast (message) {
     if (!message) {
@@ -83,7 +83,7 @@ function RoomViewModel () {
           break;
         case 'polls sync':
           self.addPolls(payload.data);
-          $('#vt-header').addClass('vt-synced');
+          $headerBar.addClass('vt-synced');
           break;
         case 'star':
           self.starred(true);
@@ -113,7 +113,7 @@ function RoomViewModel () {
           break;
         case 'older polls':
           self.addPolls(payload.data, true);
-          $('#vt-header').addClass('vt-synced');
+          $headerBar.addClass('vt-synced');
           break;
         case 'name change':
           self.people.renamePerson(payload.data.person_id, payload.data.new_name);
