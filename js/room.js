@@ -142,10 +142,13 @@ function RoomViewModel () {
 
   self.onAppResume = function () {
     appRunning = true;
-    // TODO test native websocket state instead:
-    //if (!connected) {
-    //socket = connect();
-    //}
+    // These are WebSocket.CONSTANTS are undefined, but should be:
+    // WebSocket.CONNECTING = 0
+    // WebSocket.OPEN = 1
+    if (socket.readyState > 1) {
+      console.log('Reconnecting from state: ' + socket.readyState);
+      connect();
+    }
   };
 
 
@@ -215,7 +218,16 @@ function RoomViewModel () {
       person_id: self.people.me.id,
       name     : self.people.me.name()
     });
-    socket.send(JSON.stringify(data));
+    if (socket.readyState === 1) {
+      socket.send(JSON.stringify(data));
+    } else {
+      console.log('Retrying once in one second.');
+      setTimeout(function () {
+        if (socket.readyState === 1) {
+          socket.send(JSON.stringify(data));
+        }
+      }, 1000);
+    }
   }
 
   var utilFns = {

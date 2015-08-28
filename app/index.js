@@ -238,10 +238,10 @@ wss.on('connection', function (socket) {
 
     var payload = JSON.parse(data);
 
-    var socketId = payload.person_id;
+    socket.id = payload.person_id; // Set as propery on socket so that it's available on close.
 
     if (!payload.v || semver.lt(payload.v, '0.5.0')) {
-      emitError(socketId, 'Please update this app.');
+      emitError(socket.id, 'Please update this app.');
       return;
     }
     if (!payload.action) {
@@ -252,35 +252,35 @@ wss.on('connection', function (socket) {
 
     // Special case on connection, set unique id provided by client.
     if (payload.action === 'id') {
-      clients[socketId] = socket;
+      clients[socket.id] = socket;
       return;
     }
 
-    if (!clients.hasOwnProperty(socketId)) {
+    if (!clients.hasOwnProperty(socket.id)) {
       console.error('Do not know who we got the message from:');
-      console.error(socketId);
+      console.error(socket.id);
       console.error(data);
       return;
     }
 
     switch (payload.action) {
       case 'enter room':
-        enterRoom(payload.room, payload.name, payload.person_id, socketId);
+        enterRoom(payload.room, payload.name, payload.person_id, socket.id);
         break;
       case 'create poll':
-        createPoll(socketId, payload.room, payload.name, payload.poll_name, payload.description, payload.person_id, payload.type, payload.details);
+        createPoll(socket.id, payload.room, payload.name, payload.poll_name, payload.description, payload.person_id, payload.type, payload.details);
         break;
       case 'vote':
-        vote(socketId, payload.room, payload.name, payload.poll_id, payload.person_id, payload.vote);
+        vote(socket.id, payload.room, payload.name, payload.poll_id, payload.person_id, payload.vote);
         break;
       case 'older polls':
-        returnPolls(socketId, payload.room, 'older polls', payload.oldest_poll_id);
+        returnPolls(socket.id, payload.room, 'older polls', payload.oldest_poll_id);
         break;
       case 'name change':
         query("UPDATE people SET name = $2 WHERE person_id = $1 RETURNING room_id", [payload.person_id, payload.new_name], function (err, rows) {
           if (err) {
             console.error(err);
-            emitError(socketId, err.hint);
+            emitError(socket.id, err.hint);
           } else {
             rows.forEach(function (r) {
               emitToRoom(r.room_id, 'name change', payload);
@@ -292,7 +292,7 @@ wss.on('connection', function (socket) {
         query('UPDATE polls SET status = $2 WHERE poll_id = $1', [payload.poll_id, 'closed'], function (err, rows) {
           if (err) {
             console.error(err);
-            emitError(socketId, err.hint);
+            emitError(socket.id, err.hint);
           } else {
             emitToRoom(payload.room, 'close poll', payload.poll_id);
           }
@@ -302,7 +302,7 @@ wss.on('connection', function (socket) {
         query('UPDATE polls SET status = $2 WHERE poll_id = $1', [payload.poll_id, 'open'], function (err, rows) {
           if (err) {
             console.error(err);
-            emitError(socketId, err.hint);
+            emitError(socket.id, err.hint);
           } else {
             emitToRoom(payload.room, 'reopen poll', payload.poll_id);
           }
@@ -312,7 +312,7 @@ wss.on('connection', function (socket) {
         query('DELETE FROM polls WHERE poll_id = $1', [payload.poll_id], function (err, rows) {
           if (err) {
             console.error(err);
-            emitError(socketId, err.hint);
+            emitError(socket.id, err.hint);
           } else {
             emitToRoom(payload.room, 'delete poll', payload.poll_id);
           }
@@ -322,7 +322,7 @@ wss.on('connection', function (socket) {
         query('DELETE FROM people WHERE person_id = $1 AND room_id = vt_normalize($2)', [payload.person_id, payload.room], function (err, rows) {
           if (err) {
             console.error(err);
-            emitError(socketId, err.hint);
+            emitError(socket.id, err.hint);
           } else {
             emitToRoom(payload.room, 'person left', payload.person_id);
           }
@@ -339,9 +339,9 @@ wss.on('connection', function (socket) {
         }], function (err, rows) {
           if (err) {
             console.error(err);
-            emitError(socketId, err.hint);
+            emitError(socket.id, err.hint);
           } else {
-            emit(socketId, 'star', {message: payload.room + ': poll and vote notifications on.'});
+            emit(socket.id, 'star', {message: payload.room + ': poll and vote notifications on.'});
           }
         });
         break;
@@ -349,9 +349,9 @@ wss.on('connection', function (socket) {
         query('DELETE FROM stars WHERE room_id = vt_normalize($1) AND device_id = $2', [payload.room, payload.person_id], function (err, rows) {
           if (err) {
             console.error(err);
-            emitError(socketId, err.hint);
+            emitError(socket.id, err.hint);
           } else {
-            emit(socketId, 'unstar', {message: payload.room + ': notifications off.'});
+            emit(socket.id, 'unstar', {message: payload.room + ': notifications off.'});
           }
         });
         break;
@@ -364,10 +364,10 @@ wss.on('connection', function (socket) {
   });
 
   socket.on('close', function () {
-    query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id, person_id', [socketId], function (err, rows) {
+    query('DELETE FROM people WHERE socket_id = $1 RETURNING room_id, person_id', [socket.id], function (err, rows) {
       if (err) {
         console.error(err);
-        emitError(socketId, err.hint);
+        emitError(socket.id, err.hint);
       } else {
         rows.forEach(function (r) {
           emitToRoom(r.room_id, 'person left', r.person_id);
