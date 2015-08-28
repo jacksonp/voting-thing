@@ -1,19 +1,16 @@
 'use strict';
 
 var WebSocketServer = require('ws').Server
-  , wss             = new WebSocketServer({port: 3883});
+  , wss             = new WebSocketServer({port: 3883})
+  , shortid         = require('shortid')
+  , semver          = require('semver')
+  , gcm             = require('node-gcm')
+  , apn             = require('apn')
+  , pollsPerQuery   = 20
+  , query           = require('pg-query')
+  , clients         = {};
 
-var semver = require('semver');
-
-var gcm = require('node-gcm');
-var apn = require('apn');
-
-var pollsPerQuery = 20;
-
-var query = require('pg-query');
 query.connectionParameters = 'postgres://vt@localhost/vt';
-
-var clients = {};
 
 
 function pushNotifications (recipients, title, message, messageData) {
@@ -234,11 +231,12 @@ function vote (socketId, room, name, pollId, personId, vote) {
 
 wss.on('connection', function (socket) {
 
+  socket.id = shortid.generate(); // Set as property on socket so that it's available in event handlers (like close).
+  clients[socket.id] = socket;
+
   socket.on('message', function (data) {
 
     var payload = JSON.parse(data);
-
-    socket.id = payload.person_id; // Set as propery on socket so that it's available on close.
 
     if (!payload.v || semver.lt(payload.v, '0.5.0')) {
       emitError(socket.id, 'Please update this app.');
@@ -247,12 +245,6 @@ wss.on('connection', function (socket) {
     if (!payload.action) {
       console.error('No action received in following data:');
       console.error(data);
-      return;
-    }
-
-    // Special case on connection, set unique id provided by client.
-    if (payload.action === 'id') {
-      clients[socket.id] = socket;
       return;
     }
 

@@ -4,7 +4,8 @@ function RoomViewModel () {
   var
     self       = this,
     appRunning = true,
-    socket;
+    socket,
+    socketId   = null;
 
   function toast (message) {
     if (!message) {
@@ -58,7 +59,6 @@ function RoomViewModel () {
 
     socket.onopen = function () {
       console.log('Socket opened');
-      myEmit('id');
       self.sync();
     };
 
