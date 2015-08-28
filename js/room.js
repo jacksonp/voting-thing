@@ -54,8 +54,8 @@ function RoomViewModel () {
 
   function connect () {
 
-    //socket = new WebSocket('ws://votingthing.com:3883/');
-    socket = new WebSocket('ws://192.168.1.69:3883/');
+    socket = new WebSocket('ws://votingthing.com:3883/');
+    //socket = new WebSocket('ws://192.168.1.69:3883/');
 
     socket.onopen = function () {
       self.sync();
