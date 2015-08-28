@@ -1,6 +1,12 @@
 (function () {
   'use strict';
 
+  if (!('WebSocket' in window)) {
+    alert('WebSockets required!');
+    return;
+  }
+
+
   //<editor-fold desc="Custom knockout stuff">
   ko.bindingHandlers.jqmRefreshList = {
     update: function (element, valueAccessor) {
