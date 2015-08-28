@@ -129,7 +129,10 @@ function RoomViewModel () {
     };
 
     socket.onclose = function () {
-      // Do nothing
+      // Try to reconnect in a few seconds, in case the server was restarted...
+      setTimeout(function () {
+        connect();
+      }, 4000);
       console.log('Socket closed.');
     };
 
