@@ -10,6 +10,11 @@
 
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' data: gap: https://ssl.gstatic.com ws://votingthing.com:3883 http://votingthing.com:3883; style-src 'self' 'unsafe-inline'; media-src *">
 
+<!-- APP_EXCLUDE_START -->
+<meta name="apple-itunes-app" content="app-id=1024944462">
+<link rel="manifest" href="/manifest.json">
+<!-- APP_EXCLUDE_END -->
+
 <title>Voting Thing</title>
 <link rel="stylesheet" href="css/all.min.css">
 <script src="cordova.js"></script>
@@ -159,6 +164,7 @@
 </div>
 <div id="poll-group-container" data-bind="foreach: groupedPolls">
   <h3 data-bind="text: $data[0] && $data[0].poll_date"></h3>
+
   <div data-bind="template: {name: 'poll-template', foreach: $data}"></div>
 </div>
 </script>
