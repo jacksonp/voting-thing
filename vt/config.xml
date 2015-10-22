@@ -28,10 +28,11 @@
     <engine name="android" spec="^4.1.0" />
     <engine name="ios" spec="~3.9.0" />
     <platform name="android">
-        <icon density="ldpi" src="res/android/ldpi.png" />
         <icon density="mdpi" src="res/android/mdpi.png" />
         <icon density="hdpi" src="res/android/hdpi.png" />
         <icon density="xhdpi" src="res/android/xhdpi.png" />
+        <icon density="xxhdpi" src="res/android/xxhdpi.png" />
+        <icon density="xxxhdpi" src="res/android/xxxhdpi.png" />
         <splash density="mdpi" src="res/android/splash-mdpi.9.png" />
         <splash density="hdpi" src="res/android/splash-hdpi.9.png" />
         <splash density="xhdpi" src="res/android/splash-xhdpi.9.png" />
