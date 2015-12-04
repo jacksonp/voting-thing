@@ -39,23 +39,20 @@
   // APP_EXCLUDE_END
   // WEB_EXCLUDE_START
   document.addEventListener('deviceready', function () {
-
     deviceReady = true;
+    init();
+  }, false);
 
-    if (window.webintent) {
-      window.webintent.getUri(function (uri) {
-        if (uri) {
-          var hash = uri.split('#').slice(1).join("#");
-          if (hash) {
-            history.pushState(null, null, '#' + hash);
-          }
-        }
-        init();
-      });
-    } else {
-      init();
+  // https://github.com/nordnet/cordova-universal-links-plugin
+  document.addEventListener('ul_didLaunchAppFromLink', function (event) {
+    var hash = event.detail.hash;
+    if (hash) {
+      if (roomModel) {
+        roomModel.room(hash);
+      } else {
+        history.pushState(null, null, '#' + hash);
+      }
     }
-
   }, false);
   // WEB_EXCLUDE_END
 
@@ -97,18 +94,6 @@
     document.addEventListener('resume', function () {
       roomModel.onAppResume();
     }, false);
-
-    if (window.webintent) {
-      window.webintent.onNewIntent(function (uri) {
-        if (uri) {
-          var hash = uri.split('#').slice(1).join("#");
-          if (hash) {
-            hash = decodeURIComponent(hash);
-            roomModel.room(hash);
-          }
-        }
-      });
-    }
 
     navigator.splashscreen.hide();
     // WEB_EXCLUDE_END

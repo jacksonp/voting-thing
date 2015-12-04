@@ -5,6 +5,10 @@
     <author email="contact@votingthing.com" href="http://www.votingthing.com">Jackson</author>
     <content src="index.html" />
     <access origin="*" />
+    <universal-links>
+        <host name="votingthing.com" />
+        <host name="www.votingthing.com" />
+    </universal-links>
     <preference name="DisallowOverscroll" value="true" />
     <preference name="AndroidLaunchMode" value="singleTask" />
     <preference name="StatusBarOverlaysWebView" value="false" />
@@ -14,20 +18,21 @@
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="auto-hide-splash-screen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
-    <plugin name="cordova-plugin-device" spec="^1.0.1" />
-    <plugin name="cordova-plugin-network-information" spec="^1.0.1" />
-    <plugin name="cordova-plugin-statusbar" spec="^1.0.1" />
-    <plugin name="cordova-plugin-websocket" spec="^0.9.2" />
-    <plugin name="cordova-plugin-whitelist" spec="~1.0.0" />
-    <plugin name="nl.x-services.plugins.socialsharing" spec="^4.3.19" />
-    <plugin name="nl.x-services.plugins.toast" spec="~2.0.4" />
-    <plugin name="com.phonegap.plugins.PushPlugin" spec="https://github.com/jacksonp/PushPlugin" />
-    <plugin name="com.borismus.webintent" spec="https://github.com/Initsogar/cordova-webintent.git" />
-    <plugin name="cordova-plugin-dialogs" spec="^1.1.1" />
-    <plugin name="cordova-plugin-splashscreen" spec="^2.1.0" />
-    <engine name="android" spec="^4.1.0" />
-    <engine name="ios" spec="~3.9.0" />
+    <plugin name="cordova-plugin-device" spec="~1.1.0" />
+    <plugin name="cordova-plugin-network-information" spec="~1.1.0" />
+    <plugin name="cordova-plugin-statusbar" spec="~2.0.0" />
+    <plugin name="cordova-plugin-websocket" spec="~0.12.0" />
+    <plugin name="cordova-plugin-legacy-whitelist" spec="~1.1.1" />
+    <plugin name="cordova-plugin-x-socialsharing" spec="~5.0.7" />
+    <plugin name="cordova-plugin-x-toast" spec="~2.2.3" />
+    <plugin name="phonegap-plugin-push" spec="~1.4.4" />
+    <plugin name="cordova-universal-links-plugin" spec="~1.0.0" />
+    <plugin name="cordova-plugin-dialogs" spec="~1.2.0" />
+    <plugin name="cordova-plugin-splashscreen" spec="~3.0.0" />
+    <engine name="android" spec="~5.0.0" />
+    <engine name="ios" spec="~3.9.2" />
     <platform name="android">
+        <preference name="android-minSdkVersion" value="15" />
         <icon density="mdpi" src="res/android/mdpi.png" />
         <icon density="hdpi" src="res/android/hdpi.png" />
         <icon density="xhdpi" src="res/android/xhdpi.png" />

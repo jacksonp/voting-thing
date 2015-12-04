@@ -144,7 +144,7 @@ function RoomViewModel () {
     // These are WebSocket.CONSTANTS are undefined, but should be:
     // WebSocket.CONNECTING = 0
     // WebSocket.OPEN = 1
-    if (socket.readyState > 1) {
+    if (!socket || socket.readyState > 1) {
       connect();
     }
   };
@@ -290,7 +290,21 @@ function RoomViewModel () {
   };
 
   // WEB_EXCLUDE_START
-  var pushNotifications = new PushNotifications(function (data, foreground, coldstart) {
+  var pushNotifications = new PushNotifications(function (data) {
+    var additionalData = data.additionalData;
+    if (additionalData.foreground) {
+      if (additionalData.room !== self.room()) {
+        if (additionalData.voter) {
+          toast(additionalData.room + ' - ' + additionalData.poll_name + ': ' + additionalData.voter + ' voted');
+        } else {
+          toast(additionalData.room + ': New Poll. ' + additionalData.poll_name + ' - ' + additionalData.by);
+        }
+      }
+    } else {
+      self.goToRoom(additionalData.room);
+    }
+
+  /* old plugin code:
     if (foreground) {
       if (data.room !== self.room()) {
         if (data.voter) {
@@ -304,9 +318,8 @@ function RoomViewModel () {
       self.goToRoom(data.room);
       // data.poll_id is available. Could use that to focus() new poll.
     }
-
+*/
   });
-  pushNotifications.register();
 
   self.star = function () {
     var action = self.starred() ? 'unstar' : 'star';
