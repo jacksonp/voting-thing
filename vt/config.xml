@@ -18,6 +18,7 @@
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="auto-hide-splash-screen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="BackupWebStorage" value="none"/>
     <plugin name="cordova-plugin-device" spec="~1.1.0" />
     <plugin name="cordova-plugin-network-information" spec="~1.1.0" />
     <plugin name="cordova-plugin-statusbar" spec="~2.0.0" />
@@ -29,8 +30,9 @@
     <plugin name="cordova-universal-links-plugin" spec="~1.0.0" />
     <plugin name="cordova-plugin-dialogs" spec="~1.2.0" />
     <plugin name="cordova-plugin-splashscreen" spec="~3.0.0" />
+    <plugin name="cordova-plugin-wkwebview-engine" spec="~1.0.1" />
     <engine name="android" spec="~5.0.0" />
-    <engine name="ios" spec="~3.9.2" />
+    <engine name="ios" spec="~4.0.0" />
     <platform name="android">
         <preference name="android-minSdkVersion" value="15" />
         <icon density="mdpi" src="res/android/mdpi.png" />
