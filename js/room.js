@@ -245,7 +245,16 @@ function RoomViewModel () {
       $(document).off('scrollstop');
       var underlyingPolls = self.polls();
       myEmit('older polls', {oldest_poll_id: underlyingPolls[underlyingPolls.length - 1].poll_id});
-      $('#vt-header').removeClass('vt-synced');
+
+      // WEB_EXCLUDE_START
+      if (device.platform !== 'iOS') {
+        // This doesn't work on iOS:
+        // animation-play-state : paused
+        // See:
+        // http://stackoverflow.com/questions/27362216/webkit-animation-play-state-not-working-on-ios-8-1-probably-lower-too
+        $('#vt-header').removeClass('vt-synced');
+      }
+      // WEB_EXCLUDE_END
     }
   }
 
@@ -281,7 +290,11 @@ function RoomViewModel () {
   };
 
   self.sync = function () {
-    $('#vt-header').removeClass('vt-synced');
+    // WEB_EXCLUDE_START
+    if (device.platform !== 'iOS') {
+      $('#vt-header').removeClass('vt-synced');
+    }
+    // WEB_EXCLUDE_END
     myEmit('enter room');
   };
 
