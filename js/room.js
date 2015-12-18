@@ -210,7 +210,7 @@ function RoomViewModel () {
   function myEmit (action, extraData) {
     extraData = extraData || {};
     var data = $.extend(extraData, {
-      v        : '1.1.0',
+      v        : '1.2.0',
       action   : action,
       room     : self.room(),
       person_id: self.people.me.id,
@@ -299,7 +299,7 @@ function RoomViewModel () {
   };
 
   self.refresh = function () {
-    window.location.reload();
+    connect();
   };
 
   // WEB_EXCLUDE_START
@@ -316,22 +316,6 @@ function RoomViewModel () {
     } else {
       self.goToRoom(additionalData.room);
     }
-
-  /* old plugin code:
-    if (foreground) {
-      if (data.room !== self.room()) {
-        if (data.voter) {
-          toast(data.room + ' - ' + data.poll_name + ': ' + data.voter + ' voted');
-        } else {
-          toast(data.room + ': New Poll. ' + data.poll_name + ' - ' + data.by);
-        }
-      }
-    } else {
-      // coldstart? (or also possibly app in bg.)
-      self.goToRoom(data.room);
-      // data.poll_id is available. Could use that to focus() new poll.
-    }
-*/
   });
 
   self.star = function () {
