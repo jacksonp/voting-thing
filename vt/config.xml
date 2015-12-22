@@ -5,6 +5,7 @@
     <author email="contact@votingthing.com" href="http://www.votingthing.com">Jackson</author>
     <content src="index.html" />
     <access origin="*" />
+    <allow-navigation href="gap://ready" />
     <universal-links>
         <host name="votingthing.com" />
         <host name="www.votingthing.com" />
