@@ -4,10 +4,5 @@ www/index.html
 www/js/*.min.js
 www/css/*.min.css
 vt/www
-
-vt/platforms/*
-!vt/platforms/android/
-vt/platforms/android/*
-!vt/platforms/android/AndroidManifest.xml
-vt/plugins/*
-!vt/plugins/android.json
+vt/platforms
+vt/plugins
