@@ -39,6 +39,9 @@
         },
         "phonegap-plugin-push": {
             "PACKAGE_NAME": "com.votingthing.app"
+        },
+        "cordova-plugin-wkwebview-engine": {
+            "PACKAGE_NAME": "com.votingthing.app"
         }
     },
     "dependent_plugins": {}
