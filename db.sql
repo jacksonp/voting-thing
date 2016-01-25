@@ -43,19 +43,19 @@ CREATE TABLE polls (
 
 CREATE OR REPLACE FUNCTION vt_normalize(TEXT)
   RETURNS TEXT AS
-  $func$
-  SELECT REGEXP_REPLACE(
-      REGEXP_REPLACE(
-          REPLACE(
-              LOWER(
-                  UNACCENT(
-                      TRIM($1)
-                  )
-              ), ' ', '-'
-          ), '[^0-9a-z-]', '', 'g'
-      ), E'-+', '-', 'g'
-  );
-  $func$
+$func$
+SELECT REGEXP_REPLACE(
+    REGEXP_REPLACE(
+        REPLACE(
+            LOWER(
+                UNACCENT(
+                    TRIM($1)
+                )
+            ), ' ', '-'
+        ), '[^0-9a-z-]', '', 'g'
+    ), E'-+', '-', 'g'
+);
+$func$
 LANGUAGE SQL
 IMMUTABLE
 RETURNS NULL ON NULL INPUT;
@@ -100,21 +100,9 @@ DECLARE
   p_room_id TEXT := get_room(p_room_name);
 BEGIN
 
-  WITH upsert AS (
-    UPDATE people
-    SET name = p_name, socket_id = p_socket_id
-    WHERE person_id = p_person_id AND room_id = p_room_id
-    RETURNING 1
-  )
   INSERT
-  INTO people (room_id, person_id, name, socket_id)
-    SELECT
-      p_room_id,
-      p_person_id,
-      p_name,
-      p_socket_id
-    WHERE NOT EXISTS(SELECT 1
-                     FROM upsert);
+  INTO people (room_id, person_id, name, socket_id) VALUES (p_room_id, p_person_id, p_name, p_socket_id)
+  ON CONFLICT ON CONSTRAINT people_pkey DO UPDATE SET name = p_name, socket_id = p_socket_id;
 
   RETURN QUERY
   SELECT
@@ -139,7 +127,7 @@ CREATE OR REPLACE FUNCTION create_poll(
   RETURNS polls.poll_id%TYPE AS $func$
 DECLARE
   p_room_id TEXT := get_room(p_room_name);
--- Adds room if not present
+  -- Adds room if not present
   ret_id    polls.poll_id%TYPE;
 BEGIN
 
@@ -183,37 +171,37 @@ CREATE OR REPLACE FUNCTION vote(
   OUT person_name people.name%TYPE,
   OUT poll_name   polls.name%TYPE
 ) AS
-  $func$
-  DECLARE
--- may be redundant, may be useful error-checking.
-    p_room_id TEXT := get_room(p_room_name);
-  BEGIN
+$func$
+DECLARE
+  -- may be redundant, may be useful error-checking.
+  p_room_id TEXT := get_room(p_room_name);
+BEGIN
 
-    SELECT name
-    INTO person_name
-    FROM people
-    WHERE person_id = p_person_id;
+  SELECT name
+  INTO person_name
+  FROM people
+  WHERE person_id = p_person_id;
 
-    IF NOT found
-    THEN
-      RAISE 'Voter not found.'
-      USING HINT = 'Voter not found.';
-    END IF;
+  IF NOT found
+  THEN
+    RAISE 'Voter not found.'
+    USING HINT = 'Voter not found.';
+  END IF;
 
-    UPDATE polls
-    SET votes = json_object_set_key(votes, p_person_id :: TEXT, json_object_set_key(p_vote, 'name', person_name))
-    WHERE poll_id = p_poll_id
-    RETURNING name
-      INTO poll_name;
+  UPDATE polls
+  SET votes = json_object_set_key(votes, p_person_id :: TEXT, json_object_set_key(p_vote, 'name', person_name))
+  WHERE poll_id = p_poll_id
+  RETURNING name
+    INTO poll_name;
 
-    IF NOT found
-    THEN
-      RAISE 'Poll not found.'
-      USING HINT = 'Poll not found.';
-    END IF;
+  IF NOT found
+  THEN
+    RAISE 'Poll not found.'
+    USING HINT = 'Poll not found.';
+  END IF;
 
-  END
-  $func$ LANGUAGE plpgsql;
+END
+$func$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION star(p_room_name      stars.room_id%TYPE,
                                 p_device_id      stars.device_id%TYPE,
@@ -221,7 +209,7 @@ CREATE OR REPLACE FUNCTION star(p_room_name      stars.room_id%TYPE,
 )
   RETURNS VOID AS $func$
 DECLARE
--- Adds room if not present
+  -- Adds room if not present
   p_room_id TEXT := get_room(p_room_name);
 BEGIN
 
