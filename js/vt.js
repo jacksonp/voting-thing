@@ -40,6 +40,7 @@
   // WEB_EXCLUDE_START
   document.addEventListener('deviceready', function () {
     deviceReady = true;
+    window.analytics && window.analytics.startTrackerWithId('UA-32489423-3');
     init();
   }, false);
 

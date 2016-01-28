@@ -7,6 +7,10 @@ function RoomViewModel () {
     socket,
     $headerBar = $('#vt-header');
 
+  function trackView (screenTitle) {
+    window.analytics && window.analytics.trackView(screenTitle);
+  }
+
   function toast (message) {
     if (!message) {
       return;
@@ -260,7 +264,8 @@ function RoomViewModel () {
 
   function setupDone () {
     self.isSetup(true);
-    self.room(self.roomInput());
+    var roomName = self.roomInput();
+    self.room(roomName);
     connect();
     self.room.subscribe(function (newRoomName) {
       self.polls.removeAll();
@@ -268,16 +273,19 @@ function RoomViewModel () {
       $('.new-poll-area').collapsible('collapse');
       self.sync();
       self.roomInput(newRoomName);
+      trackView('Room: ' + newRoomName);
     });
 
     $(document).on('scrollstop', checkScroll);
-
 
     $('#vt-panel').on('panelbeforeopen', function (event, ui) {
       setTimeout(function () {
         $('#room-input').select().focus();
       }, 300);
     });
+
+    trackView('Room: ' + roomName);
+
   }
 
   self.goToRoom = function (newRoomName) {
@@ -340,6 +348,7 @@ function RoomViewModel () {
   };
 
   self.jqmRefreshSetup = function (element) {
+    trackView('Setup page');
     $(element).enhanceWithin();
   };
 

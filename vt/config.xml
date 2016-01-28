@@ -4,7 +4,8 @@
     <description>Create polls and vote amongst friends.</description>
     <author email="contact@votingthing.com" href="http://www.votingthing.com">Jackson</author>
     <content src="index.html" />
-    <access origin="*" />
+    <access origin="http://*.google-analytics.com"/>
+    <access origin="https://*.google-analytics.com"/>
     <allow-navigation href="gap://ready" />
     <universal-links>
         <host name="votingthing.com" />
