@@ -3,12 +3,14 @@
   "version": "0.0.1",
   "description": "Voting Room",
   "dependencies": {
-    "apn": "^1.7.4",
-    "node-gcm": "^0.11.0",
-    "pg": "^4.4.0",
+    "apn": "^1.7.5",
+    "bufferutil": "^1.2.1",
+    "node-gcm": "^0.14.0",
+    "pg": "^4.4.4",
     "pg-query": "^0.11.0",
-    "semver": "^4.3.6",
-    "shortid": "^2.2.2",
-    "ws": "^0.8.0"
+    "semver": "^5.1.0",
+    "shortid": "^2.2.4",
+    "utf-8-validate": "^1.2.1",
+    "ws": "^1.0.1"
   }
 }
