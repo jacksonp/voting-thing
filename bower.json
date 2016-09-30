@@ -1,8 +1,8 @@
 {
   "name": "votingthing",
-  "version": "0.0.1",
+  "version": "1.3.2",
   "authors": [
-    "Jackson Pauls <contact@votingthing.com >"
+    "Jackson Pauls <jacksonpauls@gmail.com >"
   ],
   "license": "MIT",
   "private": true,
